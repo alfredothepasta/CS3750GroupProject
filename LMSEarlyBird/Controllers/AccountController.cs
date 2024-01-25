@@ -3,6 +3,7 @@ using LMSEarlyBird.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using LMSEarlyBird.Data;
 using LMSEarlyBird.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace LMSEarlyBird.Controllers
 {
@@ -138,12 +139,13 @@ namespace LMSEarlyBird.Controllers
 #endif
             } else
             {
+                TagBuilder tag = new TagBuilder("ul");
                 // Get the error message from the newUserResponse
                 string error = newUserResponse.Errors.First<IdentityError>().Description;
                 ModelState.AddModelError("PasswordValidationError", "Password Requirements not met:");
                 foreach(IdentityError errorMessage in newUserResponse.Errors)
                 {
-                    ModelState.AddModelError(errorMessage.Code, errorMessage.Description);
+                    ModelState.AddModelError("PasswordValidationError", errorMessage.Description);
                 }
                 return View();
             }
@@ -151,6 +153,7 @@ namespace LMSEarlyBird.Controllers
 
             return RedirectToAction("Login", "Account");
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Logout()

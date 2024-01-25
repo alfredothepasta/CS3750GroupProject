@@ -46,13 +46,7 @@
                         <span><b></b>
                             @if (ViewData.ModelState.ContainsKey("PasswordValidationError"))
                             {
-                                @Html.ValidationMessage("PasswordValidationError", "", new { @class = "text-danger" })
-                                <ul>
-                                    @Html.ValidationMessage("PasswordTooShort", "", new { @class = "text-danger" }, "li")
-                                    @Html.ValidationMessage("PasswordRequiresDigit", "", new { @class = "text-danger" }, "li")
-                                    @Html.ValidationMessage("PasswordRequiresUpper", "", new { @class = "text-danger" }, "li")
-                                    @Html.ValidationMessage("PasswordRequiresNonAlphanumeric", "", new { @class = "text-danger" }, "li")
-                                </ul>
+                                @Html.ValidationSummary(false, "", new { @class = "text-danger" })
                             }
 
                         </span>

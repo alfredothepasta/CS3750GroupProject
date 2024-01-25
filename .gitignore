@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Ignore the appsettings.json
+appsettings.json
+/LMSEarlyBird/appsettings.json

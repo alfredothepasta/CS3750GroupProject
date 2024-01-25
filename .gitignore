@@ -363,5 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 
 # Ignore the appsettings.json
-appsettings.json
 /LMSEarlyBird/appsettings.json

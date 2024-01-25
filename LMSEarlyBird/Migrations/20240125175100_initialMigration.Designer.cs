@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LMSEarlyBird.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240122020944_AddFirstLastName")]
-    partial class AddFirstLastName
+    [Migration("20240125175100_initialMigration")]
+    partial class initialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -127,12 +127,25 @@ namespace LMSEarlyBird.Controllers
             string password = registerViewModel.Password;
             var newUserResponse = await _userManager.CreateAsync(newUser, password);
 
+            
+
             if(newUserResponse.Succeeded)
             {
 #if DEBUG
+
 #else
                 await _userManager.AddToRoleAsync(newUser, UserRoles.User);
 #endif
+            } else
+            {
+                // Get the error message from the newUserResponse
+                string error = newUserResponse.Errors.First<IdentityError>().Description;
+                ModelState.AddModelError("PasswordValidationError", "Password Requirements not met:");
+                foreach(IdentityError errorMessage in newUserResponse.Errors)
+                {
+                    ModelState.AddModelError(errorMessage.Code, errorMessage.Description);
+                }
+                return View();
             }
 
 

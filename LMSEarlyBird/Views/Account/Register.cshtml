@@ -1,6 +1,7 @@
 ﻿@using LMSEarlyBird.ViewModels
 @model RegisterViewModel
 
+
 @{
     ViewData["Title"] = "Sign up";
 }
@@ -42,6 +43,19 @@
                         <label asp-for="Password" class="control-label"></label>
                         <input asp-for="Password" class="form-control" />
                         <span asp-validation-for="Password" class="text-danger"></span>
+                        <span><b></b>
+                            @if (ViewData.ModelState.ContainsKey("PasswordValidationError"))
+                            {
+                                @Html.ValidationMessage("PasswordValidationError", "", new { @class = "text-danger" })
+                                <ul>
+                                    @Html.ValidationMessage("PasswordTooShort", "", new { @class = "text-danger" }, "li")
+                                    @Html.ValidationMessage("PasswordRequiresDigit", "", new { @class = "text-danger" }, "li")
+                                    @Html.ValidationMessage("PasswordRequiresUpper", "", new { @class = "text-danger" }, "li")
+                                    @Html.ValidationMessage("PasswordRequiresNonAlphanumeric", "", new { @class = "text-danger" }, "li")
+                                </ul>
+                            }
+
+                        </span>
                     </div>
                     <div class="form-group">
                         <label asp-for="ConfirmPassword" class="control-label"></label>

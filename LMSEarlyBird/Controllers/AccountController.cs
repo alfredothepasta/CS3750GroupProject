@@ -127,7 +127,7 @@ namespace LMSEarlyBird.Controllers
             };
 
             // verify Birthday and age > 16
-            // Check if it's 16 years later, then check if it is or is past their birthday
+            // Check if it's 16 years later, then check if it is or is past their birthday if it is exacly 16 years later
             var yearDifference = cuurentDate.Year - newUser.Birthday.Year;
             var dayDifference = cuurentDate.DayOfYear - newUser.Birthday.DayOfYear;
             if(yearDifference < 16)

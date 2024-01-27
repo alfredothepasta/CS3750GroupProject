@@ -103,6 +103,7 @@ namespace LMSEarlyBird.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel registerViewModel)
         {
+            DateTime cuurentDate = DateTime.Now;
             if (!(ModelState.IsValid)) return View(registerViewModel);
 
             // checks the database for a user with the email address
@@ -121,10 +122,33 @@ namespace LMSEarlyBird.Controllers
                 Email = registerViewModel.EmailAddress,
                 UserName = registerViewModel.EmailAddress,
                 FirstName = registerViewModel.FirstName,
-                LastName = registerViewModel.LastName
+                LastName = registerViewModel.LastName,
+                Birthday = registerViewModel.BirthDate
             };
 
-            // 
+            // verify Birthday and age > 16
+            // Check if it's 16 years later, then check if it is or is past their birthday
+            var yearDifference = cuurentDate.Year - newUser.Birthday.Year;
+            var dayDifference = cuurentDate.DayOfYear - newUser.Birthday.DayOfYear;
+            if(yearDifference < 16)
+            {
+                ModelState.AddModelError("AgeError", "You must be at least 16 years old to create an account.");
+                return View();
+            } else if (yearDifference == 16 && dayDifference < 0)
+            {
+                ModelState.AddModelError("AgeError", "You must be at least 16 years old to create an account.");
+                return View();
+            }
+           
+
+            // get the selected role and validate it
+            var role = registerViewModel.UserRole;
+            if(role != "teacher" && role != "student")
+            {
+                ModelState.AddModelError("invalidRole", "Must select either teacher or student");
+                return View();
+            }
+            // attempts to do password
             string password = registerViewModel.Password;
             var newUserResponse = await _userManager.CreateAsync(newUser, password);
 
@@ -132,11 +156,7 @@ namespace LMSEarlyBird.Controllers
 
             if(newUserResponse.Succeeded)
             {
-#if DEBUG
-
-#else
-                await _userManager.AddToRoleAsync(newUser, UserRoles.User);
-#endif
+                await _userManager.AddToRoleAsync(newUser, role);
             } else
             {
                 TagBuilder tag = new TagBuilder("ul");

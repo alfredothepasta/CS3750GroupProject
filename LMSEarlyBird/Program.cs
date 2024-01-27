@@ -1,5 +1,6 @@
 using LMSEarlyBird.Data;
 using LMSEarlyBird.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -17,9 +18,18 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // adds the identitiy framework
 builder.Services.AddIdentity<AppUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddMemoryCache();
+builder.Services.AddSession();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
 
 
 var app = builder.Build();
+
+if (args.Length == 1 && args[0].ToLower() == "seeddata")
+{
+    await Seed.SeedUsersAndRolesAsync(app);
+    //Seed.SeedData(app);
+}
 
 
 // Configure the HTTP request pipeline.

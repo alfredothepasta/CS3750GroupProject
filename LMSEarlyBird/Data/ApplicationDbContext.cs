@@ -10,5 +10,7 @@ namespace LMSEarlyBird.Data
         {
 
         }
+
+        public DbSet<Address> Addresses { get; set; }
     }
 }

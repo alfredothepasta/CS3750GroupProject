@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using LMSEarlyBird.Data;
+using System.ComponentModel.DataAnnotations;
 
 namespace LMSEarlyBird.ViewModels
 {
@@ -25,6 +26,12 @@ namespace LMSEarlyBird.ViewModels
         [DataType(DataType.Password)]
         [Compare("Password", ErrorMessage = "Password do not match")]
         public string ConfirmPassword { get; set; }
+        [Display(Name = "Birth Date")]
+        [Required(ErrorMessage = "Birth Date is Required")]
+        public DateTime BirthDate { get; set; }
+        [Display(Name = "User Type")]
+        [Required(ErrorMessage = "Please choose either student or teacher")]
+        public string UserRole { get; set; }
 
     }
 }

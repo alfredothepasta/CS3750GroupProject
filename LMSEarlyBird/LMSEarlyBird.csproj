@@ -16,9 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Interfaces\" />
     <Folder Include="Migrations\" />
     <Folder Include="wwwroot\images\" />
+    <Folder Include="Repository\" />
   </ItemGroup>
 
 </Project>

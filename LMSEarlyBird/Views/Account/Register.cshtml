@@ -40,6 +40,18 @@
                         <span asp-validation-for="LastName" class="text-danger"></span>
                     </div>
                     <div class="form-group">
+                        <label asp-for="BirthDate" class="control-label"></label>
+                        <input asp-for="BirthDate" class="form-control" type="date" />
+                        <span asp-validation-for="BirthDate" class="text-danger"></span>
+                        <span><b></b>
+                            @if (ViewData.ModelState.ContainsKey("AgeError"))
+                            {
+                                @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+                            }
+                        </span>
+                        
+                    </div>
+                    <div class="form-group">
                         <label asp-for="Password" class="control-label"></label>
                         <input asp-for="Password" class="form-control" />
                         <span asp-validation-for="Password" class="text-danger"></span>
@@ -56,6 +68,23 @@
                         <input asp-for="ConfirmPassword" class="form-control" />
                         <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                     </div>
+                    <div class="form-group">
+                        <label asp-for="UserRole" class="control-label"></label>
+                        <select asp-for="UserRole" class="form-control">
+                            <option value="student">Student</option>
+                            <option value="teacher">Teacher</option>
+                        </select>
+                        <span asp-validation-for="UserRole" class="text-danger"></span>
+                        <span>
+                                <b></b>
+                            @if (ViewData.ModelState.ContainsKey("invalidRole"))
+                            {
+                                @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+                            }
+                        </span>
+                        
+                    </div>
+                    
 
                     <div class="form-group">
                         <input class="btn btn-outline-success float-right" type="submit" value="Sign up" />

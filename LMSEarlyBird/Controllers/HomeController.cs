@@ -64,6 +64,15 @@ public async Task<IActionResult> Index()
         }
 
         /// <summary>
+        /// Returns the Calendar page
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult Calendar()
+        {
+            return View();
+        }
+
+        /// <summary>
         /// Returns the error page
         /// </summary>
         /// <returns></returns>

@@ -366,3 +366,4 @@ FodyWeavers.xsd
 /LMSEarlyBird/appsettings.json
 /LMSEarlyBird/Data/Seed.cs
 /LMSEarlyBird/Migrations
+/LMSEarlyBird/appsettings.Development.json

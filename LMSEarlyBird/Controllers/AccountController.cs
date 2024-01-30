@@ -74,13 +74,13 @@ namespace LMSEarlyBird.Controllers
                     var result = await _signInManager.PasswordSignInAsync(user, loginViewModel.Password, false, false);
                     if (result.Succeeded)
                     {
-                        return RedirectToAction("Index", "Home");
+                        return RedirectToAction("Dashboard", "User");
                     }
                 }
             }
             
             // user not found
-            TempData["Error"] = "Wrong credentials. Please try again.";
+            TempData["Error"] = "Invalid credentials. Please try again.";
             return View(loginViewModel);
         }
 

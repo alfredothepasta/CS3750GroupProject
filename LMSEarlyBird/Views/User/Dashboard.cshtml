@@ -1,0 +1,32 @@
+﻿@model LMSEarlyBird.Models.AppUser
+@{
+    ViewData["Title"] = "Dashboard";
+
+}
+
+
+<div class="text-center">
+    <h1 class="display-4">
+        Welcome @Model.FirstName
+        @Model.LastName
+    </h1>
+</div>
+
+<div class="sideMenu">
+    <img src="images/HomeIcon.png" alt="Home Image" />
+</div>
+
+@for(int i = 0; i < 4; i++)
+{
+    <div class="assignedClass">
+        <h3>
+            CSS 3750 Advanced Database
+        </h3>
+        <p>
+            Instructor Arpit Christi
+        </p>
+        <p>
+            Times: Tues/Thurs 09:30-11:20
+        </p>
+    </div>
+}

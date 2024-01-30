@@ -31,8 +31,8 @@ body {
 .assignedClass {
     float: left;
     width: 40%;
-    height: 250px;
-    margin: 5px;
-    padding-top: 56.25%;
+    height: 35%;
+    margin-right: 50px;
+    margin-bottom: 50px;
     background-color: azure;
 }

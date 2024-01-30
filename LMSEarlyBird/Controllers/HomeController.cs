@@ -34,24 +34,25 @@ namespace LMSEarlyBird.Controllers
         }
 
         /// <summary>
-        /// Handles the logic for the Index page
-        /// </summary>
-        /// <returns></returns>
-        public async Task<IActionResult> Index()
+/// Handles the logic for the Index page.
+/// Redirects to Login page if the user is not authenticated.
+/// </summary>
+/// <returns></returns>
+public async Task<IActionResult> Index()
+{
+    // Checks to see if there is a current signed in user
+    if (_contextAccessor.HttpContext.User.Identity.IsAuthenticated)
+    {
+        var currentUser = _contextAccessor.HttpContext?.User.GetUserId();
+        if (currentUser != null)
         {
-            // Checks to see if there is a current signed in user
-            if (_contextAccessor.HttpContext.User.Identity.IsAuthenticated)
-            {
-                var currentUser = _contextAccessor.HttpContext?.User.GetUserId();
-                if (currentUser != null)
-                {
-                    AppUser userData = await _context.Users.FindAsync(currentUser);
-                    return View(userData);
-                }
-            }
-
-            return View();
+            AppUser userData = await _context.Users.FindAsync(currentUser);
+            return View(userData);
         }
+    }
+
+    return RedirectToAction(nameof(AccountController.Login), "Account");
+}
 
         /// <summary>
         /// Returns the Privacy page

@@ -1,5 +1,6 @@
 using LMSEarlyBird.Data;
 using LMSEarlyBird.Models;
+using LMSEarlyBird.ViewModels;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
@@ -48,7 +49,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+
+
+name: "default",
+pattern: "{controller=Home}/{action=Index}/{id?}");
+//pattern: "{controller=User}/{action=Dashboard}/{id?}");
 
 app.Run();

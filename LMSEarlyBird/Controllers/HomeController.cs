@@ -47,7 +47,7 @@ public async Task<IActionResult> Index()
         if (currentUser != null)
         {
             AppUser userData = await _context.Users.FindAsync(currentUser);
-            return View(userData);
+            return RedirectToAction(nameof(UserController.Dashboard), "User");
         }
     }
 

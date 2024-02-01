@@ -27,6 +27,10 @@ namespace LMSEarlyBird.Controllers
             _contextAccessor = contextAccessor;
         }
 
+        /// <summary>
+        /// Returns the Dashboard page with login information
+        /// </summary>
+        /// <returns></returns>
         public async Task<IActionResult> Dashboard()
         {
             // Checks to see if there is a current signed in user
@@ -41,6 +45,15 @@ namespace LMSEarlyBird.Controllers
             }
 
             return View("Account", "Login");
+        }
+
+        /// <summary>
+        /// Returns the Calendar page
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult Calendar()
+        {
+            return View();
         }
     }
 }

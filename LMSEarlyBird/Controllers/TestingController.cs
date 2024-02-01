@@ -20,18 +20,12 @@ namespace LMSEarlyBird.Controllers
             _contextAccessor = contextAccessor;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             var userID = _contextAccessor.HttpContext.User.GetUserId();
-            Address address = new Address();
-            address.UserID = userID;
-            address.LineOne = "1234 Place Street";
-            address.ZipCode = 123456;
-            address.City = "Townsville";
-            address.State = "State";
-            _addressRepository.addUserAddress(address);
+            Address addresss = await _addressRepository.getUserAddress(userID);
 
-            return View();
+            return View(addresss);
         }
     }
 }

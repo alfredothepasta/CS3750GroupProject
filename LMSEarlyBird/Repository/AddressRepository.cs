@@ -20,9 +20,14 @@ namespace LMSEarlyBird.Repository
             return Save();
         }
 
-        public async Task<IEnumerable<Address>> getUserAddress(string userID)
+        public async Task<Address> getUserAddress(string userID)
         {
-            return await _context.Addresses.Where(x => x.UserID == userID).ToListAsync();
+            var returnAddress =  await _context.Addresses.FirstOrDefaultAsync(x => x.UserID == userID);
+            if (returnAddress == null)
+            {
+                throw new Exception("No address found for user");
+            }
+            return returnAddress;
         }
 
         public bool removeUserAddress(Address address)

@@ -34,34 +34,48 @@ namespace LMSEarlyBird.Controllers
         }
 
         /// <summary>
-/// Handles the logic for the Index page.
-/// Redirects to Login page if the user is not authenticated.
-/// </summary>
-/// <returns></returns>
-public async Task<IActionResult> Index()
-{
-    // Checks to see if there is a current signed in user
-    if (_contextAccessor.HttpContext.User.Identity.IsAuthenticated)
-    {
-        var currentUser = _contextAccessor.HttpContext?.User.GetUserId();
-        if (currentUser != null)
-        {
-            AppUser userData = await _context.Users.FindAsync(currentUser);
-            return RedirectToAction(nameof(UserController.Dashboard), "User");
-        }
-    }
 
-    return RedirectToAction(nameof(AccountController.Login), "Account");
-}
+        /// Handles the logic for the Index page.
+        /// Redirects to Login page if the user is not authenticated.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IActionResult> Index()
+        {
+            // Checks to see if there is a current signed in user
+            if (_contextAccessor.HttpContext.User.Identity.IsAuthenticated)
+            {
+                var currentUser = _contextAccessor.HttpContext?.User.GetUserId();
+                if (currentUser != null)
+                {
+                    AppUser userData = await _context.Users.FindAsync(currentUser);
+                    return RedirectToAction(nameof(UserController.Dashboard), "User");
+                }
+            }
+
+            return RedirectToAction(nameof(AccountController.Login), "Account");
+        }
 
         /// <summary>
         /// Returns the Privacy page
+
         /// </summary>
         /// <returns></returns>
-        public IActionResult Privacy()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            // Checks to see if there is a current signed in user
+            if (_contextAccessor.HttpContext.User.Identity.IsAuthenticated)
+            {
+                var currentUser = _contextAccessor.HttpContext?.User.GetUserId();
+                if (currentUser != null)
+                {
+                    AppUser userData = await _context.Users.FindAsync(currentUser);
+                    return RedirectToAction("Dashboard", "User", userData);
+                }
+            }
+
+            return RedirectToAction(nameof(AccountController.Login), "Account");
         }
+
 
         /// <summary>
         /// Returns the error page

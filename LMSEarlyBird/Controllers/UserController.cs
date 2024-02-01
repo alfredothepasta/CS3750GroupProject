@@ -28,7 +28,7 @@ namespace LMSEarlyBird.Controllers
         }
 
         /// <summary>
-        /// Returns the Dashboard page with login information
+        /// Returns the Dashboard page with login information if correct login, else returns to login with errors
         /// </summary>
         /// <returns></returns>
         public async Task<IActionResult> Dashboard()

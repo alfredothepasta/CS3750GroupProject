@@ -20,19 +20,3 @@ html {
 body {
   margin-bottom: 60px;
 }
-
-.sideMenu {
-    float: left;
-    width: 10%;
-    height: 100vh;
-    background-color: cornflowerblue;
-}
-
-.assignedClass {
-    float: left;
-    width: 40%;
-    height: 35%;
-    margin-right: 50px;
-    margin-bottom: 50px;
-    background-color: azure;
-}

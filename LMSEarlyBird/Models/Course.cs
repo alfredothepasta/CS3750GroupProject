@@ -10,6 +10,7 @@ namespace LMSEarlyBird.Models
         public int id { get; set; }
         [ForeignKey("Department")]
         public int DepartmentId { get; set; }
+        public Department Department { get; set; }
         public string CourseName { get; set; }
         public string CourseNumber { get; set; }
         public int CreditHours { get; set; }

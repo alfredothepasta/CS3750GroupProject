@@ -194,6 +194,8 @@ namespace LMSEarlyBird.Migrations
 
                     b.HasKey("id");
 
+                    b.HasIndex("DepartmentId");
+
                     b.HasIndex("RoomId");
 
                     b.ToTable("Courses");
@@ -420,11 +422,19 @@ namespace LMSEarlyBird.Migrations
 
             modelBuilder.Entity("LMSEarlyBird.Models.Course", b =>
                 {
+                    b.HasOne("LMSEarlyBird.Models.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("LMSEarlyBird.Models.Room", "Room")
                         .WithMany()
                         .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Department");
 
                     b.Navigation("Room");
                 });

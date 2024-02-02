@@ -2,11 +2,11 @@ using LMSEarlyBird.Models;
 
 namespace LMSEarlyBird.Interfaces
 {
-    public interface ICoarseRepository
+    public interface ICourseRepository
     {
         Task<IEnumerable<Course>> GetAllCourses();
 
-        Task<Course> GetCourseId(int id);
+        Task<Course> GetCourse(int id);
 
         bool Add(Course course);
         bool Update(Course course);

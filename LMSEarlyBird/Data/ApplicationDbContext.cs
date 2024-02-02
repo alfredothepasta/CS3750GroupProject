@@ -31,6 +31,9 @@ namespace LMSEarlyBird.Data
             builder.Entity<InstructorCourse>().HasOne(c => c.User).WithMany(c => c.InstructorCourses).HasForeignKey(c => c.UserId);
             builder.Entity<InstructorCourse>().HasOne(c => c.Course).WithMany(c => c.InstructorCourses).HasForeignKey(c => c.CourseId);
 
+            // One to One relationship between users and addresses
+            builder.Entity<Address>().HasOne(x => x.User).WithOne(x => x.Address).HasForeignKey<Address>(a => a.UserID);
+
 
             base.OnModelCreating(builder);
         }

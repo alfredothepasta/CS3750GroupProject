@@ -10,7 +10,6 @@ namespace LMSEarlyBird.Models
         public string LastName { get; set; } = string.Empty;
 
         public DateTime Birthday { get; set; }
-        
         public int? AddressId { get; set; }
         public Address Address { get; set; }
 

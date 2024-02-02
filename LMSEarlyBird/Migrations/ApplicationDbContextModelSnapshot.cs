@@ -48,12 +48,15 @@ namespace LMSEarlyBird.Migrations
 
                     b.Property<string>("UserID")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("ZipCode")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserID")
+                        .IsUnique();
 
                     b.ToTable("Addresses");
                 });
@@ -191,6 +194,8 @@ namespace LMSEarlyBird.Migrations
 
                     b.HasKey("id");
 
+                    b.HasIndex("RoomId");
+
                     b.ToTable("Courses");
                 });
 
@@ -215,6 +220,21 @@ namespace LMSEarlyBird.Migrations
                     b.ToTable("Departments");
                 });
 
+            modelBuilder.Entity("LMSEarlyBird.Models.InstructorCourse", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "CourseId");
+
+                    b.HasIndex("CourseId");
+
+                    b.ToTable("instructorCourses");
+                });
+
             modelBuilder.Entity("LMSEarlyBird.Models.Room", b =>
                 {
                     b.Property<int>("Id")
@@ -234,7 +254,24 @@ namespace LMSEarlyBird.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BuildingID");
+
                     b.ToTable("Rooms");
+                });
+
+            modelBuilder.Entity("LMSEarlyBird.Models.StudentCourse", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "CourseId");
+
+                    b.HasIndex("CourseId");
+
+                    b.ToTable("StudentCourses");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -370,6 +407,77 @@ namespace LMSEarlyBird.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("LMSEarlyBird.Models.Address", b =>
+                {
+                    b.HasOne("LMSEarlyBird.Models.AppUser", "User")
+                        .WithOne("Address")
+                        .HasForeignKey("LMSEarlyBird.Models.Address", "UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("LMSEarlyBird.Models.Course", b =>
+                {
+                    b.HasOne("LMSEarlyBird.Models.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("LMSEarlyBird.Models.InstructorCourse", b =>
+                {
+                    b.HasOne("LMSEarlyBird.Models.Course", "Course")
+                        .WithMany("InstructorCourses")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LMSEarlyBird.Models.AppUser", "User")
+                        .WithMany("InstructorCourses")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("LMSEarlyBird.Models.Room", b =>
+                {
+                    b.HasOne("LMSEarlyBird.Models.Building", "Building")
+                        .WithMany()
+                        .HasForeignKey("BuildingID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Building");
+                });
+
+            modelBuilder.Entity("LMSEarlyBird.Models.StudentCourse", b =>
+                {
+                    b.HasOne("LMSEarlyBird.Models.Course", "Course")
+                        .WithMany("StudentCourses")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LMSEarlyBird.Models.AppUser", "User")
+                        .WithMany("StudentCourses")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -419,6 +527,23 @@ namespace LMSEarlyBird.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("LMSEarlyBird.Models.AppUser", b =>
+                {
+                    b.Navigation("Address")
+                        .IsRequired();
+
+                    b.Navigation("InstructorCourses");
+
+                    b.Navigation("StudentCourses");
+                });
+
+            modelBuilder.Entity("LMSEarlyBird.Models.Course", b =>
+                {
+                    b.Navigation("InstructorCourses");
+
+                    b.Navigation("StudentCourses");
                 });
 #pragma warning restore 612, 618
         }

@@ -7,12 +7,10 @@ namespace LMSEarlyBird.Models
     
     public class StudentCourse
     {
-        [ForeignKey("User")]
-        [Column(Order = 0)]
         public string UserId { get; set; }
-        [ForeignKey("Course")]
-        [Column(Order = 1)]
-        
+        public AppUser User { get; set; }
+
         public int CourseId { get; set; }
+        public Course Course { get; set; }
     }
 }

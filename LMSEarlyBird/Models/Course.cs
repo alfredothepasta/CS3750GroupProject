@@ -16,8 +16,13 @@ namespace LMSEarlyBird.Models
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
         public string DaysOfWeek { get; set; }
-        [ForeignKey("Room")]
+        
         public int RoomId { get; set; }
+        public Room Room { get; set; }
+
+        //relationships
+        public List<StudentCourse> StudentCourses { get; set; }
+        public List<InstructorCourse> InstructorCourses { get; set; }
 
     }
 }

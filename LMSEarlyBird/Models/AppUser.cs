@@ -11,9 +11,11 @@ namespace LMSEarlyBird.Models
 
         public DateTime Birthday { get; set; }
         
-        [ForeignKey("Address")]
         public int? AddressId { get; set; }
+        public Address Address { get; set; }
 
-        // Has a get set for email, phone number, etc. inherited from IdentityUser
+        // Relationships
+        public List<StudentCourse> StudentCourses { get; set; }
+        public List<InstructorCourse> InstructorCourses { get; set; }
     }
 }

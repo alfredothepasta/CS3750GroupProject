@@ -14,5 +14,6 @@ namespace LMSEarlyBird.Models
         public int ZipCode { get; set; }
         [ForeignKey("AppUser")]
         public string UserID { get; set; }
+        public AppUser User { get; set; }
     }
 }

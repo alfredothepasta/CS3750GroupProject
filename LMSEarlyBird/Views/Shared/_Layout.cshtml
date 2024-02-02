@@ -33,7 +33,7 @@
                             @if(User.IsInRole(LMSEarlyBird.Data.UserRoles.Student))
                             {
                                 <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Register</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Student" asp-action="Registration">Register</a>
                                 </li>
                             }
                             else if (User.IsInRole(LMSEarlyBird.Data.UserRoles.Teacher))

@@ -1,4 +1,55 @@
-@model LMSEarlyBird.Models.AppUser
+@using LMSEarlyBird.ViewModels
+@model List<RegistrationViewModel>
+
 @{
     ViewData["Title"] = "Dashboard";
 }
+
+<h1>Register For Classes</h1>
+
+@* <p>
+    <a asp-page="Create">Create New</a>
+</p> *@
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model[0].CourseNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].CourseName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].CreditHours)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].StartTime)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.CourseNumber)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CourseName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreditHours)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StartTime)
+            </td>
+            <td>
+                @if(!item.IsRegistered)
+                {
+                    <a class="btn btn-primary">Register</a>
+                }          
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

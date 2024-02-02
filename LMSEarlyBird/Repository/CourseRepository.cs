@@ -12,19 +12,17 @@ namespace LMSEarlyBird.Repository{
         {
             _context = context;
         }
-        public bool AddCourse(Course course)
-        {
-            throw new NotImplementedException();
-        }
 
         public bool Add(Course course)
         {
-            throw new NotImplementedException();
+            _context.Add(course);
+            return Save();
         }
 
         public bool Delete(Course course)
         {
-            throw new NotImplementedException();
+            _context.Remove(course);
+            return Save();
         }
 
         public async Task<IEnumerable<Course>> GetAllCourses()

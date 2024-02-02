@@ -1,0 +1,11 @@
+using LMSEarlyBird.Interfaces;
+using LMSEarlyBird.Models;
+using LMSEarlyBird.Data;
+using Microsoft.EntityFrameworkCore;
+
+namespace LMSEarlyBird.Repository{
+    public class ICourseRepository : ICourseRepository
+    {
+        
+    }
+}

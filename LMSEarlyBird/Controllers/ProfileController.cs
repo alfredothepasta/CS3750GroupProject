@@ -37,17 +37,17 @@ namespace LMSEarlyBird.Controllers
         public async Task<IActionResult> Profiles()
         {
             var userID = _contextAccessor.HttpContext.User.GetUserId();
-            Address addresss = await _addressRepository.getUserAddress(userID);
+            Address address = await _addressRepository.getUserAddress(userID);
 
-            return View(addresss);
+            return View(address);
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Tester()
         {
             var userID = _contextAccessor.HttpContext.User.GetUserId();
-            Address addresss = await _addressRepository.getUserAddress(userID);
+            Address address = await _addressRepository.getUserAddress(userID);
 
-            return View(addresss);
+            return View(address);
         }
 
 

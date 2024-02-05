@@ -35,6 +35,11 @@ namespace LMSEarlyBird.Repository{
             return await _context.Courses.FindAsync(id);
         }
 
+        public async Task<List<Course>> GetCoursesByTeacher(string teacherId)
+        {
+            return await _context.Courses.Where(c => c.InstructorCourses.Where(i => i.UserId == teacherId).Any()).ToListAsync();
+        }
+
         public bool Save()
         {
             var saved = _context.SaveChanges();

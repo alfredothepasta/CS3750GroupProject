@@ -1,0 +1,67 @@
+﻿@using LMSEarlyBird.Models  
+@model List<Course>
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<h1>Your Courses</h1>
+
+@* <p>
+    <a asp-page="Create">Create New</a>
+</p> *@
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model[0].CourseNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model[0].CourseName)
+            </th>
+            <th>
+				Details
+            </th>
+			<th>
+				Edit
+            </th>   
+            <th>
+				Delete
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CourseNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CourseName)
+                </td>
+                <td>
+					<a href="">Details</a>
+                </td>
+                <td>
+                    <a class="btn btn-primary">Edit</a>
+                </td>    
+                <td>
+                    <a class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+		<tr>
+			<td>
+            </td>
+            <td>
+            </td>
+            <td>
+            </td>
+            <td>
+            </td>
+            <td>
+                <a class="btn btn-success" asp-controller="Instructor" asp-action="AddCourse">Create</a>
+            </td>
+    </tbody>
+</table>

@@ -34,7 +34,7 @@ namespace LMSEarlyBird.Controllers
         public async Task<IActionResult> CourseList()
         {
             // check if the user is logged in to an account with the instructor role
-            if (!User.IsInRole(UserRoles.Teacher))
+            if (isNotInstructor())
             {
                 return View("User", "Dashboard");
             }
@@ -48,6 +48,24 @@ namespace LMSEarlyBird.Controllers
 
             return View(courses);
 
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> AddCourse()
+        {
+            // check if the user is logged in to an account with the instructor role
+            if (isNotInstructor())
+            {
+                return View("User", "Dashboard");
+            }
+
+            
+
+            return View();
+        }
+
+        private bool isNotInstructor() {
+            return !User.IsInRole(UserRoles.Teacher);
         }
     }
 }

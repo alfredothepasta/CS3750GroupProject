@@ -7,58 +7,126 @@
 @model AddCourseViewModel
 
 <div class="row">
-    <div class="col-md-8 offset-2">
-        <form asp-action="Register">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+	<div class="col-md-8 offset-2">
+		<form asp-action="AddCourse">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <div class="form-group">
-                <label asp-for="Department" class="control-label"></label>
-                <select asp-for="Department" class="form-control" />
-                <span asp-validation-for="Department" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CourseNumber" class="control-label"></label>
-                <input asp-for="CourseNumber" class="form-control" />
-                <span asp-validation-for="CourseNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CourseName" class="control-label"></label>
-                <input asp-for="CourseName" class="form-control" />
-                <span asp-validation-for="CourseName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreditHours" class="control-label"></label>
-                <input asp-for="CreditHours" class="form-control" />
-                <span asp-validation-for="CreditHours" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="StartTime" class="control-label"></label>
-                <input asp-for="StartTime" class="form-control" />
-                <span asp-validation-for="StartTime" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="EndTime" class="control-label"></label>
-                <input asp-for="EndTime" class="form-control" />
-                <span asp-validation-for="EndTime" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="EndTime" class="control-label"></label>
-                <input asp-for="EndTime" class="form-control" />
-                <span asp-validation-for="EndTime" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DaysOfWeek" class="control-label"></label>
-                <input asp-for="DaysOfWeek" class="form-control" />
-                <span asp-validation-for="DaysOfWeek" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Building" class="control-label"></label>
-                <input asp-for="Building" class="form-control" />
-                <span asp-validation-for="Building" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Room" class="control-label"></label>
-                <input asp-for="Room" class="form-control" />
-                <span asp-validation-for="Room" class="text-danger"></span>
-            </div>
-        </form>
+			<div class="form-group">
+				<label asp-for="Department" class="control-label"></label>
+				<select asp-for="Department" class="form-control">
+				@foreach (var department in ViewBag.Departments)
+				{
+					<option value="@department.Id">@department.DeptCode</option>
+				}
+				</select>
+				<span asp-validation-for="Department" class="text-danger"></span>
+			</div>
+
+			<div class="form-group">
+				<label asp-for="CourseNumber" class="control-label"></label>
+				<input asp-for="CourseNumber" class="form-control" />
+				<span asp-validation-for="CourseNumber" class="text-danger"></span>
+			</div>
+
+			<div class="form-group">
+				<label asp-for="CourseName" class="control-label"></label>
+				<input asp-for="CourseName" class="form-control" />
+				<span asp-validation-for="CourseName" class="text-danger"></span>
+			</div>
+
+			<div class="form-group">
+				<label asp-for="CreditHours" class="control-label"></label>
+				<input asp-for="CreditHours" class="form-control" />
+				<span asp-validation-for="CreditHours" class="text-danger"></span>
+			</div>
+
+			<div class="form-group">
+				<label asp-for="StartTime" class="control-label"></label>
+				<input asp-for="StartTime" class="form-control" type="time" />
+				<span asp-validation-for="StartTime" class="text-danger"></span>
+			</div>
+
+			<div class="form-group">
+				<label asp-for="EndTime" class="control-label"></label>
+				<input asp-for="EndTime" class="form-control" type="time" />
+				<span asp-validation-for="EndTime" class="text-danger"></span>
+			</div>
+
+			<div class="form-group">
+				<label class="control-label">Days Of Week</label>
+				
+				<div class="form-check">
+					<input asp-for="DayOfWeekM" class="form-check-input" type="checkbox" id="flexCheckMonday">
+					<label class="form-check-label" for="flexCheckMonday">Monday</label>
+				</div>
+				
+				<div class="form-check">
+					<input asp-for="DayOfWeekT" class="form-check-input" type="checkbox" id="flexCheckTuesday">
+					<label class="form-check-label" for="flexCheckTuesday">Tuesday</label>
+				</div>
+				
+				<div class="form-check">
+					<input asp-for="DayOfWeekW" class="form-check-input" type="checkbox" id="flexCheckWednesday">
+					<label class="form-check-label" for="flexCheckWednesday">Wednesday</label>
+				</div>
+				
+				<div class="form-check">
+					<input asp-for="DayOfWeekR" class="form-check-input" type="checkbox" id="flexCheckThursday">
+					<label class="form-check-label" for="flexCheckThursday">Thursday</label>
+				</div>
+				
+				<div class="form-check">
+					<input asp-for="DayOfWeekF" class="form-check-input" type="checkbox" id="flexCheckFriday">
+					<label class="form-check-label" for="flexCheckFriday">Friday</label>
+				</div>
+
+			</div>
+
+			<div class="form-group">
+				<label asp-for="Building" class="control-label"></label>
+				<script>
+					function ShowRooms() {
+						var selectedBuilding = $('#Building').find(':selected').data('building');
+						if (selectedBuilding == 0) {
+							$('#Room').val('0');
+							$('#Room').prop('disabled', true);
+						} else {
+							$('#Room').find('option').show();
+							$('#Room').find('option[data-building!=' + selectedBuilding + ']').hide();
+							$('#Room').prop('disabled', false);
+						}
+					}
+				</script>
+
+				<select asp-for="Building" class="form-control" onload="ShowRooms();" onchange="ShowRooms();">
+					<option data-building="0">---</option>
+					@foreach (var building in ViewBag.Buildings)
+					{
+						<option data-building="@building.Id" value="@building.Id">@building.BuildingName</option>
+					}
+				</select>
+				<span asp-validation-for="Building" class="text-danger"></span>
+			</div>
+			
+			<div class="form-group">
+				<label asp-for="Room" class="control-label"></label>
+				<select asp-for="Room" class="form-control" disabled="true">
+					<option>---</option>
+					@foreach (var room in ViewBag.Rooms)
+						{
+							<option data-building="@room.BuildingID" value="@room.Id">@room.RoomNumber</option>
+						}
+				</select>
+
+
+				<span asp-validation-for="Room" class="text-danger"></span>	
+			</div>
+
+			<div class="form-group">
+				<input class="btn btn-outline-success float-right" type="submit" value="Add Course" />
+				<a class="btn btn-outline-secondary" asp-controller="Instructor" asp-action="AddCourse">Cancel</a>
+			</div>
+
+		</form>
+	</div>
+</div>

@@ -17,5 +17,10 @@ namespace LMSEarlyBird.Repository
         {
             return await _context.Buildings.ToListAsync();
         }
+
+        public async Task<Building> GetBuildingById(int id)
+        {
+            return await _context.Buildings.FindAsync(id);
+        }
     }
 }

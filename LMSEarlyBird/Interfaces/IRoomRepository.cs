@@ -4,9 +4,9 @@ namespace LMSEarlyBird.Interfaces
 {
     public interface IRoomRepository
     {
-        public List<Room> GetRooms();
-        public List<Room> GetRoomByBuilding(int buildingId);
+        public Task<List<Room>> GetRooms();
+        public Task<List<Room>> GetRoomByBuilding(int buildingId);
 
-        public Room GetRoom(int roomId);
+        public Task<Room> GetRoomById(int roomId);
     }
 }

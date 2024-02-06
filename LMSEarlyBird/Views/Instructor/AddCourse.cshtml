@@ -14,7 +14,7 @@
 			<div class="form-group">
 				<label asp-for="Department" class="control-label"></label>
 				<select asp-for="Department" class="form-control">
-				@foreach (var department in ViewBag.Departments)
+				@foreach (var department in Model.DepartmentList)
 				{
 					<option value="@department.Id">@department.DeptCode</option>
 				}
@@ -100,7 +100,7 @@
 
 				<select asp-for="Building" class="form-control" onload="ShowRooms();" onchange="ShowRooms();">
 					<option data-building="0">---</option>
-					@foreach (var building in ViewBag.Buildings)
+					@foreach (var building in Model.BuildingList)
 					{
 						<option data-building="@building.Id" value="@building.Id">@building.BuildingName</option>
 					}
@@ -112,7 +112,7 @@
 				<label asp-for="Room" class="control-label"></label>
 				<select asp-for="Room" class="form-control" disabled="true">
 					<option>---</option>
-					@foreach (var room in ViewBag.Rooms)
+					@foreach (var room in Model.RoomList)
 						{
 							<option data-building="@room.BuildingID" value="@room.Id">@room.RoomNumber</option>
 						}

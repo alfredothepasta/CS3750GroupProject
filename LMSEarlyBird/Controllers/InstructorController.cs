@@ -79,11 +79,15 @@ namespace LMSEarlyBird.Controllers
             List<Building> buildings = await _buildingRepository.GetBuildings();
             List<Department> departments = await _departmentRepository.GetAllDepartments();
             List<Room> rooms = await _roomRepository.GetRooms();
-            ViewBag.Buildings = buildings;
-            ViewBag.Departments = departments;
-            ViewBag.Rooms = rooms;
 
-            return View();
+            AddCourseViewModel viewModel = new AddCourseViewModel
+            {
+                BuildingList = buildings,
+                DepartmentList = departments,
+                RoomList = rooms
+            };
+
+            return View(viewModel);
         }
 
         [HttpPost]
@@ -102,9 +106,9 @@ namespace LMSEarlyBird.Controllers
                 List<Building> buildings = await _buildingRepository.GetBuildings();
                 List<Department> departments = await _departmentRepository.GetAllDepartments();
                 List<Room> rooms = await _roomRepository.GetRooms();
-                ViewBag.Buildings = buildings;
-                ViewBag.Departments = departments;
-                ViewBag.Rooms = rooms;
+                viewModel.BuildingList = buildings;
+                viewModel.DepartmentList = departments;
+                viewModel.RoomList = rooms;
 
                 return View(viewModel);
             }

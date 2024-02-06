@@ -1,4 +1,5 @@
 ﻿using LMSEarlyBird.Data;
+using LMSEarlyBird.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace LMSEarlyBird.ViewModels
@@ -13,7 +14,7 @@ namespace LMSEarlyBird.ViewModels
         [Display(Name = "First Name")]
         [Required(ErrorMessage = "First Name address is required")]
         public string FirstName {  get; set; }
-
+         
         [Display(Name = "Last Name")]
         [Required(ErrorMessage = "Last Name address is required")]
         public string LastName { get; set; }

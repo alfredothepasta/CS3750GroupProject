@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using LMSEarlyBird.Data;
 using LMSEarlyBird.Interfaces;
 using LMSEarlyBird.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace LMSEarlyBird.Repository
 {
@@ -19,7 +20,7 @@ namespace LMSEarlyBird.Repository
 
         public async Task<AppUser> GetUser(string id)
         {
-            return await _context.Users.FindAsync(id);
+            return await _context.Users.Include(x => x.StudentCourses).FirstAsync(x => x.Id == id);
         }
     }
 }

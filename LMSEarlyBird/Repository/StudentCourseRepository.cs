@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using LMSEarlyBird.Data;
 using LMSEarlyBird.Interfaces;
 using LMSEarlyBird.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace LMSEarlyBird.Repository
 {
@@ -27,6 +28,11 @@ namespace LMSEarlyBird.Repository
         {
             _context.Remove(course);
             return Save();
+        }
+
+        public async Task<IEnumerable<StudentCourse>> GetAllStudentCourses()
+        {
+            return await _context.StudentCourses.ToListAsync();
         }
 
         public bool Save()

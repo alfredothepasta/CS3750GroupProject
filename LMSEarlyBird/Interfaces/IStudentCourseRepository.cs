@@ -11,5 +11,7 @@ namespace LMSEarlyBird.Interfaces
         bool Add(StudentCourse course);
         bool Delete(StudentCourse course);
         bool Save();
+
+        Task<IEnumerable<StudentCourse>> GetAllStudentCourses();
     }
 }

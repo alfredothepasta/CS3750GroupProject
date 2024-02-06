@@ -30,6 +30,22 @@
                     <input type="hidden" asp-for="Address.UserID" />
  
                     <!--Models For Editing, Email is readonly-->
+                    <div style="text-align: center;">
+                        <a asp-area="" asp-controller="ProfilePicture" asp-action="ProfilePicture">
+                            @{
+                                var userId = User.GetUserId();
+                            }
+                            <img class="ProfilePictureMedium"
+                                 src="~/images/ProfilePictures/@(userId)ProfilePicture.jpg"
+                                 onerror=" this.src='/images/ProfilePictures/@(userId)ProfilePicture.png';
+                                         onerror= this.src='/images/ProfilePictures/DefaultProfile.png';"
+                                 asp-append-version="true" />
+                        </a>
+						<br />
+                        <label class="control-label">Edit profile picture</label>
+                    </div>
+                    <br>
+                    <br />
                     <div class="form-group">
                         <label asp-for="Email" class="control-label"></label>
                         <input asp-for="Email" class="form-control" placeholder="Email" readonly />

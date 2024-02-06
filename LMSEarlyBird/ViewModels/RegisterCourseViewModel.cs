@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace LMSEarlyBird.ViewModels
 {
-    public class RegistrationViewModel
+    public class RegisterCourseViewModel
     {
         public int Id {get; set;}
         public string CourseName { get; set; } = string.Empty;

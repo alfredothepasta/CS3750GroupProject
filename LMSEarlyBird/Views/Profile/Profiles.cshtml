@@ -1,5 +1,5 @@
 ﻿@using LMSEarlyBird.ViewModels
-@model ProfileViewModel
+@model EditProfileViewModel
 
 @{
     ViewData["Title"] = "Profile";
@@ -20,33 +20,54 @@
 
         <div class="row">
             <div class="col-md-10">
-                <form asp-action="Profiles">
+                <form asp-action="Profiles" >
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
+                    <!--Hidden Models for Validation-->
+                    <!-- Validated that this does work to pass Id's validation check-->
+                    <input type="hidden" asp-for="ProfileId" />
+                    <input type="hidden" asp-for="AddressId" /> 
+                    <input type="hidden" asp-for="Address.User" />
+                    <input type="hidden" asp-for="Address.UserID" />
+ 
+                    <!--Models For Editing, Email is readonly-->
                     <div class="form-group">
-                        <label asp-for="AddressLine1" class="control-label"></label>
-                        <input asp-for="AddressLine1" class="form-control" placeholder="" />
-                        <span asp-validation-for="AddressLine1" class="text-danger"></span>
+                        <label asp-for="Email" class="control-label"></label>
+                        <input asp-for="Email" class="form-control" placeholder="Email" readonly />
                     </div>
                     <div class="form-group">
-                        <label asp-for="AddressLine2" class="control-label"></label>
-                        <input asp-for="AddressLine2" class="form-control" />
-                        <span asp-validation-for="AddressLine2" class="text-danger"></span>
+                        <label asp-for="FirstName" class="control-label"></label>
+                        <input asp-for="FirstName" class="form-control" placeholder="FirstName" />
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="City" class="control-label"></label>
-                        <input asp-for="City" class="form-control" />
-                        <span asp-validation-for="City" class="text-danger"></span>
+                        <label asp-for="LastName" class="control-label"></label>
+                        <input asp-for="LastName" class="form-control" placeholder="LastName" />
+                        <span asp-validation-for="LastName" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="State" class="control-label"></label>
-                        <input asp-for="State" class="form-control" />
-                        <span asp-validation-for="State" class="text-danger"></span>
+                        <label asp-for="Address.LineOne" class="control-label">Address Line One</label>
+                        <input asp-for="Address.LineOne" class="form-control" placeholder="Address.LineOne" />
+                        <span asp-validation-for="Address.LineOne" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="Zip" class="control-label"></label>
-                        <input asp-for="Zip" class="form-control" />
-                        <span asp-validation-for="Zip" class="text-danger"></span>
+                        <label asp-for="Address.LineTwo" class="control-label">Address Line Two</label>
+                        <input asp-for="Address.LineTwo" class="form-control" />
+                        <span asp-validation-for="Address.LineTwo" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Address.City" class="control-label"></label>
+                        <input asp-for="Address.City" class="form-control" />
+                        <span asp-validation-for="Address.City" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Address.State" class="control-label"></label>
+                        <input asp-for="Address.State" class="form-control" />
+                        <span asp-validation-for="Address.State" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Address.ZipCode" class="control-label"></label>
+                        <input asp-for="Address.ZipCode" class="form-control" />
+                        <span asp-validation-for="Address.ZipCode" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <input class="btn btn-outline-success float-right" type="submit" value="Update Information" />

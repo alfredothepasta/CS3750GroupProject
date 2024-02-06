@@ -9,5 +9,7 @@ namespace LMSEarlyBird.Interfaces
     public interface IAppUserRepository
     {
         Task<AppUser> GetUser(string id);
+
+        bool UpdateUser(AppUser user);
     }
 }

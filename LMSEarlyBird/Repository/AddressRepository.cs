@@ -20,6 +20,11 @@ namespace LMSEarlyBird.Repository
             return Save();
         }
 
+        public bool hasUserAddress(string userID) 
+        {
+            return _context.Addresses.Where(a => a.UserID == userID).Any();
+        }
+
         public async Task<Address> getUserAddress(string userID)
         {
             var returnAddress =  await _context.Addresses.FirstOrDefaultAsync(x => x.UserID == userID);
@@ -43,7 +48,8 @@ namespace LMSEarlyBird.Repository
 
         public bool updateUserAddress(Address address)
         {
-            throw new NotImplementedException();
+            _context.Update(address);
+            return Save();
         }
     }
 }

@@ -22,5 +22,17 @@ namespace LMSEarlyBird.Repository
         {
             return await _context.Users.Include(x => x.StudentCourses).FirstAsync(x => x.Id == id);
         }
+
+        public bool UpdateUser(AppUser user)
+        {
+            _context.Update(user);
+            return Save();
+        }
+
+        public bool Save()
+        {
+            var saved = _context.SaveChanges();
+            return saved > 0;
+        }
     }
 }

@@ -13,7 +13,7 @@ namespace LMSEarlyBird.Models
         public string? State { get; set; } = string.Empty;
         public int? ZipCode { get; set; }
         [ForeignKey("AppUser")]
-        public string UserID { get; set; }
-        public AppUser User { get; set; }
+        public string? UserID { get; set; }
+        public AppUser? User { get; set; }
     }
 }

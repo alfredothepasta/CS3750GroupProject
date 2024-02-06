@@ -31,26 +31,22 @@ namespace LMSEarlyBird.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("City")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LineOne")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LineTwo")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("State")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserID")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("ZipCode")
+                    b.Property<int?>("ZipCode")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -234,7 +230,7 @@ namespace LMSEarlyBird.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("instructorCourses");
+                    b.ToTable("InstructorCourses");
                 });
 
             modelBuilder.Entity("LMSEarlyBird.Models.Room", b =>

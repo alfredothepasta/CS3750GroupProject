@@ -118,6 +118,7 @@ namespace LMSEarlyBird.Controllers
             if (viewModel.DayOfWeekR == "true") selectedDays = selectedDays + "R";
             if (viewModel.DayOfWeekF == "true") selectedDays = selectedDays + "F";
 
+            // get the room and department to add to the new course
             Room room = await _roomRepository.GetRoomById(viewModel.Room);
             Department department = await _departmentRepository.GetDepartmentById(viewModel.Department);
             Course course = new Course

@@ -7,12 +7,10 @@ namespace LMSEarlyBird.ViewModels
 {
     public class RegistrationViewModel
     {
-        public int Id {get; set;}
-        public string CourseName { get; set; } = string.Empty;
-        public string CourseNumber { get; set; } = string.Empty;
-        public int CreditHours { get; set; }
-        public TimeOnly StartTime { get; set; }
-        public TimeOnly EndTime { get; set; }
-        public bool IsRegistered { get; set; } 
+        public List<RegisterCourseViewModel> Courses { get; set; }
+        public List<string> DepartmentNames { get; set; }
+        public string? Search { get; set; }
+
+        public string? SelectedDept { get; set; }
     }
 }

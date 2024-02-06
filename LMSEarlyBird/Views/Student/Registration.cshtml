@@ -6,10 +6,27 @@
 }
 
 <h1>Register For Classes</h1>
+<div class="container mt-3">
+    &nbsp;
+    <form method="get" asp-action="Search" class="row g-3">
+        <div class="col-auto">
+            <input type="text" name="query" placeholder="Search..." class="form-control" />
+        </div>
+        <div class="col-auto">
+            <select name="category" class="form-select">
+                <option value="all">All Departments</option>
+                <option value="math">Math</option>
+                <option value="cs">Computer Science</option>
+                <option value="english">English</option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <input type="submit" value="Search" class="btn btn-primary"/>
+        </div>
+    </form>
+    &nbsp;
+</div>
 
-@* <p>
-    <a asp-page="Create">Create New</a>
-</p> *@
 <table class="table">
     <thead>
         <tr>
@@ -50,7 +67,7 @@
                 }
                 else
                 {
-                    <a href="@Url.Action("DropClass", "Student" , new { id = item.Id })" class="btn btn-primary">Drop Class</a>
+                    <a href="@Url.Action("DropClass", "Student" , new { id = item.Id })" class="btn btn-primary">&nbsp;&nbsp; Drop &nbsp;&nbsp;</a>
                 }         
             </td>
         </tr>

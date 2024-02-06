@@ -80,13 +80,20 @@ namespace LMSEarlyBird.Controllers
             return RedirectToAction(nameof(Registration));
         }
 
-        public async Task<IActionResult> Registration(){                  
+        private async Task<List<RegistrationViewModel>> GetRegisterViewModel(string search = "", string department = "")
+        {
             var id = _userIdentityService.GetUserId();
             var user = await _appUserRepository.GetUser(id);
 
             //var test = await _studentCourseRepository.GetAllStudentCourses();
 
             var courses = await _courseRepository.GetAllCourses();
+
+            if (search != null)
+            {
+                courses = courses.Where(x => x.CourseName.Contains(search)).ToList();
+            }
+
             List<RegistrationViewModel> result = new List<RegistrationViewModel>();
             foreach(var course in courses){
                 var registrationViewModel = new RegistrationViewModel
@@ -105,28 +112,20 @@ namespace LMSEarlyBird.Controllers
                 result.Add(registrationViewModel);
             }
 
-            // var testModel = new RegistrationViewModel
-            // {
-            //     Id = 5,
-            //     CourseName = "Software Engineering",
-            //     CourseNumber = "1234",
-            //     CreditHours = 12,
-            //     StartTime = new TimeOnly(5,0,0),
-            //     EndTime = new TimeOnly(),
-            //     IsRegistered = false,
-            // };
-
-            // result.Add(testModel);
-
-            // StudentCourse newStudentCourse = new StudentCourse
-            // {
-            //     UserId = user.Id,
-            //     CourseId = courses.ToList()[0].id
-            // };
-
-            // _studentCourseRepository.Add(newStudentCourse);
-            
-            return View(result);
+            return result;
         }
+
+        public async Task<IActionResult> Registration(){                  
+            var result = await GetRegisterViewModel();
+            return View(result);
+        }  
+        
+        public async Task<IActionResult> Search(string query, string category)
+        {
+            //Get filtered list of courses         
+            var filteredList = await GetRegisterViewModel(query, category);
+
+            return View("Registration", filteredList);
+        }     
     }
 }

@@ -17,12 +17,15 @@ namespace LMSEarlyBird.Controllers
         private readonly ICourseRepository _courseRepository;
         private readonly IUserIdentityService _userIdentityService;
         private readonly IAppUserRepository _appUserRepository;
+
+        private readonly IStudentCourseRepository _studentCourseRepository;
         
-        public StudentController(ICourseRepository courseRepository, IUserIdentityService userIdentityService, IAppUserRepository appUserRepository)
+        public StudentController(ICourseRepository courseRepository, IUserIdentityService userIdentityService, IAppUserRepository appUserRepository, IStudentCourseRepository studentCourseRepository)
         {
             _courseRepository = courseRepository;
             _userIdentityService = userIdentityService;
             _appUserRepository = appUserRepository;
+            _studentCourseRepository = studentCourseRepository;
         }
 
         public IActionResult Index()
@@ -30,7 +33,59 @@ namespace LMSEarlyBird.Controllers
             return View();
         }
 
-        public async Task<IActionResult> Registration(){
+        public IActionResult DropClass(int id)
+        {
+            var userid = _userIdentityService.GetUserId();
+
+            StudentCourse studentCourse = new StudentCourse
+            {
+                UserId = userid,
+                CourseId = id
+            };
+
+
+            try
+            {
+                _studentCourseRepository.Delete(studentCourse);
+            }
+            catch(Exception ex)
+            {
+                return RedirectToAction(nameof(Registration));
+            }
+            
+
+            // Stay on the registration page after the operation
+            return RedirectToAction(nameof(Registration));
+        }
+
+        public IActionResult AddClass(int id)
+        {
+            var userid = _userIdentityService.GetUserId();
+
+            StudentCourse studentCourse = new StudentCourse
+            {
+                UserId = userid,
+                CourseId = id
+            };
+
+            try
+            {
+                _studentCourseRepository.Add(studentCourse);
+            }
+            catch(Exception ex)
+            {
+                return RedirectToAction(nameof(Registration));
+            }
+
+            return RedirectToAction(nameof(Registration));
+        }
+
+        public async Task<IActionResult> Registration(){                  
+            var id = _userIdentityService.GetUserId();
+            var user = await _appUserRepository.GetUser(id);
+
+            //var test = await _studentCourseRepository.GetAllStudentCourses();
+
             var courses = await _courseRepository.GetAllCourses();
             List<RegistrationViewModel> result = new List<RegistrationViewModel>();
             foreach(var course in courses){
@@ -42,41 +97,35 @@ namespace LMSEarlyBird.Controllers
                     CreditHours = course.CreditHours,
                     StartTime = course.StartTime,
                     EndTime = course.EndTime,
+                    IsRegistered = user.StudentCourses.Any(x => x.CourseId == course.id)
                 };
+
+                bool temp = user.StudentCourses.Any(x => x.CourseId == course.id);
 
                 result.Add(registrationViewModel);
             }
 
-            var newCourse = new Course
-            {
-                CourseName = "Software Engineering",
-                CourseNumber = "1234",
-                CreditHours = 12,
-                StartTime = new TimeOnly(5,0,0),
-                EndTime = new TimeOnly(),
-                DaysOfWeek = "Monday, Wednesday, Friday",
-                RoomId = 1234,
-            };
+            // var testModel = new RegistrationViewModel
+            // {
+            //     Id = 5,
+            //     CourseName = "Software Engineering",
+            //     CourseNumber = "1234",
+            //     CreditHours = 12,
+            //     StartTime = new TimeOnly(5,0,0),
+            //     EndTime = new TimeOnly(),
+            //     IsRegistered = false,
+            // };
 
-            //_courseRepository.Add(newCourse);
+            // result.Add(testModel);
 
-            var testModel = new RegistrationViewModel
-            {
-                Id = 5,
-                CourseName = "Software Engineering",
-                CourseNumber = "1234",
-                CreditHours = 12,
-                StartTime = new TimeOnly(5,0,0),
-                EndTime = new TimeOnly(),
-                IsRegistered = false,
-            };
+            // StudentCourse newStudentCourse = new StudentCourse
+            // {
+            //     UserId = user.Id,
+            //     CourseId = courses.ToList()[0].id
+            // };
 
-            result.Add(testModel);
-                
-            var id = _userIdentityService.GetUserId();
-
-            var user = await _appUserRepository.GetUser(id);
-
+            // _studentCourseRepository.Add(newStudentCourse);
+            
             return View(result);
         }
     }

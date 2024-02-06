@@ -21,5 +21,17 @@ namespace LMSEarlyBird.Repository
         {
             return await _context.Users.FindAsync(id);
         }
+
+        public bool UpdateUser(AppUser user)
+        {
+            _context.Update(user);
+            return Save();
+        }
+
+        public bool Save()
+        {
+            var saved = _context.SaveChanges();
+            return saved > 0;
+        }
     }
 }

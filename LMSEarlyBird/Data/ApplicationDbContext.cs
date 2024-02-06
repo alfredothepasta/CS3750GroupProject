@@ -38,6 +38,7 @@ namespace LMSEarlyBird.Data
             base.OnModelCreating(builder);
         }
 
+        public DbSet<AppUser> AppUsers { get; set; }
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Building> Buildings { get; set; }
         public DbSet<Room> Rooms { get; set; }

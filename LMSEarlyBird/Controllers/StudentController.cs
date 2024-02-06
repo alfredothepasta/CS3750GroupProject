@@ -80,7 +80,7 @@ namespace LMSEarlyBird.Controllers
             return RedirectToAction(nameof(Registration));
         }
 
-        private async Task<List<RegistrationViewModel>> GetRegisterViewModel(string search = "", string department = "")
+        private async Task<List<RegistrationViewModel>> GetRegisterCourseViewModels(string search = "", string department = "")
         {
             var id = _userIdentityService.GetUserId();
             var user = await _appUserRepository.GetUser(id);
@@ -116,14 +116,14 @@ namespace LMSEarlyBird.Controllers
         }
 
         public async Task<IActionResult> Registration(){                  
-            var result = await GetRegisterViewModel();
+            var result = await GetRegisterCourseViewModels();
             return View(result);
         }  
         
         public async Task<IActionResult> Search(string query, string category)
         {
             //Get filtered list of courses         
-            var filteredList = await GetRegisterViewModel(query, category);
+            var filteredList = await GetRegisterCourseViewModels(query, category);
 
             return View("Registration", filteredList);
         }     

@@ -6,7 +6,10 @@ namespace LMSEarlyBird.Interfaces
     {
         Task<IEnumerable<Course>> GetAllCourses();
         Task<Course> GetCourse(int id);
-        bool Add(Course course);
+
+        Task<List<Course>> GetCoursesByTeacher(string teacherId); // <---gets all courses by teacher id>>
+        Task<List<Course>> GetCourseByRoomId(int roomId);
+        bool Add(Course course, AppUser instructor);
         bool Update(Course course);
         bool Delete(Course course);
         bool Save();

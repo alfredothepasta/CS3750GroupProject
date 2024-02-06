@@ -80,7 +80,7 @@ namespace LMSEarlyBird.Controllers
             return RedirectToAction(nameof(Registration));
         }
 
-        private async Task<List<RegistrationViewModel>> GetRegisterCourseViewModels(string search = "", string department = "")
+        private async Task<List<RegisterCourseViewModel>> GetRegisterCourseViewModels(string search = "", string department = "")
         {
             var id = _userIdentityService.GetUserId();
             var user = await _appUserRepository.GetUser(id);
@@ -94,9 +94,9 @@ namespace LMSEarlyBird.Controllers
                 courses = courses.Where(x => x.CourseName.Contains(search)).ToList();
             }
 
-            List<RegistrationViewModel> result = new List<RegistrationViewModel>();
+            List<RegisterCourseViewModel> result = new List<RegisterCourseViewModel>();
             foreach(var course in courses){
-                var registrationViewModel = new RegistrationViewModel
+                var registrationViewModel = new RegisterCourseViewModel
                 {
                     Id = course.id,
                     CourseName = course.CourseName,

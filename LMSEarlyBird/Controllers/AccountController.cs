@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using LMSEarlyBird.Data;
 using LMSEarlyBird.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using LMSEarlyBird.Interfaces;
 
 namespace LMSEarlyBird.Controllers
 {
@@ -21,9 +22,10 @@ namespace LMSEarlyBird.Controllers
         /// </summary>
         private readonly SignInManager<AppUser> _signInManager;
         /// <summary>
-        /// Context for accessing the database
+        /// Context for accessing the AppUser database
         /// </summary>
         private readonly ApplicationDbContext _context;
+
 
         /// <summary>
         /// Constructor for the Controller
@@ -173,7 +175,6 @@ namespace LMSEarlyBird.Controllers
 
             return RedirectToAction("Login", "Account");
         }
-
 
         [HttpGet]
         public async Task<IActionResult> Logout()

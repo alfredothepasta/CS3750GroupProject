@@ -23,10 +23,10 @@ namespace LMSEarlyBird.Repository
         public async Task<Address> getUserAddress(string userID)
         {
             var returnAddress =  await _context.Addresses.FirstOrDefaultAsync(x => x.UserID == userID);
-            if (returnAddress == null)
-            {
-                throw new Exception("No address found for user");
-            }
+            //if (returnAddress == null)
+            //{
+            //    throw new Exception("No address found for user");
+            //}
             return returnAddress;
         }
 

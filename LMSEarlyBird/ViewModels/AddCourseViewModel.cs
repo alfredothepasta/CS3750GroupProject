@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using LMSEarlyBird.Models;
+using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
 namespace LMSEarlyBird.ViewModels
@@ -7,6 +8,7 @@ namespace LMSEarlyBird.ViewModels
     {
         [Required]
         public int Department { get; set; }
+        public List<Department>? DepartmentList { get; set; }
         [Required]
         [Display(Name = "Course Number")]
 		public string CourseNumber { get; set; }
@@ -29,6 +31,7 @@ namespace LMSEarlyBird.ViewModels
         public string DayOfWeekF { get; set; }
         [Required]
         public int Building { get; set; }
+        public List<Building>? BuildingList { get; set; }
         [Required]
         [Remote(action: "roomAvailability", controller: "Instructor", 
             AdditionalFields = nameof(StartTime) + "," + 
@@ -40,5 +43,6 @@ namespace LMSEarlyBird.ViewModels
             nameof(DayOfWeekF)
 			)]
         public int Room { get; set; }
+        public List<Room>? RoomList { get; set; }
     }
 }

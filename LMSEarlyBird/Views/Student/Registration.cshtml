@@ -1,35 +1,67 @@
 @using LMSEarlyBird.ViewModels
-@model List<RegistrationViewModel>
+@model RegistrationViewModel
 
 @{
     ViewData["Title"] = "Dashboard";
 }
 
 <h1>Register For Classes</h1>
+<hr/>
+<div class="container mt-3">
+    &nbsp;
+    <form method="get" asp-action="Search" class="row g-3">
+        <div class="col-auto">
+            @if (Model.Search != null){
+                 <input type="text" value="@Model.Search" name="query" class="form-control" />
+            }
+            else{
+                <input type="text" name="query" placeholder="Search..." class="form-control" />
+            }         
+        </div>
+        <div class="col-auto">
+            <select name="category" class="form-select">
+            <option value="all">All Departments</option>
+            @foreach (string name in Model.DepartmentNames){
+                @if(name == Model.SelectedDept){
+                     <option value="@name" selected>@name</option>
+                }
+                else{
+                    <option value="@name">@name</option>
+                }             
+            }
+        </select>
+        </div>
+        <div class="col-auto">
+            <input type="submit" value="Search" class="btn btn-primary"/>
+        </div>
+    </form>
+    &nbsp;
+</div>
 
-@* <p>
-    <a asp-page="Create">Create New</a>
-</p> *@
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model[0].CourseNumber)
+                Course Number
+                @* @Html.DisplayNameFor(model => model.Courses[0].CourseNumber) *@
             </th>
             <th>
-                @Html.DisplayNameFor(model => model[0].CourseName)
+                Course Name
+                @* @Html.DisplayNameFor(model => model.Courses[0].CourseName) *@
             </th>
             <th>
-                @Html.DisplayNameFor(model => model[0].CreditHours)
+                Credit Hours
+                @* @Html.DisplayNameFor(model => model.Courses[0].CreditHours) *@
             </th>
             <th>
-                @Html.DisplayNameFor(model => model[0].StartTime)
+                Start Time
+                @* @Html.DisplayNameFor(model => model.Courses[0].StartTime) *@
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+@foreach (var item in Model.Courses) {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.CourseNumber)
@@ -46,11 +78,11 @@
             <td>
                 @if(!item.IsRegistered)
                 {
-                    <a href="@Url.Action("AddClass", "Student" , new { id = item.Id })" class="btn btn-primary">Register</a>
+                    <a href="@Url.Action("AddClass", "Student" , new { id = item.Id, search = Model.Search, deptSelected = Model.SelectedDept})" class="btn btn-primary">Register</a>
                 }
                 else
                 {
-                    <a href="@Url.Action("DropClass", "Student" , new { id = item.Id })" class="btn btn-primary">Drop Class</a>
+                    <a href="@Url.Action("DropClass", "Student" , new { id = item.Id, search = Model.Search, deptSelected = Model.SelectedDept})" class="btn btn-primary">&nbsp;&nbsp; Drop &nbsp;&nbsp;</a>
                 }         
             </td>
         </tr>

@@ -41,7 +41,47 @@ namespace LMSEarlyBird.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Profiles(string id)
+        public async Task<IActionResult> DisplayProfile()
+        {
+            // pull user based on logged in user
+            string userId = _userIdentityService.GetUserId();
+            AppUser profile = await _appUserRepository.GetUser(userId);
+
+            Address userAddress = new Address();
+
+            // check if user has address implemented tied to the user ID
+            if (_addressRepository.hasUserAddress(userId))
+            {
+                userAddress = await _addressRepository.getUserAddress(userId);
+            }
+            else
+            {
+                // One way of doing it
+                //userAddress.UserID = userId;
+                //_addressRepository.addUserAddress(userAddress);
+
+                // other way, using preset AppUser = profile
+                userAddress.User = profile;
+                _addressRepository.addUserAddress(userAddress);
+            }
+
+            // build the model view
+            var profileVM = new EditProfileViewModel
+            {
+                ProfileId = userId,
+                Email = profile.Email,
+                FirstName = profile.FirstName,
+                LastName = profile.LastName,
+                AddressId = userAddress.Id,
+                Address = userAddress
+            };
+            return View(profileVM);
+        }
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> EditProfile()
         {
             // pull user based on logged in user
             string userId = _userIdentityService.GetUserId();
@@ -94,7 +134,7 @@ namespace LMSEarlyBird.Controllers
         /// <returns></returns>
         [HttpPost]
         //public async Task<IActionResult> Profiles(ProfileViewModel profileViewModel, RegisterViewModel registerViewModel)
-        public async Task<IActionResult> Profiles(EditProfileViewModel profileVM)
+        public async Task<IActionResult> EditProfile(EditProfileViewModel profileVM)
         {
             // validate the ModelState passes (User has entred information)
             if (!(ModelState.IsValid)) return View("Profiles", profileVM);
@@ -114,7 +154,7 @@ namespace LMSEarlyBird.Controllers
             // update the address
             _addressRepository.updateUserAddress(userAddress);
 
-            return RedirectToAction("Profiles", "Profile");
+            return RedirectToAction("DisplayProfile", "Profile");
         }
     }
 }

@@ -17,15 +17,15 @@ namespace LMSEarlyBird.Controllers
         private readonly ICourseRepository _courseRepository;
         private readonly IUserIdentityService _userIdentityService;
         private readonly IAppUserRepository _appUserRepository;
-
         private readonly IStudentCourseRepository _studentCourseRepository;
-        
-        public StudentController(ICourseRepository courseRepository, IUserIdentityService userIdentityService, IAppUserRepository appUserRepository, IStudentCourseRepository studentCourseRepository)
+        private readonly IDepartmentRepository _departmentRepository;
+        public StudentController(ICourseRepository courseRepository, IUserIdentityService userIdentityService, IAppUserRepository appUserRepository, IStudentCourseRepository studentCourseRepository, IDepartmentRepository departmentRepository)
         {
             _courseRepository = courseRepository;
             _userIdentityService = userIdentityService;
             _appUserRepository = appUserRepository;
             _studentCourseRepository = studentCourseRepository;
+            _departmentRepository = departmentRepository;
         }
 
         public IActionResult Index()
@@ -33,7 +33,43 @@ namespace LMSEarlyBird.Controllers
             return View();
         }
 
-        public IActionResult DropClass(int id)
+        public async Task<IActionResult> Registration(){      
+            RegistrationViewModel result = new RegistrationViewModel();
+
+            //Create list of department names
+            List<string> departmentNames = _departmentRepository.GetAllDepartments().Result.Select(x => x.DeptName).ToList();
+            result.DepartmentNames = departmentNames;
+
+            result.Courses = await GetRegisterCourseViewModels();
+            return View(result);
+        }  
+        
+        public async Task<IActionResult> Search(string? query, string? category)
+        {
+
+            RegistrationViewModel result = new RegistrationViewModel();
+
+            //Create list of department names 
+            List<string> departmentNames = _departmentRepository.GetAllDepartments().Result.Select(x => x.DeptName).ToList();
+            result.DepartmentNames = departmentNames;
+            
+            if(!result.DepartmentNames.Any(x => x == category))
+            {
+                category = null;
+            }
+            else if(category != null)
+            {
+                result.SelectedDept = category;
+            }
+
+            result.Search = query;
+
+            //Get filtered list of courses         
+            result.Courses = await GetRegisterCourseViewModels(query, category);
+            return View("Registration", result);
+        }     
+
+        public IActionResult DropClass(int id, string? search, string? deptSelected)
         {
             var userid = _userIdentityService.GetUserId();
 
@@ -50,15 +86,18 @@ namespace LMSEarlyBird.Controllers
             }
             catch(Exception ex)
             {
-                return RedirectToAction(nameof(Registration));
+                
             }
-            
 
-            // Stay on the registration page after the operation
+            if(search!=null || deptSelected!=null || deptSelected != "" || search != "")
+            {
+                return RedirectToAction(nameof(Search), new { query = search, category = deptSelected });
+            }
+
             return RedirectToAction(nameof(Registration));
         }
 
-        public IActionResult AddClass(int id)
+        public IActionResult AddClass(int id, string? search, string? deptSelected)
         {
             var userid = _userIdentityService.GetUserId();
 
@@ -74,22 +113,39 @@ namespace LMSEarlyBird.Controllers
             }
             catch(Exception ex)
             {
-                return RedirectToAction(nameof(Registration));
+                
+            }
+
+            if(search!=null || deptSelected!=null)
+            {
+                return RedirectToAction(nameof(Search), new { query = search, category = deptSelected });
             }
 
             return RedirectToAction(nameof(Registration));
         }
 
-        public async Task<IActionResult> Registration(){                  
+        private async Task<List<RegisterCourseViewModel>> GetRegisterCourseViewModels(string? search = "", string? department = "")
+        {
             var id = _userIdentityService.GetUserId();
             var user = await _appUserRepository.GetUser(id);
 
             //var test = await _studentCourseRepository.GetAllStudentCourses();
 
             var courses = await _courseRepository.GetAllCourses();
-            List<RegistrationViewModel> result = new List<RegistrationViewModel>();
+
+            if (search != null)
+            {
+                courses = courses.Where(x => x.CourseName.ToUpper().Contains(search.ToUpper())).ToList();
+            }
+
+            if(department != null && department != "")
+            {
+                courses = courses.Where(x => x.Department.DeptName == department).ToList();
+            }
+
+            List<RegisterCourseViewModel> result = new List<RegisterCourseViewModel>();
             foreach(var course in courses){
-                var registrationViewModel = new RegistrationViewModel
+                var registrationViewModel = new RegisterCourseViewModel
                 {
                     Id = course.id,
                     CourseName = course.CourseName,
@@ -105,28 +161,7 @@ namespace LMSEarlyBird.Controllers
                 result.Add(registrationViewModel);
             }
 
-            // var testModel = new RegistrationViewModel
-            // {
-            //     Id = 5,
-            //     CourseName = "Software Engineering",
-            //     CourseNumber = "1234",
-            //     CreditHours = 12,
-            //     StartTime = new TimeOnly(5,0,0),
-            //     EndTime = new TimeOnly(),
-            //     IsRegistered = false,
-            // };
-
-            // result.Add(testModel);
-
-            // StudentCourse newStudentCourse = new StudentCourse
-            // {
-            //     UserId = user.Id,
-            //     CourseId = courses.ToList()[0].id
-            // };
-
-            // _studentCourseRepository.Add(newStudentCourse);
-            
-            return View(result);
+            return result;
         }
     }
 }

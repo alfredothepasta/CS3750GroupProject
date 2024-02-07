@@ -47,7 +47,7 @@ namespace LMSEarlyBird.Controllers
                 return View();
             }
 			string imgext = Path.GetExtension(imgFile.FileName);
-			if (imgext == ".jpg" || imgext == ".png" || imgext == ".JPG" || imgext == ".PNG")
+			if (imgext == ".jpg" || imgext == ".JPG")
 			{
 
                 // Get the path to save the image
@@ -74,7 +74,7 @@ namespace LMSEarlyBird.Controllers
 			}
 			else
 			{
-				ViewData["Message"] = "Only .jpg and .png files are allowed";
+				ViewData["Message"] = "Only .jpg files are allowed";
 			}
 			return View();
 		}

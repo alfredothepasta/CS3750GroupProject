@@ -20,7 +20,12 @@
 	<div class="mb-3">
 		<input class="form-control" type="file" name="imgfile" />
 	</div>
-	<input class="btn btn-primary"  type="submit" value="Submit" />
-	<hr/>
-	<h6>@ViewData["Message"]</h6>
+	<input class="btn btn-primary" type="submit" value="Submit" />
+	<br />
+
 </form>
+<form method="post" asp-controller="ProfilePicture" asp-action="DeleteFile">
+	<button type="submit" class="btn btn-danger">Delete</button>
+</form>
+<hr/>
+<h6>@ViewData["Message"]</h6>

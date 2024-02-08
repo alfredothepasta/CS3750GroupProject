@@ -50,11 +50,19 @@
                 @* @Html.DisplayNameFor(model => model.Courses[0].CourseName) *@
             </th>
             <th>
-                Credit Hours
+                Instructor
+                @* @Html.DisplayNameFor(model => model.Courses[0].CourseName) *@
+            </th>
+            <th>
+                Credits
                 @* @Html.DisplayNameFor(model => model.Courses[0].CreditHours) *@
             </th>
             <th>
-                Start Time
+                Times
+                @* @Html.DisplayNameFor(model => model.Courses[0].StartTime) *@
+            </th>
+            <th>
+                Days
                 @* @Html.DisplayNameFor(model => model.Courses[0].StartTime) *@
             </th>
             <th></th>
@@ -64,25 +72,31 @@
 @foreach (var item in Model.Courses) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.CourseNumber)
+                @item.Department @Html.DisplayFor(modelItem => item.CourseNumber)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.CourseName)
+            </td>
+             <td>
+                @item.InstructorName
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.CreditHours)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.StartTime)
+                @item.StartTime - @item.EndTime
+            </td>
+            <td>
+                @item.DaysOfWeek
             </td>
             <td>
                 @if(!item.IsRegistered)
                 {
-                    <a href="@Url.Action("AddClass", "Student" , new { id = item.Id, search = Model.Search, deptSelected = Model.SelectedDept})" class="btn btn-primary">Register</a>
+                    <a href="@Url.Action("AddClass", "Student" , new { id = item.Id, search = Model.Search, deptSelected = Model.SelectedDept})" class="btn btn-primary" style="min-width: 6em;">Register</a>
                 }
                 else
                 {
-                    <a href="@Url.Action("DropClass", "Student" , new { id = item.Id, search = Model.Search, deptSelected = Model.SelectedDept})" class="btn btn-primary">&nbsp;&nbsp; Drop &nbsp;&nbsp;</a>
+                    <a href="@Url.Action("DropClass", "Student" , new { id = item.Id, search = Model.Search, deptSelected = Model.SelectedDept})" class="btn btn-primary" style="min-width: 6em;">Drop</a>
                 }         
             </td>
         </tr>

@@ -10,7 +10,6 @@ namespace LMSEarlyBird.ViewModels
         public List<RegisterCourseViewModel> Courses { get; set; }
         public List<string> DepartmentNames { get; set; }
         public string? Search { get; set; }
-
         public string? SelectedDept { get; set; }
     }
 }

@@ -14,5 +14,10 @@ namespace LMSEarlyBird.ViewModels
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
         public bool IsRegistered { get; set; } 
+
+        public string InstructorName { get; set; } = string.Empty;
+        public string Department { get; set; } = string.Empty;
+
+        public string DaysOfWeek { get; set; } = string.Empty;
     }
 }

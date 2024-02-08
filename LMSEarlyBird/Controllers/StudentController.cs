@@ -124,6 +124,16 @@ namespace LMSEarlyBird.Controllers
             return RedirectToAction(nameof(Registration));
         }
 
+        private string FormatDaysOfWeek(string daysOfWeek){
+            string formatted = "";
+            
+            foreach(char day in daysOfWeek){
+                formatted += day + " ";
+            }
+
+            return formatted;
+        }
+
         private async Task<List<RegisterCourseViewModel>> GetRegisterCourseViewModels(string? search = "", string? department = "")
         {
             var id = _userIdentityService.GetUserId();
@@ -131,7 +141,7 @@ namespace LMSEarlyBird.Controllers
 
             //var test = await _studentCourseRepository.GetAllStudentCourses();
 
-            var courses = await _courseRepository.GetAllCourses();
+            var courses = await _courseRepository.GetAllCoursesWithInstructor();
 
             if (search != null)
             {
@@ -153,7 +163,10 @@ namespace LMSEarlyBird.Controllers
                     CreditHours = course.CreditHours,
                     StartTime = course.StartTime,
                     EndTime = course.EndTime,
-                    IsRegistered = user.StudentCourses.Any(x => x.CourseId == course.id)
+                    IsRegistered = user.StudentCourses.Any(x => x.CourseId == course.id),
+                    Department = course.Department.DeptCode,
+                    InstructorName = course.InstructorCourses.FirstOrDefault().User.FirstName + " " + course.InstructorCourses.FirstOrDefault().User.LastName,
+                    DaysOfWeek = FormatDaysOfWeek(course.DaysOfWeek),
                 };
 
                 bool temp = user.StudentCourses.Any(x => x.CourseId == course.id);

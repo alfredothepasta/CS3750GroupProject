@@ -41,6 +41,13 @@ namespace LMSEarlyBird.Repository{
             return await _context.Courses.ToListAsync();
         }
 
+        public async Task<IEnumerable<Course>> GetAllCoursesWithInstructor()
+        {
+            return await _context.Courses.Include(x => x.InstructorCourses)
+                             .ThenInclude(ic => ic.User)
+                             .ToListAsync();
+        }
+
         public async Task<Course> GetCourse(int id)
         {
             return await _context.Courses.FindAsync(id);

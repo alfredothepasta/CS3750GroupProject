@@ -1,0 +1,40 @@
+﻿@using LMSEarlyBird.ViewModels
+@model EditProfileViewModel
+
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <p>
+            <h4>View or edit your profile</h4>
+        </p>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="col-md-12 alert alert-danger">
+                <span><b>Sorry!</b> - @TempData["Error"] </span>
+            </div>
+        }
+
+        <div class="row">
+            <div class="col-md-10">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <!--For Viewing-->
+                <p>Email: @Model.Email</p>
+                <p>First Name: @Model.FirstName</p>
+                <p>Last Name: @Model.LastName</p>
+                <p>Address Line One: @Model.Address.LineOne</p>
+                <p>Address Line Two: @Model.Address.LineTwo</p>
+                <p>City: @Model.Address.City</p>
+                <p>State: @Model.Address.State</p>
+                <p>Zip: @Model.Address.ZipCode</p>
+
+                <a class="btn btn-outline-secondary" asp-controller="Profile" asp-action="EditProfile">Edit</a>
+            </div>
+        </div>
+    </div>
+</div>
+

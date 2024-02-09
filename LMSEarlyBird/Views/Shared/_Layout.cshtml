@@ -36,8 +36,7 @@
                                     }
                                     <img class="ProfilePicture"
                                          src="~/images/ProfilePictures/@(userId)ProfilePicture.jpg"
-                                         onerror=" this.src='/images/ProfilePictures/@(userId)ProfilePicture.png';
-                                         onerror= this.src='/images/ProfilePictures/DefaultProfile.png';"
+                                         onerror="this.src='/images/ProfilePictures/DefaultProfile.png';"
                                          asp-append-version="true" />
                                 </a>
                             </li>
@@ -45,7 +44,7 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Calendar">Calendar</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Profile" asp-action="Profiles">Profile</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Profile" asp-action="DisplayProfile">Profile</a>
                             </li>
 
                             @if(User.IsInRole(LMSEarlyBird.Data.UserRoles.Student))

@@ -47,36 +47,55 @@ namespace LMSEarlyBird.Controllers
                 return View();
             }
 			string imgext = Path.GetExtension(imgFile.FileName);
-			if (imgext == ".jpg" || imgext == ".png" || imgext == ".JPG" || imgext == ".PNG")
+			if (imgext == ".jpg" || imgext == ".JPG")
 			{
 
                 // Get the path to save the image
                 var fileName = User.GetUserId() + "ProfilePicture" + Path.GetExtension(imgFile.FileName);
 				var saveimg = Path.Combine(_webHost.WebRootPath, "images/ProfilePictures", fileName);
 
+				deleteFile();
 
-                // Delete existing image with the same file name
-
-                // Get a list of files matching the pattern
-                string[] matchingFiles = Directory.GetFiles("wwwroot/images/ProfilePictures/", $"{User.GetUserId()}ProfilePicture.*");
-
-                // Delete each matching file
-                foreach (string file in matchingFiles)
-                {
-					System.IO.File.Delete(file);
-                }
-
-                using (var uploading = new FileStream(saveimg, FileMode.Create))
+				using (var uploading = new FileStream(saveimg, FileMode.Create))
 				{
 					await imgFile.CopyToAsync(uploading);
 					ViewData["Message"] = "The Selected File " + imgFile.FileName + " saved successfully.";
 				}
+
 			}
 			else
 			{
-				ViewData["Message"] = "Only .jpg and .png files are allowed";
+				ViewData["Message"] = "Only .jpg files are allowed";
 			}
 			return View();
+		}
+
+		/// <summary>
+		/// calls the deleteFile method and returns the profile picture page
+		/// </summary>
+		/// <returns></returns>
+		[HttpPost]
+		public IActionResult DeleteFile()
+		{
+			deleteFile();
+			return View("ProfilePicture");
+		}
+
+		/// <summary>
+		/// Deletes the user's current profile picture
+		/// </summary>
+		public void deleteFile()
+		{
+			// Delete existing image
+
+			// Get a list of files matching the pattern
+			string[] matchingFiles = Directory.GetFiles("wwwroot/images/ProfilePictures/", $"{User.GetUserId()}ProfilePicture.*");
+
+			// Delete each matching file
+			foreach (string file in matchingFiles)
+			{
+				System.IO.File.Delete(file);
+			}
 		}
 	}
 }

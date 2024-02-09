@@ -13,8 +13,7 @@ namespace LMSEarlyBird.ViewModels
 
         [Display(Name = "First Name")]
         [Required(ErrorMessage = "First Name address is required")]
-        public string FirstName {  get; set; }
-         
+        public string FirstName {  get; set; } 
         [Display(Name = "Last Name")]
         [Required(ErrorMessage = "Last Name address is required")]
         public string LastName { get; set; }

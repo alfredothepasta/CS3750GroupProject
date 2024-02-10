@@ -1,40 +1,109 @@
 ﻿@model LMSEarlyBird.Models.AppUser
+@* @model EditProfileViewModel *@
+@* @using LMSEarlyBird.ViewModels
+@model RegistrationViewModel *@
 @{
     ViewData["Title"] = "Dashboard";
 }
 
 
-<div class="text-center">
+<div class="text-center bottomborder">
     <h1 class="display-4">
         Welcome @Model.FirstName
         @Model.LastName
     </h1>
 </div>
 
-<div class="container">
-    <div class="row justify-content-center text-center">
-        @for (int i = 0; i < 6; i++)
-        {
-            <div class="col-10 col-md-4 border bg-light m-3">
-                <p><br /></p>
-                <h3>
-                    CSS 3750 Software Engineering 2
-                </h3>
-                <p>
-                    Instructor Arpit Christi
-                </p>
-                <p>
-                    Norda 318
-                </p>
-                <p>
-                    Times: Tues/Thurs 09:30-11:20
-                </p>
-                <p><br /></p>
+<div class="container-fluid">
+    @* <div class="row justify-content-center"> *@
+    <div class="row">
+        @* float-left w-75 h-100 *@
+        @* <h3>Time to see how wide this thing really is, because it doesn' tseem to be wide enough now widen me more and more and more</h3> *@
+        <div class="col-12 col-md-8 sideborderright">
+            <div class="row">
+                <h3 class="text-center"> Classes </h3>
+                @if (User.IsInRole(LMSEarlyBird.Data.UserRoles.Student))
+                {
+                    @foreach (var course in Model.StudentCourses)
+                    {
+                        <div class="card col-10 col-md-5 border mx-5 my-3 px-0">
+                            <div class="card-header">
+                                <h2>
+                                    @course.Course.Department.DeptCode
+                                    @course.Course.CourseNumber
+                                </h2>
+                                <h4>
+                                    @course.Course.CourseName
+                                </h4>
+                            </div>
+                            <div class="card-body">
+                                <p>
+                                    @course.Course.InstructorCourses[0].User.FirstName
+                                    @course.Course.InstructorCourses[0].User.LastName
+                                </p>
+                                <p>
+                                    @* @course.Course.Room.Building.BuildingName Still working on this*@
+                                    @course.Course.Room.RoomNumber
+                                </p>
+                                <p>
+                                    @course.Course.DaysOfWeek
+                                    @course.Course.StartTime
+                                    @course.Course.EndTime
+                                </p>
+                            </div>
+                        </div>
+                    }
+                }
+                else if (User.IsInRole(LMSEarlyBird.Data.UserRoles.Teacher))
+                {
+                    @foreach (var course in Model.InstructorCourses)
+                    {
+                        <div class="card col-10 col-md-4 border m-3 px-0">
+                            <div class="card-header">
+                                <h2>
+                                    @course.Course.Department.DeptCode
+                                    @course.Course.CourseNumber
+                                </h2>
+                                <h4>
+                                    @course.Course.CourseName
+                                </h4>
+                            </div>
+                            <div class="card-body">
+                                <p>
+                                    @course.Course.InstructorCourses[0].User.FirstName
+                                    @course.Course.InstructorCourses[0].User.LastName
+                                </p>
+                                <p>
+                                @* @course.Course.Room.Building.BuildingName Still working on this*@
+                                    @course.Course.Room.RoomNumber
+                                </p>
+                                <p>
+                                    @course.Course.DaysOfWeek
+                                    @course.Course.StartTime
+                                    @course.Course.EndTime
+                                </p>
+                            </div>
+                        </div>
+                    }
+                }
+                </div>
             </div>
-        }
+        <div class="col-10 col-md-4 justify-content-center sideborderleft">
+            <h3 class="text-center">ToDo List</h3>
+            @for (int i = 0; i < 4; i++)
+            {
+                <div class="card border m-3 px-0">
+                    <div class="card-header">
+                        An Assignment
+                    </div>
+                    <div class="card-body">
+                        <p>Class Name</p>
+                        <p>Due Date</p>
+                        <p>Points: SomeNumber</p>
+                    </div>
+                </div>
+            }
+        </div>
     </div>
 </div>
-
-@* style="width: 35%" *@
-@* class="card-body" *@
 

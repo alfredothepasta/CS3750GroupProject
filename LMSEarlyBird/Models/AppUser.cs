@@ -16,5 +16,7 @@ namespace LMSEarlyBird.Models
         // Relationships
         public List<StudentCourse> StudentCourses { get; set; } = new List<StudentCourse>();
         public List<InstructorCourse> InstructorCourses { get; set; }
+
+
     }
 }

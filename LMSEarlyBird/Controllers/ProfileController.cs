@@ -12,22 +12,14 @@ namespace LMSEarlyBird.Controllers
 {
     public class ProfileController : Controller
     {
-        /// <summary>
-        /// API for managing users in the user store
-        /// </summary>
-        private readonly UserManager<AppUser> _userManager;
-        /// <summary>
-        /// API for managing users in the user store
-        /// </summary>
-        private readonly UserManager<Address> _profileManager;
-        /// <summary>
-        /// Context accessor for reading session data
-        /// </summary>
-        private readonly IHttpContextAccessor _contextAccessor;
+        
         /// <summary>
         /// Context for accessing the address database
         /// </summary>
         private readonly IAddressRepository _addressRepository;
+        /// <summary>
+        /// Context for accessing the user database
+        /// </summary>
         private readonly IUserIdentityService _userIdentityService;
         private readonly IAppUserRepository _appUserRepository;
 
@@ -35,7 +27,6 @@ namespace LMSEarlyBird.Controllers
             IAppUserRepository appUserRepository)
         {
             _addressRepository = addressRepository;
-            _contextAccessor = contextAccessor;
             _userIdentityService = userIdentityService;
             _appUserRepository = appUserRepository;
         }

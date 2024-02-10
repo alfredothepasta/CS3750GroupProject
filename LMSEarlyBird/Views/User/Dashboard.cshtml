@@ -1,7 +1,4 @@
 ﻿@model LMSEarlyBird.Models.AppUser
-@* @model EditProfileViewModel *@
-@* @using LMSEarlyBird.ViewModels
-@model RegistrationViewModel *@
 @{
     ViewData["Title"] = "Dashboard";
 }
@@ -15,10 +12,7 @@
 </div>
 
 <div class="container-fluid">
-    @* <div class="row justify-content-center"> *@
     <div class="row">
-        @* float-left w-75 h-100 *@
-        @* <h3>Time to see how wide this thing really is, because it doesn' tseem to be wide enough now widen me more and more and more</h3> *@
         <div class="col-12 col-md-8 sideborderright">
             <div class="row">
                 <h3 class="text-center"> Classes </h3>
@@ -27,30 +21,32 @@
                     @foreach (var course in Model.StudentCourses)
                     {
                         <div class="card col-10 col-md-5 border mx-5 my-3 px-0">
-                            <div class="card-header">
-                                <h2>
-                                    @course.Course.Department.DeptCode
-                                    @course.Course.CourseNumber
-                                </h2>
-                                <h4>
-                                    @course.Course.CourseName
-                                </h4>
-                            </div>
-                            <div class="card-body">
-                                <p>
-                                    @course.Course.InstructorCourses[0].User.FirstName
-                                    @course.Course.InstructorCourses[0].User.LastName
-                                </p>
-                                <p>
-                                    @* @course.Course.Room.Building.BuildingName Still working on this*@
-                                    @course.Course.Room.RoomNumber
-                                </p>
-                                <p>
-                                    @course.Course.DaysOfWeek
-                                    @course.Course.StartTime
-                                    @course.Course.EndTime
-                                </p>
-                            </div>
+                            <a class="card-block stretched-link text-decoration-none" asp-area="" asp-controller="User" asp-action="Dashboard">
+                                <div class="card-header text-black">
+                                    <h2>
+                                        @course.Course.Department.DeptCode
+                                        @course.Course.CourseNumber
+                                    </h2>
+                                    <h4>
+                                        @course.Course.CourseName
+                                    </h4>
+                                </div>
+                                <div class="card-body text-black">
+                                    <p>
+                                        @course.Course.InstructorCourses[0].User.FirstName
+                                        @course.Course.InstructorCourses[0].User.LastName
+                                    </p>
+                                    <p>
+                                        @course.Course.Room.Building.BuildingName
+                                        @course.Course.Room.RoomNumber
+                                    </p>
+                                    <p>
+                                        @course.Course.DaysOfWeek
+                                        @course.Course.StartTime
+                                        @course.Course.EndTime
+                                    </p>
+                                </div>
+                            </a>
                         </div>
                     }
                 }
@@ -58,31 +54,33 @@
                 {
                     @foreach (var course in Model.InstructorCourses)
                     {
-                        <div class="card col-10 col-md-4 border m-3 px-0">
-                            <div class="card-header">
-                                <h2>
-                                    @course.Course.Department.DeptCode
-                                    @course.Course.CourseNumber
-                                </h2>
-                                <h4>
-                                    @course.Course.CourseName
-                                </h4>
-                            </div>
-                            <div class="card-body">
-                                <p>
-                                    @course.Course.InstructorCourses[0].User.FirstName
-                                    @course.Course.InstructorCourses[0].User.LastName
-                                </p>
-                                <p>
-                                @* @course.Course.Room.Building.BuildingName Still working on this*@
-                                    @course.Course.Room.RoomNumber
-                                </p>
-                                <p>
-                                    @course.Course.DaysOfWeek
-                                    @course.Course.StartTime
-                                    @course.Course.EndTime
-                                </p>
-                            </div>
+                        <div class="card col-10 col-md-5 border mx-5 my-3 px-0">
+                            <a class="card-block stretched-link text-decoration-none" asp-area="" asp-controller="User" asp-action="Dashboard">
+                                <div class="card-header text-black">
+                                    <h2>
+                                        @course.Course.Department.DeptCode
+                                        @course.Course.CourseNumber
+                                    </h2>
+                                    <h4>
+                                        @course.Course.CourseName
+                                    </h4>
+                                </div>
+                                <div class="card-body text-black">
+                                    <p>
+                                        @course.Course.InstructorCourses[0].User.FirstName
+                                        @course.Course.InstructorCourses[0].User.LastName
+                                    </p>
+                                    <p>
+                                        @course.Course.Room.Building.BuildingName
+                                        @course.Course.Room.RoomNumber
+                                    </p>
+                                    <p>
+                                        @course.Course.DaysOfWeek
+                                        @course.Course.StartTime
+                                        @course.Course.EndTime
+                                    </p>
+                                </div>
+                            </a>
                         </div>
                     }
                 }

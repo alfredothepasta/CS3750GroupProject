@@ -78,7 +78,8 @@ namespace LMSEarlyBird.Controllers
         /// Returns the Dashboard page with login information if correct login, else returns to login with errors
         /// </summary>
         /// <returns></returns>
-        public async Task<IActionResult> Dashboard(string? BuildingName = "")
+        [HttpGet]
+        public async Task<IActionResult> Dashboard()
         {
             // Checks to see if there is a current signed in user
             if (_contextAccessor.HttpContext.User.Identity.IsAuthenticated)

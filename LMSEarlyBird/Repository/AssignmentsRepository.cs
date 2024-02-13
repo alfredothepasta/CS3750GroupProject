@@ -47,7 +47,29 @@ namespace LMSEarlyBird.Repository
 
 		public async Task<bool> AddStudentAssignments(string userId, int courseId)
 		{
-			throw new NotImplementedException();
+            var user = await _context.AppUsers.FirstAsync(x => x.Id == userId);
+
+            //Get all current assignmnets for course
+            List<Assignment> assignments = await GetCourseAssignments(courseId);
+
+            //Create new StudentAssignments for each assignment
+            var studentAssignments = new List<StudentAssignment>();
+            foreach(var assignment in assignments)
+            {
+                StudentAssignment newAssignment = new StudentAssignment()
+                {
+                    Student = user,
+                    Assignment = assignment,
+                    Score = 0,
+                    Submitted = false,
+                    Graded = false
+                };
+
+                studentAssignments.Add(newAssignment);
+            }
+
+            _context.AddRange(studentAssignments);
+            return Save();
 		}
 
 		public async Task<List<Assignment>> GetCourseAssignments(int courseId)
@@ -59,11 +81,37 @@ namespace LMSEarlyBird.Repository
         {
             throw new NotImplementedException();
         }
-    
+
+        public async Task<List<Assignment>> GetStudentAssignmentsByCourse(string studentId, int courseId)
+        {
+            var user = await _context.AppUsers
+            .Include(x => x.StudentAssignment)
+            .ThenInclude(sa => sa.Assignment)
+            .FirstAsync(x => x.Id == studentId);
+
+            return user.StudentAssignment
+            .Where(x => x.Assignment.CourseId == courseId)
+            .Select(x => x.Assignment)
+            .ToList();
+        }
 
         public bool RemoveAssignment(Assignment assignment)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<bool> RemoveStudentAssignments(string studentId, int courseId)
+        {
+            var user = await _context.AppUsers
+            .Include(x => x.StudentAssignment)
+            .ThenInclude(sa => sa.Assignment)
+            .FirstAsync(x => x.Id == studentId);
+
+            var courseStudentAssignments = user.StudentAssignment
+            .Where(x => x.Assignment.CourseId == courseId);
+
+            _context.RemoveRange(courseStudentAssignments);
+            return Save();
         }
 
         public bool Save()

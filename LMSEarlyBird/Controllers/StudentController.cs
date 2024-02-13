@@ -18,14 +18,16 @@ namespace LMSEarlyBird.Controllers
         private readonly IUserIdentityService _userIdentityService;
         private readonly IAppUserRepository _appUserRepository;
         private readonly IStudentCourseRepository _studentCourseRepository;
+        private readonly IAssignmentsRepository _assignmentsRepository;
         private readonly IDepartmentRepository _departmentRepository;
-        public StudentController(ICourseRepository courseRepository, IUserIdentityService userIdentityService, IAppUserRepository appUserRepository, IStudentCourseRepository studentCourseRepository, IDepartmentRepository departmentRepository)
+        public StudentController(ICourseRepository courseRepository, IUserIdentityService userIdentityService, IAppUserRepository appUserRepository, IStudentCourseRepository studentCourseRepository, IDepartmentRepository departmentRepository, IAssignmentsRepository assignmentsRepository)
         {
             _courseRepository = courseRepository;
             _userIdentityService = userIdentityService;
             _appUserRepository = appUserRepository;
             _studentCourseRepository = studentCourseRepository;
             _departmentRepository = departmentRepository;
+            _assignmentsRepository = assignmentsRepository;
         }
 
         public IActionResult Index()
@@ -44,8 +46,26 @@ namespace LMSEarlyBird.Controllers
             return View(result);
         }  
 
-        public async Task<IActionResult> Course(int id){
-            return View();
+        public async Task<IActionResult> Course(int courseid){
+            var userid = _userIdentityService.GetUserId();
+
+            var user = await _appUserRepository.GetUser(userid);
+
+            if(!user.StudentCourses.Any(x => x.CourseId == courseid))
+            {
+                return NotFound();
+            }
+
+            var courseAssignments = 
+                await _assignmentsRepository.GetStudentAssignmentsByCourse(userid, courseid);         
+
+            CourseAssignmentListViewModel viewModel = new CourseAssignmentListViewModel
+            {
+                Course = await _courseRepository.GetCourse(courseid),
+                Assignments = courseAssignments
+            };
+
+            return View(viewModel);
         }
         
         public async Task<IActionResult> Search(string? query, string? category)
@@ -73,7 +93,7 @@ namespace LMSEarlyBird.Controllers
             return View("Registration", result);
         }     
 
-        public IActionResult DropClass(int id, string? search, string? deptSelected)
+        public async Task<IActionResult> DropClass(int id, string? search, string? deptSelected)
         {
             var userid = _userIdentityService.GetUserId();
 
@@ -87,11 +107,14 @@ namespace LMSEarlyBird.Controllers
             try
             {
                 _studentCourseRepository.Delete(studentCourse);
+                await _assignmentsRepository.RemoveStudentAssignments(userid,id);
             }
             catch(Exception ex)
             {
                 
             }
+
+            var testt = await _appUserRepository.GetUser(userid);
 
             if(search!=null || deptSelected!=null || deptSelected != "" || search != "")
             {
@@ -101,7 +124,7 @@ namespace LMSEarlyBird.Controllers
             return RedirectToAction(nameof(Registration));
         }
 
-        public IActionResult AddClass(int id, string? search, string? deptSelected)
+        public async Task<IActionResult> AddClass(int id, string? search, string? deptSelected)
         {
             var userid = _userIdentityService.GetUserId();
 
@@ -114,6 +137,7 @@ namespace LMSEarlyBird.Controllers
             try
             {
                 _studentCourseRepository.Add(studentCourse);
+                await _assignmentsRepository.AddStudentAssignments(userid,id);
             }
             catch(Exception ex)
             {

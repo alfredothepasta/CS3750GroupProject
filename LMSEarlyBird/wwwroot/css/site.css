@@ -57,3 +57,7 @@ body {
     width: 100%;
     border-bottom: 1px solid #dee2e6;
 }
+
+.LeftMargin {
+    margin-left: 5%;
+}

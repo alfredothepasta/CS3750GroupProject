@@ -20,20 +20,22 @@ namespace LMSEarlyBird.Controllers
         private readonly IHttpContextAccessor _contextAccessor;
 		private readonly ICourseRepository _courseRepository;
         private readonly IStudentCourseRepository _studentCourseRepository;
+		private readonly IAppUserRepository _appUserRepository;
 
-		/// <summary>
-		/// Constructor, initializes the instance variables
-		/// </summary>
-		/// <param name="context"></param>
-		/// <param name="contextAccessor"></param>
-		public UserController(ApplicationDbContext context, IHttpContextAccessor contextAccessor
-            , ICourseRepository courseRepository, IStudentCourseRepository studentCourseRepository)
+        /// <summary>
+        /// Constructor, initializes the instance variables
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="contextAccessor"></param>
+        public UserController(ApplicationDbContext context, IHttpContextAccessor contextAccessor
+            , ICourseRepository courseRepository, IStudentCourseRepository studentCourseRepository, IAppUserRepository appUserRepository)
         {
 			_courseRepository = courseRepository;
 			_context = context;
             _contextAccessor = contextAccessor;
             _studentCourseRepository = studentCourseRepository;
-		}
+			_appUserRepository = appUserRepository;
+        }
 
         /// <summary>
         /// Returns the Dashboard page with login information if correct login, else returns to login with errors
@@ -71,10 +73,12 @@ namespace LMSEarlyBird.Controllers
             {
 				var instructorId = _contextAccessor.HttpContext.User.GetUserId();
 				courses = await _courseRepository.GetCoursesByTeacher(instructorId);
+				
 			}
             else
             {
-                return View("Calendar");
+                var studentId = _contextAccessor.HttpContext.User.GetUserId();
+				courses = await _courseRepository.GetCoursesByStudent(studentId);
             }
 			
 			

@@ -43,6 +43,10 @@ namespace LMSEarlyBird.Controllers
             result.Courses = await GetRegisterCourseViewModels();
             return View(result);
         }  
+
+        public async Task<IActionResult> Course(int id){
+            return View();
+        }
         
         public async Task<IActionResult> Search(string? query, string? category)
         {

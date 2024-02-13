@@ -77,9 +77,14 @@ namespace LMSEarlyBird.Repository
 			return await _context.Assignments.Where(c => c.CourseId == courseId).ToListAsync();
         }
 
-        public async Task<List<Assignment>> GetStudentAssignments(string studentId)
+        public async Task<List<StudentAssignment>> GetStudentAssignments(string studentId)
         {
-            throw new NotImplementedException();
+            var user = await _context.AppUsers
+            .Include(x => x.StudentAssignment)
+            .ThenInclude(sa => sa.Assignment)
+            .FirstAsync(x => x.Id == studentId);
+
+            return user.StudentAssignment;
         }
 
         public async Task<List<Assignment>> GetStudentAssignmentsByCourse(string studentId, int courseId)

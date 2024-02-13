@@ -5,7 +5,7 @@ namespace LMSEarlyBird.Interfaces
     public interface IAssignmentsRepository
     {
         Task<List<Assignment>> GetCourseAssignments(int courseId);
-        Task<List<Assignment>> GetStudentAssignments(string studentId);
+        Task<List<StudentAssignment>> GetStudentAssignments(string studentId);
         Task<List<Assignment>> GetStudentAssignmentsByCourse(string studentId, int courseId);
         Task<bool> AddStudentAssignments(string userId, int courseId);
         Task<bool> RemoveStudentAssignments(string userId, int courseId);

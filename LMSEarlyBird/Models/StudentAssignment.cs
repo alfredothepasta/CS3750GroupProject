@@ -13,6 +13,6 @@ namespace LMSEarlyBird.Models
         public int Score { get; set; }
         public bool Submitted { get; set; }
         public bool Graded { get; set; }
-        public string Submission { get; set; }
+        public string? Submission { get; set; }
     }
 }

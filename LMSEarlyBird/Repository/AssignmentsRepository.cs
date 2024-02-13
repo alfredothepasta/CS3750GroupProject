@@ -1,7 +1,9 @@
 ﻿using LMSEarlyBird.Data;
 using LMSEarlyBird.Interfaces;
+using LMSEarlyBird.Migrations;
 using LMSEarlyBird.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Runtime.InteropServices;
 
 namespace LMSEarlyBird.Repository
 {
@@ -14,15 +16,43 @@ namespace LMSEarlyBird.Repository
             _context = context;
         }
 
-        public bool AddAssignment(Assignment assignment)
+        public async Task<bool> AddAssignment(Assignment assignment, int courseId)
         {
-            _context.Add(assignment);
-            return Save();
+			// get a list of users that are enrolled in the course
+			List<AppUser> courseUsers = _context.
+				AppUsers.
+				Where(u => u.StudentCourses.
+					Where(c => c.CourseId == courseId)
+					.Any()
+				).ToList();
+
+
+			List<StudentAssignment> studentAssignments = new List<StudentAssignment>();
+			foreach (AppUser user in courseUsers)
+			{
+				StudentAssignment newAssignment = new StudentAssignment()
+				{
+					Student = user,
+					Assignment = assignment,
+					Score = 0,
+					Submitted = false,
+					Graded = false
+				};
+				studentAssignments.Add(newAssignment);
+			}
+			_context.AddRange(studentAssignments);
+			_context.Add(assignment);
+			return Save();
         }
 
-        public async Task<List<Assignment>> GetCourseAssignments(int courseId)
+		public async Task<bool> AddStudentAssignments(string userId, int courseId)
+		{
+			throw new NotImplementedException();
+		}
+
+		public async Task<List<Assignment>> GetCourseAssignments(int courseId)
         {
-            return await _context.Assignments.Where(c => c.CourseId == courseId).ToListAsync();
+			return await _context.Assignments.Where(c => c.CourseId == courseId).ToListAsync();
         }
 
         public async Task<List<Assignment>> GetStudentAssignments(string studentId)

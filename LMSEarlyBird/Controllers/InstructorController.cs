@@ -275,7 +275,7 @@ namespace LMSEarlyBird.Controllers
 				maxPoints = viewModel.maxPoints
 			};
 
-            _assignmentRepository.AddAssignment(assignment);
+            _assignmentRepository.AddAssignment(assignment, courseId);
 			return RedirectToAction("CourseAssignmentList", new { courseId = viewModel.Course.id });
 
 		}

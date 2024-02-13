@@ -15,10 +15,6 @@ namespace LMSEarlyBird.Controllers
         /// </summary>
         private readonly IHttpContextAccessor _contextAccessor;
 
-		private readonly ICourseRepository _courseRepository;
-        private readonly IStudentCourseRepository _studentCourseRepository;
-		private readonly IAppUserRepository _appUserRepository;
-
 
         /// <summary>
         /// Context accessor for reading User Identification data
@@ -60,8 +56,6 @@ namespace LMSEarlyBird.Controllers
             IBuildingRepository buildingRepository)
         {
             _contextAccessor = contextAccessor;
-            _studentCourseRepository = studentCourseRepository;
-			_appUserRepository = appUserRepository;
             _courseRepository = courseRepository;
             _userIdentityService = userIdentityService;
             _appUserRepository = appUserRepository;

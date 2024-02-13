@@ -1,0 +1,36 @@
+﻿@model LMSEarlyBird.Models.AppUser
+@{
+    ViewData["Title"] = "Payment Page";
+}
+
+<h1>Payment Page</h1>
+@{
+    int amount = 0;
+}
+@foreach (var course in Model.StudentCourses)
+{
+    amount += 200 @* * course.Course.CreditHours *@;
+}
+<div class="row">
+    <div class="col-md-4">
+    <form asp-action="PaymentPage" >
+        <div class="form-group">
+            <label class="control-label">You currently owe: @amount</label>
+            <div class="row">
+                    <div class="col-md-6">
+                        How much would you like to pay:
+                    </div>
+                    <div class="col-md-6">
+                        <input class="form-control" />
+                    </div>
+            </div>
+            @* <p class="float-left">How much would you like to pay: </p> <input class="form-control" /> *@
+            @* <span asp-validation-for="int" class="text-danger"></span> *@
+        </div>
+        <div class="form-group">
+            <input class="btn btn-outline-success float-right" type="submit" value="Make Payment" />
+            <a class="btn btn-outline-secondary" asp-controller="Profile" asp-action="PaymentPage">Cancel</a>
+        </div>
+    </form>
+    </div>
+</div>

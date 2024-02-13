@@ -11,34 +11,75 @@ namespace LMSEarlyBird.Controllers
     public class UserController : Controller
     {
         /// <summary>
-        /// context variable for accessing the db
-        /// </summary>
-        private readonly ApplicationDbContext _context;
-        /// <summary>
-        /// Context accessor for reading session data
+        /// Context accessor for reading Session data
         /// </summary>
         private readonly IHttpContextAccessor _contextAccessor;
-		private readonly ICourseRepository _courseRepository;
-        private readonly IStudentCourseRepository _studentCourseRepository;
+        /// <summary>
+        /// Context accessor for reading User Identification data
+        /// </summary>
 
-		/// <summary>
-		/// Constructor, initializes the instance variables
-		/// </summary>
-		/// <param name="context"></param>
-		/// <param name="contextAccessor"></param>
-		public UserController(ApplicationDbContext context, IHttpContextAccessor contextAccessor
-            , ICourseRepository courseRepository, IStudentCourseRepository studentCourseRepository)
+        private readonly IUserIdentityService _userIdentityService;
+        /// <summary>
+        /// Context accessor for reading User data
+        /// </summary>
+        private readonly IAppUserRepository _appUserRepository;
+        /// <summary>
+        /// Context accessor for reading Courses database
+        /// </summary>
+        private readonly ICourseRepository _courseRepository;
+        /// <summary>
+        /// Context accessor for reading Departments database
+        /// </summary>
+        private readonly IDepartmentRepository _departmentRepository;
+        /// <summary>
+        /// Context for accessing the room database
+        /// </summary>
+        private readonly IRoomRepository _roomRepository;
+        /// <summary>
+        /// Context for accessing the building database
+        /// </summary>
+        private readonly IBuildingRepository _buildingRepository;
+
+        /// <summary>
+        /// Constructor, initializes the instance variables
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="contextAccessor"></param>
+        public UserController(
+            IHttpContextAccessor contextAccessor, 
+            ICourseRepository courseRepository, 
+            IUserIdentityService userIdentityService,
+            IAppUserRepository appUserRepository,
+            IDepartmentRepository departmentRepository,
+            IRoomRepository roomRepository,
+            IBuildingRepository buildingRepository)
         {
-			_courseRepository = courseRepository;
-			_context = context;
             _contextAccessor = contextAccessor;
-            _studentCourseRepository = studentCourseRepository;
-		}
+            _courseRepository = courseRepository;
+            _userIdentityService = userIdentityService;
+            _appUserRepository = appUserRepository;
+            _departmentRepository = departmentRepository;
+            _roomRepository = roomRepository;
+            _buildingRepository = buildingRepository;
+        }
+
+        private string FormatDaysOfWeek(string daysOfWeek)
+        {
+            string formatted = "";
+
+            foreach (char day in daysOfWeek)
+            {
+                formatted += day + " ";
+            }
+
+            return formatted;
+        }
 
         /// <summary>
         /// Returns the Dashboard page with login information if correct login, else returns to login with errors
         /// </summary>
         /// <returns></returns>
+        [HttpGet]
         public async Task<IActionResult> Dashboard()
         {
             // Checks to see if there is a current signed in user
@@ -47,11 +88,41 @@ namespace LMSEarlyBird.Controllers
                 var currentUser = _contextAccessor.HttpContext?.User.GetUserId();
                 if (currentUser != null)
                 {
-                    AppUser userData = await _context.Users.FindAsync(currentUser);
-                    return View(userData);
+                    //pull user based on logged in user
+                    string userId = _userIdentityService.GetUserId();
+                    AppUser profile = await _appUserRepository.GetUser(userId);
+
+                    ////pull the current courses, required for obtaining department names
+                    var courses = await _courseRepository.GetAllCoursesWithInstructor();
+
+                    // call the dashboard VM for gathering the course information
+                    DashboardViewModel dashboardVM = new DashboardViewModel();
+
+                    // gather department names
+                    List<string> departmentNames = _departmentRepository.GetAllDepartments().Result.Select(x => x.DeptName).ToList();
+                    dashboardVM.DepartmentNames = departmentNames;
+
+                    // gather the room numbers
+                    List<Room> roomNumbers = _roomRepository.GetRooms().Result.Select(x => new Room { RoomNumber = x.RoomNumber }).ToList();
+                    dashboardVM.RoomList = roomNumbers;
+
+                    // gather the building names
+                    List<Building> buildings = _buildingRepository.GetBuildings().Result.ToList();
+                    dashboardVM.BuildingList = buildings;
+
+                    // build the model view for the user to display First and Last name as well as the courses//
+                    var userVM = new AppUser
+                    {
+                        FirstName = profile.FirstName,
+                        LastName = profile.LastName,
+                        StudentCourses = profile.StudentCourses,
+                        InstructorCourses = profile.InstructorCourses,
+                        
+                    };
+                    // pass everything gathered into the view
+                    return View(userVM);
                 }
             }
-
             return View("Account", "Login");
         }
 

@@ -7,37 +7,50 @@ using LMSEarlyBird.ViewModels;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Data;
 using LMSEarlyBird.Repository;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LMSEarlyBird.Controllers
 {
     public class ProfileController : Controller
     {
-        /// <summary>
-        /// API for managing users in the user store
-        /// </summary>
-        private readonly UserManager<AppUser> _userManager;
-        /// <summary>
-        /// API for managing users in the user store
-        /// </summary>
-        private readonly UserManager<Address> _profileManager;
-        /// <summary>
-        /// Context accessor for reading session data
-        /// </summary>
-        private readonly IHttpContextAccessor _contextAccessor;
+        
         /// <summary>
         /// Context for accessing the address database
         /// </summary>
         private readonly IAddressRepository _addressRepository;
+        /// <summary>
+        /// Context for accessing the user identity database
+        /// </summary>
         private readonly IUserIdentityService _userIdentityService;
+        /// <summary>
+        /// Context for accessing the user database
+        /// </summary>
         private readonly IAppUserRepository _appUserRepository;
 
         public ProfileController(IAddressRepository addressRepository, IHttpContextAccessor contextAccessor, IUserIdentityService userIdentityService,
             IAppUserRepository appUserRepository)
         {
             _addressRepository = addressRepository;
-            _contextAccessor = contextAccessor;
             _userIdentityService = userIdentityService;
             _appUserRepository = appUserRepository;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PaymentPage()
+        {
+            //pull user based on logged in user
+            string userId = _userIdentityService.GetUserId();
+            AppUser profile = await _appUserRepository.GetUser(userId);
+
+            var userVM = new AppUser
+            {
+                FirstName = profile.FirstName,
+                LastName = profile.LastName,
+                StudentCourses = profile.StudentCourses,
+                InstructorCourses = profile.InstructorCourses,
+
+            };
+            return View(userVM);
         }
 
         [HttpGet]
@@ -117,15 +130,6 @@ namespace LMSEarlyBird.Controllers
             };
             return View(profileVM);
         }
-
-        //public async Task<IActionResult> Tester()
-        //{
-        //    var userID = _contextAccessor.HttpContext.User.GetUserId();
-        //    Address address = await _addressRepository.getUserAddress(userID);
-
-        //    return View(address);
-        //}
-
 
         /// <summary>
         /// When accessed via a POST operation, attempts to update the user account

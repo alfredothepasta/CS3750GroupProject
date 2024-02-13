@@ -17,6 +17,6 @@ namespace LMSEarlyBird.Models
         public List<StudentCourse> StudentCourses { get; set; } = new List<StudentCourse>();
         public List<InstructorCourse> InstructorCourses { get; set; }
 
-		public List<StudentAssignment> StudentAssignment { get; set; }
-	}
+		    public List<StudentAssignment> StudentAssignment { get; set; }
+	  } 
 }

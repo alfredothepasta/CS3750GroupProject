@@ -1,3 +1,4 @@
+using LMSEarlyBird.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,6 @@ namespace LMSEarlyBird.ViewModels
         public List<string> DepartmentNames { get; set; }
         public string? Search { get; set; }
         public string? SelectedDept { get; set; }
+
     }
 }

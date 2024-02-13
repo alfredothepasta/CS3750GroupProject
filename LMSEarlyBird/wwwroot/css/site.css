@@ -42,3 +42,22 @@ body {
     border-radius: 50%;
     object-fit: cover;
 }
+
+.sideborderleft {
+    height: 100%;
+    border-left: 1px solid #dee2e6;
+}
+
+.sideborderright {
+    height: 100%;
+    border-right: 1px solid #dee2e6;
+}
+
+.bottomborder {
+    width: 100%;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.LeftMargin {
+    margin-left: 5.75%;
+}

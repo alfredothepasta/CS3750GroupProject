@@ -62,6 +62,15 @@ namespace LMSEarlyBird.Repository{
                 .ToListAsync();
         }
 
+        public async Task<List<Course>> GetCoursesByStudent(string studentId)
+        {
+            return await _context.Courses
+                .Where(c => c.StudentCourses
+                    .Where(i => i.UserId == studentId)
+                    .Any())
+                .ToListAsync();
+        }
+
         public async Task<List<Course>> GetCourseByRoomId(int id)
         {
             return await _context.Courses.Where(c => c.RoomId == id).ToListAsync();

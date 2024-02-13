@@ -1,7 +1,40 @@
-﻿<h1>Calendar</h1>
+﻿@using LMSEarlyBird.Models
+@using Microsoft.AspNetCore.Mvc
+@model List<CalendarEvent>
+
+@{
+	ViewData["Title"] = "Calendar";
+}
+
+<h1>Calendar</h1>
+
+
+<div id="calendar"></div>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js" />
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
 
-<div id="calendar"></div>
-<script src="~/js/Calendar.js"></script>
+
+<script>
+    // load the calendar
+    let calendarEl = document.getElementById('calendar');
+    // load events
+    let jsonEvents = @Html.Raw(ViewData["Events"]);
+
+    // load event details
+    let calendar = new FullCalendar.Calendar(calendarEl, {
+        // styling
+        initialView: 'dayGridMonth',
+        eventDisplay: 'block',
+        displayEventTime: true,
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        // events from json string, retrieved from cshtml
+        events: jsonEvents,
+    });
+    // render
+    calendar.render();
+</script>

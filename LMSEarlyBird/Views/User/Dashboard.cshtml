@@ -55,7 +55,8 @@
                     @foreach (var course in Model.InstructorCourses)
                     {
                         <div class="card col-10 col-md-5 border mx-5 my-3 px-0">
-                            <a class="card-block stretched-link text-decoration-none" asp-area="" asp-controller="User" asp-action="Dashboard">
+                            <a class="card-block stretched-link text-decoration-none" asp-controller="Instructor" asp-action="CourseAssignmentList" asp-route-courseId="@course.Course.id">
+                                @* asp-area="" asp-controller="User" asp-action="Dashboard"> *@
                                 <div class="card-header text-black">
                                     <h2>
                                         @course.Course.Department.DeptCode

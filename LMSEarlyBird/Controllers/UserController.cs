@@ -91,21 +91,23 @@ namespace LMSEarlyBird.Controllers
                     string userId = _userIdentityService.GetUserId();
                     AppUser profile = await _appUserRepository.GetUser(userId);
 
-                    //pull the current courses, required for obtaining department names
+                    ////pull the current courses, required for obtaining department names
                     var courses = await _courseRepository.GetAllCoursesWithInstructor();
-                    //Create list of department names
-                    RegistrationViewModel result = new RegistrationViewModel();
+
+                    // call the dashboard VM for gathering the course information
+                    DashboardViewModel dashboardVM = new DashboardViewModel();
+
+                    // gather department names
                     List<string> departmentNames = _departmentRepository.GetAllDepartments().Result.Select(x => x.DeptName).ToList();
-                    result.DepartmentNames = departmentNames;
+                    dashboardVM.DepartmentNames = departmentNames;
 
-                    // Create list of room numbers
-                    AddCourseViewModel roomInfo = new AddCourseViewModel();
-                    List<Room> roomNumber = _roomRepository.GetRooms().Result.Select(x => new Room { RoomNumber = x.RoomNumber }).ToList();
-                    roomInfo.RoomList = roomNumber;
+                    // gather the room numbers
+                    List<Room> roomNumbers = _roomRepository.GetRooms().Result.Select(x => new Room { RoomNumber = x.RoomNumber }).ToList();
+                    dashboardVM.RoomList = roomNumbers;
 
-                    // Create list of Buildings
+                    // gather the building names
                     List<Building> buildings = _buildingRepository.GetBuildings().Result.ToList();
-                    roomInfo.BuildingList = buildings;
+                    dashboardVM.BuildingList = buildings;
 
                     // build the model view for the user to display First and Last name as well as the courses//
                     var userVM = new AppUser
@@ -116,6 +118,7 @@ namespace LMSEarlyBird.Controllers
                         InstructorCourses = profile.InstructorCourses,
                         
                     };
+                    // pass everything gathered into the view
                     return View(userVM);
                 }
             }

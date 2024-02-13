@@ -19,7 +19,8 @@ namespace LMSEarlyBird.ViewModels
         [Display(Name = "Due Date")]
 		public DateTime DueDate { get; set; }
         [Required]
-        [Display(Name = "Max Points")]
+		[Range(0, int.MaxValue, ErrorMessage = "The field {0} must be within {1} and {2}")]
+		[Display(Name = "Max Points")]
 		public int maxPoints { get; set; }
     }
 }

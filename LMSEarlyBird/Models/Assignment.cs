@@ -18,5 +18,8 @@ namespace LMSEarlyBird.Models
         [ForeignKey("CourseId")]
         public int CourseId { get; set; }
         public Course? Course { get; set; }
-    }
+
+        public List<StudentAssignment> StudentAssignments { get; set; }
+
+	}
 }

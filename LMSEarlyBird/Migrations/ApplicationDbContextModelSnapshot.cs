@@ -317,7 +317,6 @@ namespace LMSEarlyBird.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Submission")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("Submitted")
@@ -552,13 +551,13 @@ namespace LMSEarlyBird.Migrations
             modelBuilder.Entity("LMSEarlyBird.Models.StudentAssignment", b =>
                 {
                     b.HasOne("LMSEarlyBird.Models.Assignment", "Assignment")
-                        .WithMany()
+                        .WithMany("StudentAssignments")
                         .HasForeignKey("AssignmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("LMSEarlyBird.Models.AppUser", "Student")
-                        .WithMany()
+                        .WithMany("StudentAssignment")
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -645,7 +644,14 @@ namespace LMSEarlyBird.Migrations
 
                     b.Navigation("InstructorCourses");
 
+                    b.Navigation("StudentAssignment");
+
                     b.Navigation("StudentCourses");
+                });
+
+            modelBuilder.Entity("LMSEarlyBird.Models.Assignment", b =>
+                {
+                    b.Navigation("StudentAssignments");
                 });
 
             modelBuilder.Entity("LMSEarlyBird.Models.Course", b =>

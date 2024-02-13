@@ -14,6 +14,8 @@ namespace LMSEarlyBird.Controllers
         /// Context accessor for reading Session data
         /// </summary>
         private readonly IHttpContextAccessor _contextAccessor;
+
+
         /// <summary>
         /// Context accessor for reading User Identification data
         /// </summary>
@@ -39,7 +41,6 @@ namespace LMSEarlyBird.Controllers
         /// Context for accessing the building database
         /// </summary>
         private readonly IBuildingRepository _buildingRepository;
-
         /// <summary>
         /// Constructor, initializes the instance variables
         /// </summary>
@@ -142,10 +143,12 @@ namespace LMSEarlyBird.Controllers
             {
 				var instructorId = _contextAccessor.HttpContext.User.GetUserId();
 				courses = await _courseRepository.GetCoursesByTeacher(instructorId);
+				
 			}
             else
             {
-                return View("Calendar");
+                var studentId = _contextAccessor.HttpContext.User.GetUserId();
+				courses = await _courseRepository.GetCoursesByStudent(studentId);
             }
 			
 			

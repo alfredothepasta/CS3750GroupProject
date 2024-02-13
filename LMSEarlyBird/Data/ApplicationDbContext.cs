@@ -47,6 +47,7 @@ namespace LMSEarlyBird.Data
         public DbSet<StudentCourse> StudentCourses { get; set; }
         public DbSet<InstructorCourse> InstructorCourses { get; set; }
 
-        
+        public DbSet<Assignment> Assignments { get; set; }
+        public DbSet<StudentAssignment> StudentAssignments { get; set; }
     }
 }

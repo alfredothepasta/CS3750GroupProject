@@ -17,6 +17,7 @@ namespace LMSEarlyBird.Controllers
         /// <summary>
         /// Context accessor for reading User Identification data
         /// </summary>
+
         private readonly IUserIdentityService _userIdentityService;
         /// <summary>
         /// Context accessor for reading User data
@@ -129,9 +130,111 @@ namespace LMSEarlyBird.Controllers
         /// Returns the Calendar page
         /// </summary>
         /// <returns></returns>
-        public IActionResult Calendar()
+        public async Task<IActionResult> Calendar()
         {
-            return View();
+            List<Course> courses;
+			// get the courses associated with the student
+			// var studentId = _contextAccessor.HttpContext.User.GetUserId();
+			// courses = await _studentCourseRepository.GetCoursesByStudent(studentId);
+
+			// if the user is a teacher, get the courses associated with the teacher
+			if (User.IsInRole(UserRoles.Teacher))
+            {
+				var instructorId = _contextAccessor.HttpContext.User.GetUserId();
+				courses = await _courseRepository.GetCoursesByTeacher(instructorId);
+			}
+            else
+            {
+                return View("Calendar");
+            }
+			
+			
+            List<CalendarEvent> events = new List<CalendarEvent>();
+
+			// Define a mapping of day abbreviations to numbers
+			Dictionary<string, int> dayAbbreviationToNumber = new Dictionary<string, int>
+            {
+	            { "S", 0 }, // Sunday
+                { "M", 1 }, // Monday
+                { "T", 2 }, // Tuesday
+                { "W", 3 }, // Wednesday
+                { "R", 4 }, // Thursday
+                { "F", 5 }, // Friday
+                { "A", 6 }  // Saturday
+            };
+
+			// Define the start and end dates of the semester
+			DateTime semesterStartDate = new DateTime(2024, 01, 08);
+			DateTime semesterEndDate = new DateTime(2024, 04, 20);
+
+			// Iterate over the courses
+			foreach (Course course in courses)
+            {
+				// Iterate over the days each course is on
+				foreach (char day in course.DaysOfWeek)
+                {
+					// Check if the day abbreviation is valid
+					if (dayAbbreviationToNumber.ContainsKey(day.ToString()))
+					{
+						// Get the corresponding day number
+						int dayNumber = dayAbbreviationToNumber[day.ToString()];
+
+						// Calculate the first occurrence of the day of the week within the semester date range
+						DateTime startDate = semesterStartDate;
+						while (startDate.DayOfWeek != (DayOfWeek)dayNumber)
+						{
+							startDate = startDate.AddDays(1);
+						}
+
+						// Iterate over the dates starting from the calculated start date up to the end of the semester
+						for (DateTime date = startDate; date <= semesterEndDate; date = date.AddDays(7))
+						{
+							// set event color by course number
+							string eventColor = "#4287f5";
+							int cn = int.Parse(course.CourseNumber);
+							if (cn < 1000)
+							{
+								eventColor = "#4287f5";
+							} 
+							else if(cn < 2000)
+							{
+								eventColor = "#26d426";
+							}
+							else if (cn < 3000)
+							{
+								eventColor = "#de8b1f";
+							}
+							else if (cn < 4000)
+							{
+								eventColor = "#f01111";
+							}
+							else if (cn >= 4000)
+							{
+								eventColor = "#da0dde";
+							}
+
+							// Create a CalendarEvent for the current course and date
+							CalendarEvent calendarEvent = new CalendarEvent
+							{
+								title = course.Department + course.CourseNumber + " " + course.CourseName,
+								start = date + course.StartTime.ToTimeSpan(),
+								end = date + course.EndTime.ToTimeSpan(),
+								backgroundColor = eventColor
+							};
+
+							// Add the CalendarEvent to the events list
+							events.Add(calendarEvent);
+						}
+
+					}
+				}
+			}
+			// Convert the events list to JSON
+			string jsonEvents = Newtonsoft.Json.JsonConvert.SerializeObject(events);
+
+			ViewData["Events"] = jsonEvents;
+
+			return View("Calendar");
         }
     }
 }

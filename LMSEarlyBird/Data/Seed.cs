@@ -84,5 +84,22 @@ namespace LMSEarlyBird.Data
                 context.SaveChanges();
             }
         }
+
+        public static void SeedDepartments(IApplicationBuilder applicationBuilder)
+        {
+            using (var serviceScope = applicationBuilder.ApplicationServices.CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>();
+
+                List<Department> deptList = new List<Department>();
+                deptList.Add(new Department() { DeptCode = "ENG", DeptName = "English" });
+                deptList.Add(new Department() { DeptCode = "MATH", DeptName = "Mathematics" });
+                deptList.Add(new Department() { DeptCode = "FA", DeptName = "Fine Art" });
+                deptList.Add(new Department() { DeptCode = "ART", DeptName = "Visual Arts" });
+
+                context.Departments.AddRange(deptList);
+                context.SaveChanges();
+            }
+        }
     }
 }

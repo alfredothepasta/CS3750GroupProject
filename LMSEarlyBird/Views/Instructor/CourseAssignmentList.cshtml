@@ -1,0 +1,73 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@using LMSEarlyBird.ViewModels
+@model CourseAssignmentListViewModel
+
+<h1>@Model.Course.Department.DeptCode @Model.Course.CourseNumber @Model.Course.CourseName</h1>
+
+<h2>Assignments</h2>
+@if (Model.Assignments != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Assignments[0].Title)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Assignments[0].Description)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Assignments[0].DueDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Assignments[0].Type)
+                </th>   
+                <th>
+                    Delete
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Assignments)
+            {
+                <tr>
+                    <td>
+                        @item.Title
+                    </td>
+                    <td>
+                        @item.Description
+                    </td>
+                    <td>
+                        @item.DueDate
+                    </td>
+                    <td>
+                        @item.Type
+                    </td>
+                    <td>
+                        <a class="btn btn-danger" asp-controller="Instructor" asp-action="DeleteCourseAssignment" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
+            }
+            <tr>
+                <td>
+                </td>
+                <td>
+                </td>
+                <td>
+                </td>
+                <td>
+                </td>
+                <td>
+                    <a class="btn btn-outline-secondary" asp-controller="Instructor" asp-action="CreateAssignment" asp-route-courseId="@Model.Course.id">Create Assignment</a>
+                </td>
+        </tbody>
+    </table>
+} else
+{
+	<p>No Course Assignments</p>
+    <a class="btn btn-outline-secondary" asp-controller="Instructor" asp-action="CreateAssignment" asp-route-courseId="@Model.Course.id">Create Assignment</a>
+}

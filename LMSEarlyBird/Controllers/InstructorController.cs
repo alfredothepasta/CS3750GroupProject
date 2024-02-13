@@ -1,5 +1,6 @@
 ﻿using LMSEarlyBird.Data;
 using LMSEarlyBird.Interfaces;
+using LMSEarlyBird.Migrations;
 using LMSEarlyBird.Models;
 using LMSEarlyBird.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +10,7 @@ namespace LMSEarlyBird.Controllers
 {
     public class InstructorController : Controller
     {
-
+        #region params
         /// <summary>
         /// context variable for accessing the db
         /// </summary>
@@ -23,14 +24,18 @@ namespace LMSEarlyBird.Controllers
         private readonly IRoomRepository _roomRepository;
         private readonly IDepartmentRepository _departmentRepository;
         private readonly IAppUserRepository _appUserRepository;
+        private readonly IAssignmentsRepository _assignmentRepository;
+        #endregion
 
+        #region constructor
         public InstructorController(ApplicationDbContext context, 
             IHttpContextAccessor contextAccessor, 
             ICourseRepository courseRepository, 
             IBuildingRepository buildingRepository, 
             IRoomRepository roomRepository,
             IDepartmentRepository departmentRepository,
-            IAppUserRepository appUserRepository)
+            IAppUserRepository appUserRepository,
+            IAssignmentsRepository assignmentRepository)
         {
             _context = context;
             _contextAccessor = contextAccessor;
@@ -39,13 +44,17 @@ namespace LMSEarlyBird.Controllers
             _roomRepository = roomRepository;
             _departmentRepository = departmentRepository;
             _appUserRepository = appUserRepository;
+            _assignmentRepository = assignmentRepository;
         }
+
+        #endregion  
 
         public IActionResult Index()
         {
             return View();
         }
 
+        #region CourseListAndCreation
         [HttpGet]
         public async Task<IActionResult> CourseList()
         {
@@ -193,7 +202,86 @@ namespace LMSEarlyBird.Controllers
             return Json(true);
         }
 
-        private bool isNotInstructor() {
+        #endregion
+
+        #region Assignment Methods
+
+        public async Task<IActionResult> CourseAssignmentList(int courseId)
+        {
+            // check if the user is logged in to an account with the instructor role
+            if (isNotInstructor())
+            {
+                return View("Dashboard", "User");
+            }
+
+            Course course = await _courseRepository.GetCourse(courseId);
+            List<Assignment> assignments = await _assignmentRepository.GetCourseAssignments(courseId);
+
+
+            CourseAssignmentListViewModel viewModel = new CourseAssignmentListViewModel
+            {
+                Course = course,
+                Assignments = assignments
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CreateAssignment(int courseId)
+        {
+            // check if the user is logged in to an account with the instructor role
+            if (isNotInstructor())
+            {
+                return View("Dashboard", "User");
+            }
+
+            Course course = await _courseRepository.GetCourse(courseId);
+
+            CreateAssignmentViewModel viewModel = new CreateAssignmentViewModel
+            {
+                Course = course
+            };
+
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateAssignment(int courseId, CreateAssignmentViewModel viewModel)
+        {
+            // check if the user is logged in to an account with the instructor role
+            if (isNotInstructor())
+            {
+                return View("Dashboard", "User");
+            }
+
+            Course course = await _courseRepository.GetCourse(courseId);
+			viewModel.Course = course;
+            
+
+			if (!ModelState.IsValid)
+			{
+				return View(viewModel);
+			}
+
+			Assignment assignment = new Assignment
+            {
+				Title = viewModel.Title,
+                Description = viewModel.Description,
+				Type = viewModel.Type,
+				DueDate = viewModel.DueDate,
+				Course = viewModel.Course,
+				maxPoints = viewModel.maxPoints
+			};
+
+            _assignmentRepository.AddAssignment(assignment);
+			return RedirectToAction("CourseAssignmentList", new { courseId = viewModel.Course.id });
+
+		}
+
+			#endregion
+		private bool isNotInstructor() {
             return !User.IsInRole(UserRoles.Teacher);
         }
     }

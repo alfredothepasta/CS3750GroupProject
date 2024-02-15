@@ -59,6 +59,8 @@ namespace LMSEarlyBird.Controllers
             var courseAssignments = 
                 await _assignmentsRepository.GetStudentAssignmentsByCourse(userid, courseid);         
 
+            courseAssignments = courseAssignments.OrderBy(x => x.DueDate).ToList();
+
             CourseAssignmentListViewModel viewModel = new CourseAssignmentListViewModel
             {
                 Course = await _courseRepository.GetCourse(courseid),

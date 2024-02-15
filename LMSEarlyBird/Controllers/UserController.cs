@@ -42,6 +42,11 @@ namespace LMSEarlyBird.Controllers
         /// </summary>
         private readonly IBuildingRepository _buildingRepository;
         /// <summary>
+        /// Context for accessing the assignments database
+        /// </summary>
+        private readonly IAssignmentsRepository _assignmentRepository;
+
+        /// <summary>
         /// Constructor, initializes the instance variables
         /// </summary>
         /// <param name="context"></param>
@@ -53,7 +58,8 @@ namespace LMSEarlyBird.Controllers
             IAppUserRepository appUserRepository,
             IDepartmentRepository departmentRepository,
             IRoomRepository roomRepository,
-            IBuildingRepository buildingRepository)
+            IBuildingRepository buildingRepository,
+            IAssignmentsRepository assignmentsRepository)
         {
             _contextAccessor = contextAccessor;
             _courseRepository = courseRepository;
@@ -62,6 +68,7 @@ namespace LMSEarlyBird.Controllers
             _departmentRepository = departmentRepository;
             _roomRepository = roomRepository;
             _buildingRepository = buildingRepository;
+            _assignmentRepository = assignmentsRepository;
         }
 
         private string FormatDaysOfWeek(string daysOfWeek)
@@ -111,14 +118,17 @@ namespace LMSEarlyBird.Controllers
                     List<Building> buildings = _buildingRepository.GetBuildings().Result.ToList();
                     dashboardVM.BuildingList = buildings;
 
-                    // build the model view for the user to display First and Last name as well as the courses//
+                    // gather the list of assignments
+                    List<StudentAssignment> assignments = await _assignmentRepository.GetStudentAssignments(userId);
+
+                    // build the model view for the user to display First and Last name as well as the courses and assignments
                     var userVM = new AppUser
                     {
                         FirstName = profile.FirstName,
                         LastName = profile.LastName,
                         StudentCourses = profile.StudentCourses,
                         InstructorCourses = profile.InstructorCourses,
-                        
+                        StudentAssignment = profile.StudentAssignment,
                     };
                     // pass everything gathered into the view
                     return View(userVM);
@@ -133,10 +143,8 @@ namespace LMSEarlyBird.Controllers
         /// <returns></returns>
         public async Task<IActionResult> Calendar()
         {
+            // get the courses associated with the student
             List<Course> courses;
-			// get the courses associated with the student
-			// var studentId = _contextAccessor.HttpContext.User.GetUserId();
-			// courses = await _studentCourseRepository.GetCoursesByStudent(studentId);
 
 			// if the user is a teacher, get the courses associated with the teacher
 			if (User.IsInRole(UserRoles.Teacher))
@@ -150,8 +158,8 @@ namespace LMSEarlyBird.Controllers
                 var studentId = _contextAccessor.HttpContext.User.GetUserId();
 				courses = await _courseRepository.GetCoursesByStudent(studentId);
             }
-			
-			
+
+            // gather the events for the callendar
             List<CalendarEvent> events = new List<CalendarEvent>();
 
 			// Define a mapping of day abbreviations to numbers

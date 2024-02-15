@@ -47,7 +47,7 @@
                             <a class="btn btn-primary">Edit</a>
                         </td>
                         <td>
-                            <a class="btn btn-danger">Delete</a>
+                            <a class="btn btn-danger" asp-controller="Instructor" asp-action="DeleteCourse" asp-route-courseId="@item.id">Delete</a>
                         </td>
                             </tr>
         }

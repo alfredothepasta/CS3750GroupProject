@@ -26,13 +26,15 @@ namespace LMSEarlyBird.Repository{
             return Save();
         }
 
-        public bool Delete(Course course)
+        public async Task<bool> Delete(Course course)
         {
-            List<StudentCourse> studentCourses = _context.StudentCourses.Where(sc => sc.CourseId == course.id).ToList();
-            List<InstructorCourse> instructorCourses = _context.InstructorCourses.Where(ic => ic.CourseId == course.id).ToList();
-            _context.RemoveRange(studentCourses);
-            _context.RemoveRange(instructorCourses);
-            _context.Remove(course);
+            List<StudentCourse> studentCourses = await _context.StudentCourses.Where(sc => sc.CourseId == course.id).ToListAsync();
+            List<InstructorCourse> instructorCourses = await _context.InstructorCourses.Where(ic => ic.CourseId == course.id).ToListAsync();
+            List<Assignment> courseAssignments = await _context.Assignments.Where(c => c.CourseId == course.id).ToListAsync();
+            _context.StudentCourses.RemoveRange(studentCourses);
+            _context.InstructorCourses.RemoveRange(instructorCourses);
+            _context.Assignments.RemoveRange(courseAssignments);
+            _context.Courses.Remove(course);
             return Save();
         }
 

@@ -53,5 +53,7 @@ namespace LMSEarlyBird.Data
 
         public DbSet<Assignment> Assignments { get; set; }
         public DbSet<StudentAssignment> StudentAssignments { get; set; }
+        public DbSet<PaymentHistory> PaymentHistory { get; set; }
+        public DbSet<UserLinks> UserLinks { get; set; }
     }
 }

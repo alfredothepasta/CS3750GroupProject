@@ -5,6 +5,7 @@ using LMSEarlyBird.Models;
 using LMSEarlyBird.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
+using System.Net;
 
 namespace LMSEarlyBird.Controllers
 {
@@ -202,6 +203,19 @@ namespace LMSEarlyBird.Controllers
             return Json(true);
         }
 
+        public async Task<IActionResult> DeleteCourse(int courseId)
+        {
+            string userId = _contextAccessor.HttpContext.User.GetUserId();
+            bool canDelete = await isInstructorAssignedToCourse(userId, courseId);
+            if (!canDelete)
+            {
+                return RedirectToAction("CourseList", "Instructor");
+            }
+
+            Course courseToDelete = await _courseRepository.GetCourse(courseId);
+            await _courseRepository.Delete(courseToDelete);
+            return RedirectToAction("CourseList", "Instructor");
+        }
         #endregion
 
         #region Assignment Methods
@@ -233,10 +247,19 @@ namespace LMSEarlyBird.Controllers
             // check if the user is logged in to an account with the instructor role
             if (isNotInstructor())
             {
-                return View("Dashboard", "User");
+                return RedirectToAction("Dashboard", "User");
             }
 
-            Course course = await _courseRepository.GetCourse(courseId);
+            // todo: validate that the user can access this course
+            string userId = _contextAccessor.HttpContext.User.GetUserId();
+            bool courseValidation = await isInstructorAssignedToCourse(userId, courseId);
+
+			Course course = await _courseRepository.GetCourse(courseId);
+                
+            if (!courseValidation)
+            {
+                return RedirectToAction("Dashboard", "User");
+            }
 
             CreateAssignmentViewModel viewModel = new CreateAssignmentViewModel
             {
@@ -247,13 +270,23 @@ namespace LMSEarlyBird.Controllers
             return View(viewModel);
         }
 
-        [HttpPost]
+		
+
+		[HttpPost]
         public async Task<IActionResult> CreateAssignment(int courseId, CreateAssignmentViewModel viewModel)
         {
             // check if the user is logged in to an account with the instructor role
             if (isNotInstructor())
             {
-                return View("Dashboard", "User");
+                return RedirectToAction("Dashboard", "User");
+            }
+
+			string userId = _contextAccessor.HttpContext.User.GetUserId();
+            bool courseValidation = await isInstructorAssignedToCourse(userId, courseId);
+
+            if (!courseValidation)
+            {
+                return RedirectToAction("Dashboard", "User");
             }
 
             Course course = await _courseRepository.GetCourse(courseId);
@@ -280,9 +313,19 @@ namespace LMSEarlyBird.Controllers
 
 		}
 
-			#endregion
+		#endregion
+
+		#region Validation Methods
 		private bool isNotInstructor() {
             return !User.IsInRole(UserRoles.Teacher);
         }
-    }
+
+		private async Task<bool> isInstructorAssignedToCourse(string userId, int courseId)
+		{
+			List<Course> courses = await _courseRepository.GetCoursesByTeacher(userId);
+			Course currentCourse = await _courseRepository.GetCourse(courseId);
+			return courses.Contains(currentCourse);
+		}
+		#endregion  
+	}
 }

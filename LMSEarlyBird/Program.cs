@@ -49,6 +49,9 @@ if (args.Length == 1 && args[0].ToLower() == "seeddata")
     // Seed.SeedCourse(app);
     // Seed.SeedRooms(app);
     // Seed.SeedDepartments(app);
+} else if(args.Length == 1 && args[0].ToLower() == "testdb")
+{
+
 }
 
 

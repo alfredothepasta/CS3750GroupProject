@@ -36,24 +36,6 @@ namespace LMSEarlyBird.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> PaymentPage()
-        {
-            //pull user based on logged in user
-            string userId = _userIdentityService.GetUserId();
-            AppUser profile = await _appUserRepository.GetUser(userId);
-
-            var userVM = new AppUser
-            {
-                FirstName = profile.FirstName,
-                LastName = profile.LastName,
-                StudentCourses = profile.StudentCourses,
-                InstructorCourses = profile.InstructorCourses,
-
-            };
-            return View(userVM);
-        }
-
-        [HttpGet]
         public async Task<IActionResult> DisplayProfile()
         {
             // pull user based on logged in user

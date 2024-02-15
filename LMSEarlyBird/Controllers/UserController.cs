@@ -128,7 +128,7 @@ namespace LMSEarlyBird.Controllers
                         LastName = profile.LastName,
                         StudentCourses = profile.StudentCourses,
                         InstructorCourses = profile.InstructorCourses,
-                        StudentAssignment = profile.StudentAssignment,                     
+                        StudentAssignment = profile.StudentAssignment,
                     };
                     // pass everything gathered into the view
                     return View(userVM);

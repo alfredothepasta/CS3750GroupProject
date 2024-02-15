@@ -7,28 +7,8 @@
     // order by due date
     Model.StudentAssignment = Model.StudentAssignment.OrderBy(x => x.Assignment.DueDate).ToList();
 
-    // build an array for upcoming assignments
-    var upcomingAssignments = new StudentAssignment[5];
-
     // used to count upcoming assignments
     int counter = 0;
-
-    // find next 5 upcoming assignments
-    foreach (var assignment in Model.StudentAssignment)
-    {
-        // check if due date is greater than or equal to today
-        if (assignment.Assignment.DueDate >= localDate)
-        {
-            // add assignment to upcomingAssignments
-            upcomingAssignments[counter] = assignment;
-            // increment counter, if counter = 5, break to prevent more than 5 assignments
-            counter++;
-            if (counter == 5)
-            {
-                break;
-            }
-        }
-    }
 }
 
 
@@ -50,7 +30,6 @@
                     {
                         <div class="card col-10 col-xl-5 border LeftMargin my-3 px-0">
                             <a class="card-block stretched-link text-decoration-none" asp-controller="Student" asp-action="Course" asp-route-courseId="@course.Course.id">
-                            @* asp-area="" asp-controller="User" asp-action="Dashboard"> *@
                                 <div class="card-header text-black">
                                     <h2>
                                         @course.Course.Department.DeptCode
@@ -83,7 +62,7 @@
                 {
                     @foreach (var course in Model.InstructorCourses)
                     {
-                        <div class="card col-10 col-md-5 border mx-5 my-3 px-0">
+                        <div class="card col-10 col-xl-5 border LeftMargin my-3 px-0">
                             <a class="card-block stretched-link text-decoration-none" asp-controller="Instructor" asp-action="CourseAssignmentList" asp-route-courseId="@course.Course.id">
                                 <div class="card-header text-black">
                                     <h2>
@@ -117,21 +96,30 @@
             </div>
         <div class="col-10 col-md-4 justify-content-center sideborderleft">
             <h3 class="text-center">ToDo List</h3>
-            @foreach (var assignment in upcomingAssignments)
+            @foreach (var assignment in Model.StudentAssignment)
             {
-                if (assignment == null) break; // break loop if there are no more assignments
-                <a class="card-block stretched-link text-decoration-none" asp-controller="User" asp-action="Dashboard">
-                    <div class="card border m-3 px-0 text-black">
-                        <div class="card-header">
-                            @assignment.Assignment.Title
+                // verify assignment is not past it's due date
+                if (assignment.Assignment.DueDate >= localDate)
+                {
+                    <a class="card-block stretched-link text-decoration-none" asp-controller="User" asp-action="Dashboard">
+                        <div class="card border m-3 px-0 text-black">
+                            <div class="card-header">
+                                @assignment.Assignment.Title
+                            </div>
+                            <div class="card-body text-black">
+                                <p>Course: @assignment.Assignment.Course.CourseName</p>
+                                <p>Due Date: @assignment.Assignment.DueDate</p>
+                                <p>Max Points: @assignment.Assignment.maxPoints</p>
+                            </div>
                         </div>
-                        <div class="card-body text-black">
-                            <p>Course: @assignment.Assignment.Course.CourseName</p>
-                            <p>Due Date: @assignment.Assignment.DueDate</p>
-                            <p>Max Points: @assignment.Assignment.maxPoints</p>
-                        </div>
-                    </div>
-                </a>
+                    </a>
+                    // increment counter, if counter = 5, break to prevent more than 5 assignments
+                    counter++;
+                    if (counter == 5)
+                    {
+                        break;
+                    }
+                }
             }
             @* <h3 class="text-center">Completed Assignments</h3> *@
         </div>

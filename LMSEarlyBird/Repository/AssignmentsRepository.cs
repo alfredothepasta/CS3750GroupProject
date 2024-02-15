@@ -102,7 +102,8 @@ namespace LMSEarlyBird.Repository
 
         public bool RemoveAssignment(Assignment assignment)
         {
-            throw new NotImplementedException();
+            _context.Remove(assignment);
+            return Save();
         }
 
         public async Task<bool> RemoveStudentAssignments(string studentId, int courseId)

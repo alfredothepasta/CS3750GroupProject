@@ -203,6 +203,19 @@ namespace LMSEarlyBird.Controllers
             return Json(true);
         }
 
+        public async Task<IActionResult> DeleteCourse(int courseId)
+        {
+            string userId = _contextAccessor.HttpContext.User.GetUserId();
+            bool canDelete = await isInstructorAssignedToCourse(userId, courseId);
+            if (!canDelete)
+            {
+                return RedirectToAction("CourseList", "Instructor");
+            }
+
+            Course courseToDelete = await _courseRepository.GetCourse(courseId);
+            await _courseRepository.Delete(courseToDelete);
+            return RedirectToAction("CourseList", "Instructor");
+        }
         #endregion
 
         #region Assignment Methods

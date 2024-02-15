@@ -271,6 +271,31 @@ namespace LMSEarlyBird.Migrations
                     b.ToTable("InstructorCourses");
                 });
 
+            modelBuilder.Entity("LMSEarlyBird.Models.PaymentHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("money");
+
+                    b.Property<DateTime>("PaymentTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PaymentHistory");
+                });
+
             modelBuilder.Entity("LMSEarlyBird.Models.Room", b =>
                 {
                     b.Property<int>("Id")
@@ -344,6 +369,37 @@ namespace LMSEarlyBird.Migrations
                     b.HasIndex("CourseId");
 
                     b.ToTable("StudentCourses");
+                });
+
+            modelBuilder.Entity("LMSEarlyBird.Models.UserLinks", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Link1")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Link2")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Link3")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserLinks");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -537,6 +593,17 @@ namespace LMSEarlyBird.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("LMSEarlyBird.Models.PaymentHistory", b =>
+                {
+                    b.HasOne("LMSEarlyBird.Models.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+                });
+
             modelBuilder.Entity("LMSEarlyBird.Models.Room", b =>
                 {
                     b.HasOne("LMSEarlyBird.Models.Building", "Building")
@@ -584,6 +651,17 @@ namespace LMSEarlyBird.Migrations
                     b.Navigation("Course");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("LMSEarlyBird.Models.UserLinks", b =>
+                {
+                    b.HasOne("LMSEarlyBird.Models.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

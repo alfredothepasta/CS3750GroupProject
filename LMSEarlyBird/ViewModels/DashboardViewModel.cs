@@ -7,6 +7,7 @@ namespace LMSEarlyBird.ViewModels
         public List<string>? DepartmentNames { get; set; }
         public List<Room>? RoomList { get; set; }
         public List<Department>? DepartmentList { get; set; }
-        public List<Building>? BuildingList { get; set; } = new List<Building>();
+        public List<Building>? BuildingList { get; set; }
+        public List<Assignment>? Assignments { get; set; }
     }
 }

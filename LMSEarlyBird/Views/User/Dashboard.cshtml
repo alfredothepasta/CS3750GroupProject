@@ -1,6 +1,34 @@
 ﻿@model LMSEarlyBird.Models.AppUser
 @{
     ViewData["Title"] = "Dashboard";
+    //DateTime myDate = new DateTime();
+    DateTime localDate = DateTime.Now;
+
+    // order by due date
+    Model.StudentAssignment = Model.StudentAssignment.OrderBy(x => x.Assignment.DueDate).ToList();
+
+    // build an array for upcoming assignments
+    var upcomingAssignments = new StudentAssignment[5];
+
+    // used to count upcoming assignments
+    int counter = 0;
+
+    // find next 5 upcoming assignments
+    foreach (var assignment in Model.StudentAssignment)
+    {
+        // check if due date is greater than or equal to today
+        if (assignment.Assignment.DueDate >= localDate)
+        {
+            // add assignment to upcomingAssignments
+            upcomingAssignments[counter] = assignment;
+            // increment counter, if counter = 5, break to prevent more than 5 assignments
+            counter++;
+            if (counter == 5)
+            {
+                break;
+            }
+        }
+    }
 }
 
 
@@ -89,19 +117,23 @@
             </div>
         <div class="col-10 col-md-4 justify-content-center sideborderleft">
             <h3 class="text-center">ToDo List</h3>
-            @for (int i = 0; i < 4; i++)
+            @foreach (var assignment in upcomingAssignments)
             {
-                <div class="card border m-3 px-0">
-                    <div class="card-header">
-                        An Assignment
+                if (assignment == null) break; // break loop if there are no more assignments
+                <a class="card-block stretched-link text-decoration-none" asp-controller="User" asp-action="Dashboard">
+                    <div class="card border m-3 px-0 text-black">
+                        <div class="card-header">
+                            @assignment.Assignment.Title
+                        </div>
+                        <div class="card-body text-black">
+                            <p>Course: @assignment.Assignment.Course.CourseName</p>
+                            <p>Due Date: @assignment.Assignment.DueDate</p>
+                            <p>Max Points: @assignment.Assignment.maxPoints</p>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <p>Class Name</p>
-                        <p>Due Date</p>
-                        <p>Points: SomeNumber</p>
-                    </div>
-                </div>
+                </a>
             }
+            @* <h3 class="text-center">Completed Assignments</h3> *@
         </div>
     </div>
 </div>

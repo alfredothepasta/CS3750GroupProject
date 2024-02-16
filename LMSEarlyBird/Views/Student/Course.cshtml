@@ -45,20 +45,12 @@
                         @item.Type
                     </td>
                     <td>
-                        <a class="btn btn-primary" style="min-width: 6em; color: #fff;">Submit</a>
+                        <a href="@Url.Action("Submission", "Student" , new { assignmentId = item.Id })" class="btn btn-primary" style="min-width: 6em; color: #fff;">
+                            Submit
+                        </a>
                     </td>
-
                 </tr>
             }
-            <tr>
-                <td>
-                </td>
-                <td>
-                </td>
-                <td>
-                </td>
-                <td>
-                </td>
         </tbody>
     </table>
 } else

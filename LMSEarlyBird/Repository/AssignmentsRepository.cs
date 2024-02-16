@@ -72,7 +72,12 @@ namespace LMSEarlyBird.Repository
             return Save();
 		}
 
-		public async Task<List<Assignment>> GetCourseAssignments(int courseId)
+        public async Task<Assignment> GetAssignment(int assignmentId)
+        {
+            return await _context.Assignments.Where(x => x.Id == assignmentId).FirstAsync();
+        }
+
+        public async Task<List<Assignment>> GetCourseAssignments(int courseId)
         {
 			return await _context.Assignments.Where(c => c.CourseId == courseId).ToListAsync();
         }
@@ -126,9 +131,24 @@ namespace LMSEarlyBird.Repository
             return saved > 0;
         }
 
+        public bool SetStudentAssignmentSubmitted(string studentId, int assignmentId)
+        {
+            var assignment = GetStudentAssignments(studentId).Result.FirstOrDefault(x => x.AssignmentId == assignmentId);
+
+            if (assignment == null)
+            {
+                return false;
+            }
+
+            assignment.Submitted = true;
+
+            return Save();
+        }
+
         public bool UpdateAssignment(Assignment assignment)
         {
             throw new NotImplementedException();
         }
+
     }
 }

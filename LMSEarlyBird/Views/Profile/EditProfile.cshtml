@@ -28,6 +28,8 @@
                     <input type="hidden" asp-for="AddressId" /> 
                     <input type="hidden" asp-for="Address.User" />
                     <input type="hidden" asp-for="Address.UserID" />
+                    <input type="hidden" asp-for="Links.AppUser" />
+                    <input type="hidden" asp-for="Links.UserId" />
  
                     <!--Models For Editing, Email is readonly-->
                     <div style="text-align: center;">
@@ -83,6 +85,21 @@
                         <label asp-for="Address.ZipCode" class="control-label"></label>
                         <input asp-for="Address.ZipCode" class="form-control" />
                         <span asp-validation-for="Address.ZipCode" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Links.Link1" class="control-label">Link 1</label>
+                        <input asp-for="Links.Link1" class="form-control" />
+                        <span asp-validation-for="Links.Link1" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Links.Link2" class="control-label">Link 2</label>
+                        <input asp-for="Links.Link2" class="form-control" />
+                        <span asp-validation-for="Links.Link2" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Links.Link3" class="control-label">Link 3</label>
+                        <input asp-for="Links.Link3" class="form-control" />
+                        <span asp-validation-for="Links.Link3" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <input class="btn btn-outline-success float-right" type="submit" value="Update Information" />

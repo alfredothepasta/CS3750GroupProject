@@ -39,5 +39,20 @@ namespace LMSEarlyBird.Controllers
             };
             return View(userVM);
         }
+
+        public async Task<IActionResult> Success()
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> Checkout()
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> Cancel()
+        {
+            return View();
+        }
     }
 }

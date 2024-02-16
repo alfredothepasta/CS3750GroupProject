@@ -11,5 +11,6 @@ namespace LMSEarlyBird.Interfaces
         Task<AppUser> GetUser(string id);
 
         bool UpdateUser(AppUser user);
+
     }
 }

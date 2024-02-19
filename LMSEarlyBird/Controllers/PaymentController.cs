@@ -42,12 +42,15 @@ namespace LMSEarlyBird.Controllers
 
         public async Task<IActionResult> Success()
         {
-            return View();
+            Startup startup = new Startup();
+            return View(startup);
         }
 
         public async Task<IActionResult> Checkout()
         {
-            return View();
+            Program program = new Program { };
+            Startup startup = new Startup();
+            return View(startup);
         }
 
         public async Task<IActionResult> Cancel()

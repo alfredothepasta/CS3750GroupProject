@@ -6,7 +6,8 @@ namespace LMSEarlyBird.ViewModels
 {
     public class AddCourseViewModel
     {
-        [Required]
+        public int CourseID { get; set; }
+		[Required]
         public int Department { get; set; }
         public List<Department>? DepartmentList { get; set; }
         [Required]

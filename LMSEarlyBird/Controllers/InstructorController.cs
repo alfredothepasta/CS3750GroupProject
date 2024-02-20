@@ -5,6 +5,7 @@ using LMSEarlyBird.Models;
 using LMSEarlyBird.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
+using System;
 using System.Net;
 
 namespace LMSEarlyBird.Controllers
@@ -50,11 +51,6 @@ namespace LMSEarlyBird.Controllers
 
         #endregion  
 
-        public IActionResult Index()
-        {
-            return View();
-        }
-
         #region CourseListAndCreation
         [HttpGet]
         public async Task<IActionResult> CourseList()
@@ -76,6 +72,7 @@ namespace LMSEarlyBird.Controllers
 
         }
 
+        #region Add Course
         [HttpGet]
         public async Task<IActionResult> AddCourse()
         {
@@ -205,8 +202,8 @@ namespace LMSEarlyBird.Controllers
 
         public async Task<IActionResult> DeleteCourse(int courseId)
         {
-            string userId = _contextAccessor.HttpContext.User.GetUserId();
-            bool canDelete = await isInstructorAssignedToCourse(userId, courseId);
+            
+            bool canDelete = await isInstructorAssignedToCourse(courseId);
             if (!canDelete)
             {
                 return RedirectToAction("CourseList", "Instructor");
@@ -218,9 +215,119 @@ namespace LMSEarlyBird.Controllers
         }
         #endregion
 
-        #region Assignment Methods
 
-        public async Task<IActionResult> CourseAssignmentList(int courseId)
+        #region Edit Course
+
+        [HttpGet]
+        public async Task<IActionResult> EditCourse(int courseId)
+        {
+            if (isNotInstructor() || ! await isInstructorAssignedToCourse(courseId))
+            {
+                return StatusCode(StatusCodes.Status403Forbidden);
+            } 
+
+            // get the course
+            Course currentCourse = await _courseRepository.GetCourse(courseId);
+            if (currentCourse == null)
+            {
+                // do something
+                return NoContent();
+            }
+            var buildings = await _buildingRepository.GetBuildings();
+            var rooms = await _roomRepository.GetRooms();
+            var departments = await _departmentRepository.GetAllDepartments();
+
+			AddCourseViewModel viewModel = new AddCourseViewModel()
+            {
+                CourseID = currentCourse.id,
+				Department = currentCourse.DepartmentId,
+                CourseNumber = currentCourse.CourseNumber,
+                CourseName = currentCourse.CourseName,
+                CreditHours = currentCourse.CreditHours,
+                StartTime = currentCourse.StartTime,
+                EndTime = currentCourse.EndTime,
+                Building = currentCourse.Room.BuildingID,
+                Room = currentCourse.RoomId,
+                BuildingList = buildings,
+                RoomList = rooms,
+                DepartmentList = departments,
+            };
+            
+            foreach(char c in currentCourse.DaysOfWeek)
+            {
+                switch (c)
+                {
+                    case 'M':
+                        viewModel.DayOfWeekM = "true";
+                        break;
+                    case 'T':
+                        viewModel.DayOfWeekT = "true";
+                        break;
+                    case 'W':
+                        viewModel.DayOfWeekW = "true"; 
+                        break;
+                    case 'R':
+                        viewModel.DayOfWeekR = "true";
+                        break;
+                    case 'F':
+                        viewModel.DayOfWeekF = "true";
+                        break;
+                }
+            }
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditCourse(AddCourseViewModel viewModel, int courseId)
+        {
+			if (!ModelState.IsValid)
+			{
+				// get the building and departmen dropdowns
+				List<Building> buildings = await _buildingRepository.GetBuildings();
+				List<Department> departments = await _departmentRepository.GetAllDepartments();
+				List<Room> rooms = await _roomRepository.GetRooms();
+				viewModel.BuildingList = buildings;
+				viewModel.DepartmentList = departments;
+				viewModel.RoomList = rooms;
+
+				return View(viewModel);
+			}
+
+            Course updatedCourse = await _courseRepository.GetCourse(courseId);
+			
+            // update all the course values
+            updatedCourse.CourseNumber = viewModel.CourseNumber;
+			updatedCourse.CourseName = viewModel.CourseName;
+			updatedCourse.CreditHours = viewModel.CreditHours;
+			updatedCourse.StartTime = viewModel.StartTime;
+			updatedCourse.EndTime = viewModel.EndTime;
+            updatedCourse.DepartmentId = viewModel.Department;
+			updatedCourse.RoomId = viewModel.Room;
+			
+            // build the days of week
+            string selectedDays = "";
+			if (viewModel.DayOfWeekM == "true") selectedDays = selectedDays + "M";
+			if (viewModel.DayOfWeekT == "true") selectedDays = selectedDays + "T";
+			if (viewModel.DayOfWeekW == "true") selectedDays = selectedDays + "W";
+			if (viewModel.DayOfWeekR == "true") selectedDays = selectedDays + "R";
+			if (viewModel.DayOfWeekF == "true") selectedDays = selectedDays + "F";
+
+            updatedCourse.DaysOfWeek = selectedDays;
+
+            _courseRepository.Update(updatedCourse);
+
+			return RedirectToAction("CourseList", "Instructor");
+        }
+
+		#endregion
+
+		#endregion
+
+		#region Assignment Methods
+
+		#region Create Assignment
+		public async Task<IActionResult> CourseAssignmentList(int courseId)
         {
             // check if the user is logged in to an account with the instructor role
             if (isNotInstructor())
@@ -251,8 +358,7 @@ namespace LMSEarlyBird.Controllers
             }
 
             // todo: validate that the user can access this course
-            string userId = _contextAccessor.HttpContext.User.GetUserId();
-            bool courseValidation = await isInstructorAssignedToCourse(userId, courseId);
+            bool courseValidation = await isInstructorAssignedToCourse(courseId);
 
 			Course course = await _courseRepository.GetCourse(courseId);
                 
@@ -281,8 +387,7 @@ namespace LMSEarlyBird.Controllers
                 return RedirectToAction("Dashboard", "User");
             }
 
-			string userId = _contextAccessor.HttpContext.User.GetUserId();
-            bool courseValidation = await isInstructorAssignedToCourse(userId, courseId);
+            bool courseValidation = await isInstructorAssignedToCourse(courseId);
 
             if (!courseValidation)
             {
@@ -308,20 +413,95 @@ namespace LMSEarlyBird.Controllers
 				maxPoints = viewModel.maxPoints
 			};
 
-            _assignmentRepository.AddAssignment(assignment, courseId);
+            await _assignmentRepository.AddAssignment(assignment, courseId);
 			return RedirectToAction("CourseAssignmentList", new { courseId = viewModel.Course.id });
 
 		}
 
-		#endregion
+        [HttpGet]
+        public async Task<IActionResult> DeleteAssignment(int assignmentId, int courseId)
+        {
+            Assignment assignmentToDelete = await _assignmentRepository.GetAssignmentById(assignmentId);
+            if (await _assignmentRepository.RemoveAssignment(assignmentToDelete))
+            {
+                return RedirectToAction("CourseAssignmentList", new { courseId = courseId });
+            } else
+            {
+                return StatusCode(StatusCodes.Status408RequestTimeout);
+            }
+        }
+        #endregion
 
-		#region Validation Methods
-		private bool isNotInstructor() {
+        #region Edit Assignment
+
+        [HttpGet]
+        public async Task<IActionResult> EditAssignment(int assignmentId, int courseId)
+        {
+			// check if the user is logged in to an account with the instructor role
+			if (isNotInstructor() || !await isInstructorAssignedToCourse(courseId))
+			{
+				return StatusCode(StatusCodes.Status403Forbidden);
+			}
+
+            Assignment assignmentToEdit = await _assignmentRepository.GetAssignmentById(assignmentId);
+
+
+			CreateAssignmentViewModel viewModel = new CreateAssignmentViewModel
+			{
+				AssignmentId = assignmentToEdit.Id,
+				Course = assignmentToEdit.Course,
+				Title = assignmentToEdit.Title,
+				Description = assignmentToEdit.Description,
+				Type = assignmentToEdit.Type,
+				DueDate = assignmentToEdit.DueDate,
+				maxPoints = assignmentToEdit.maxPoints
+			};
+
+			return View(viewModel);
+		}
+
+        [HttpPost]
+		public async Task<IActionResult> EditAssignment(int courseId, int assignmentId, CreateAssignmentViewModel viewModel)
+        {
+			// check if the user is logged in to an account with the instructor role
+			if (isNotInstructor() || !await isInstructorAssignedToCourse(courseId))
+			{
+				return StatusCode(StatusCodes.Status403Forbidden);
+			}
+
+			if (!ModelState.IsValid)
+			{
+                viewModel.Course = await _courseRepository.GetCourse(courseId);
+				return View(viewModel);
+			}
+
+			Assignment assignmentToEdit = await _assignmentRepository.GetAssignmentById(assignmentId);
+			assignmentToEdit.Title = viewModel.Title;
+			assignmentToEdit.Description = viewModel.Description;
+			assignmentToEdit.Type = viewModel.Type;
+			assignmentToEdit.DueDate = viewModel.DueDate;
+			assignmentToEdit.maxPoints = viewModel.maxPoints;
+
+            if (_assignmentRepository.UpdateAssignment(assignmentToEdit))
+            {
+				return RedirectToAction("CourseAssignmentList", new { courseId = courseId });
+			} else
+            {
+				return StatusCode(StatusCodes.Status408RequestTimeout);
+			}
+		}
+        #endregion  
+
+        #endregion
+
+        #region Validation Methods
+        private bool isNotInstructor() {
             return !User.IsInRole(UserRoles.Teacher);
         }
 
-		private async Task<bool> isInstructorAssignedToCourse(string userId, int courseId)
+		private async Task<bool> isInstructorAssignedToCourse(int courseId)
 		{
+            var userId = _contextAccessor.HttpContext.User.GetUserId();
 			List<Course> courses = await _courseRepository.GetCoursesByTeacher(userId);
 			Course currentCourse = await _courseRepository.GetCourse(courseId);
 			return courses.Contains(currentCourse);

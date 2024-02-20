@@ -1,12 +1,8 @@
 ﻿using LMSEarlyBird.Data;
 using LMSEarlyBird.Interfaces;
-using LMSEarlyBird.Migrations;
 using LMSEarlyBird.Models;
 using LMSEarlyBird.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging.Abstractions;
-using System;
-using System.Net;
 
 namespace LMSEarlyBird.Controllers
 {

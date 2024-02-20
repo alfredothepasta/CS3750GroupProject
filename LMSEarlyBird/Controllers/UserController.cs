@@ -165,7 +165,8 @@ namespace LMSEarlyBird.Controllers
                         backgroundColor = "#FFF",
                         borderColor = "#000",
                         textColor = "#000",
-                    };
+                        url = Url.Action("Submission", "Student", new { assignmentId = assignment.AssignmentId })
+					};
                     events.Add(calendarEvent);
                 }
             }
@@ -246,13 +247,13 @@ namespace LMSEarlyBird.Controllers
                             if (User.IsInRole(UserRoles.Teacher))
                             {
                                 // make it so a student can access as well
-                                calendarEvent.url = "/Instructor/CourseAssignmentList?courseId=" + course.id;
+                                calendarEvent.url = Url.Action("CourseAssignmentList", "Instructor", new { courseId = course.id });
                             }
                             else if(User.IsInRole(UserRoles.Student))
                             {
                                 // make it so a teacher can access as well
-                                calendarEvent.url = "/Student/Course?courseId=" + course.id;
-                            }
+                                calendarEvent.url = Url.Action("Course", "Student", new { courseId = course.id });
+							}
 
                             // Add the CalendarEvent to the events list
                             events.Add(calendarEvent);

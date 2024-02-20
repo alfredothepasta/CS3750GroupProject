@@ -6,7 +6,7 @@ namespace LMSEarlyBird.Interfaces
     {
         Task<List<Assignment>> GetCourseAssignments(int courseId);
         Task<List<StudentAssignment>> GetStudentAssignments(string studentId);
-        Task<List<Assignment>> GetStudentAssignmentsByCourse(string studentId, int courseId);
+        Task<List<StudentAssignment>> GetStudentAssignmentsByCourse(string studentId, int courseId);
 
         Task<Assignment> GetAssignment(int assignmentId);
         Task<bool> AddStudentAssignments(string userId, int courseId);
@@ -16,6 +16,7 @@ namespace LMSEarlyBird.Interfaces
         bool RemoveAssignment(Assignment assignment);
         bool UpdateAssignment(Assignment assignment);
 
+        bool SetStudentAssignmentSubmitted(string studentId, int assignmentId, string txtSubmission);
         bool SetStudentAssignmentSubmitted(string studentId, int assignmentId);
         bool Save();
 

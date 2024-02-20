@@ -198,9 +198,9 @@ namespace LMSEarlyBird.Controllers
             var courseAssignments = 
                 await _assignmentsRepository.GetStudentAssignmentsByCourse(userid, courseid);         
 
-            courseAssignments = courseAssignments.OrderBy(x => x.DueDate).ToList();
+            courseAssignments = courseAssignments.OrderBy(x => x.Assignment.DueDate).ToList();
 
-            CourseAssignmentListViewModel viewModel = new CourseAssignmentListViewModel
+            CourseAssignmentsStudentViewModel viewModel = new CourseAssignmentsStudentViewModel
             {
                 Course = await _courseRepository.GetCourse(courseid),
                 Assignments = courseAssignments
@@ -244,43 +244,49 @@ namespace LMSEarlyBird.Controllers
         public async Task<IActionResult> Submission(SubmissionViewModel submissionViewModel){
             var userid = _userIdentityService.GetUserId();
             var assignment = await _assignmentsRepository.GetAssignment(submissionViewModel.AssignmentId);
+
             var file = submissionViewModel.File;
 
-            //Mark assignment as submitted
-            _assignmentsRepository.SetStudentAssignmentSubmitted(userid, assignment.Id);
+            if(file != null){
+                //Mark assignment as submitted
+                _assignmentsRepository.SetStudentAssignmentSubmitted(userid, assignment.Id);
 
-            // Ensure the wwwroot/assignments directory exists
-            var webHostEnvironment = (IWebHostEnvironment)HttpContext.RequestServices.GetService(typeof(IWebHostEnvironment));
-            var assignmentsRoot = Path.Combine(webHostEnvironment.WebRootPath, "assignments");
-            if (!Directory.Exists(assignmentsRoot))
-            {
-                Directory.CreateDirectory(assignmentsRoot);
-            }
-
-            // Ensure the user's directory exists
-            var userDirectory = Path.Combine(assignmentsRoot, userid.ToString());
-            if (!Directory.Exists(userDirectory))
-            {
-                Directory.CreateDirectory(userDirectory);
-            }
-
-            // Ensure the course's directory exists
-            var courseDirectory = Path.Combine(userDirectory, assignment.CourseId.ToString());
-            if (!Directory.Exists(courseDirectory))
-            {
-                Directory.CreateDirectory(courseDirectory);
-            }
-
-            // Determine the path to save the file
-            var filePath = Path.Combine(courseDirectory, assignment.Id.ToString());
-
-            // Copy the file
-            if (file != null)
-            {
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                // Ensure the wwwroot/assignments directory exists
+                var webHostEnvironment = (IWebHostEnvironment)HttpContext.RequestServices.GetService(typeof(IWebHostEnvironment));
+                var assignmentsRoot = Path.Combine(webHostEnvironment.WebRootPath, "assignments");
+                if (!Directory.Exists(assignmentsRoot))
                 {
-                    await file.CopyToAsync(fileStream);
+                    Directory.CreateDirectory(assignmentsRoot);
                 }
+
+                // Ensure the user's directory exists
+                var userDirectory = Path.Combine(assignmentsRoot, userid.ToString());
+                if (!Directory.Exists(userDirectory))
+                {
+                    Directory.CreateDirectory(userDirectory);
+                }
+
+                // Ensure the course's directory exists
+                var courseDirectory = Path.Combine(userDirectory, assignment.CourseId.ToString());
+                if (!Directory.Exists(courseDirectory))
+                {
+                    Directory.CreateDirectory(courseDirectory);
+                }
+
+                // Determine the path to save the file
+                var filePath = Path.Combine(courseDirectory, assignment.Id.ToString());
+
+                // Copy the file
+                if (file != null)
+                {
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(fileStream);
+                    }
+                }
+            }
+            else{
+                _assignmentsRepository.SetStudentAssignmentSubmitted(userid, assignment.Id, submissionViewModel.SubmissionTxt);
             }
 
             return RedirectToAction(nameof(Course), new { courseid = assignment.CourseId });

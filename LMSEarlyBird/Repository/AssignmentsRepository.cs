@@ -92,7 +92,7 @@ namespace LMSEarlyBird.Repository
             return user.StudentAssignment;
         }
 
-        public async Task<List<Assignment>> GetStudentAssignmentsByCourse(string studentId, int courseId)
+        public async Task<List<StudentAssignment>> GetStudentAssignmentsByCourse(string studentId, int courseId)
         {
             var user = await _context.AppUsers
             .Include(x => x.StudentAssignment)
@@ -101,7 +101,6 @@ namespace LMSEarlyBird.Repository
 
             return user.StudentAssignment
             .Where(x => x.Assignment.CourseId == courseId)
-            .Select(x => x.Assignment)
             .ToList();
         }
 
@@ -141,6 +140,21 @@ namespace LMSEarlyBird.Repository
             }
 
             assignment.Submitted = true;
+
+            return Save();
+        }
+
+        public bool SetStudentAssignmentSubmitted(string studentId, int assignmentId, string txtSubmission)
+        {
+            var assignment = GetStudentAssignments(studentId).Result.FirstOrDefault(x => x.AssignmentId == assignmentId);
+
+            if (assignment == null)
+            {
+                return false;
+            }
+
+            assignment.Submitted = true;
+            assignment.Submission = txtSubmission;
 
             return Save();
         }

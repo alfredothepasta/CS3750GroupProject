@@ -5,6 +5,7 @@ using LMSEarlyBird.Models;
 using LMSEarlyBird.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
+using System;
 using System.Net;
 
 namespace LMSEarlyBird.Controllers
@@ -50,11 +51,6 @@ namespace LMSEarlyBird.Controllers
 
         #endregion  
 
-        public IActionResult Index()
-        {
-            return View();
-        }
-
         #region CourseListAndCreation
         [HttpGet]
         public async Task<IActionResult> CourseList()
@@ -76,6 +72,7 @@ namespace LMSEarlyBird.Controllers
 
         }
 
+        #region Add Course
         [HttpGet]
         public async Task<IActionResult> AddCourse()
         {
@@ -218,6 +215,117 @@ namespace LMSEarlyBird.Controllers
         }
         #endregion
 
+
+        #region Edit Course
+
+        [HttpGet]
+        public async Task<IActionResult> EditCourse(int courseId)
+        {
+            string userId = _contextAccessor.HttpContext.User.GetUserId();
+
+            if (isNotInstructor() || ! await isInstructorAssignedToCourse(userId, courseId))
+            {
+                return StatusCode(StatusCodes.Status403Forbidden);
+            } 
+
+            // get the course
+            Course currentCourse = await _courseRepository.GetCourse(courseId);
+            if (currentCourse == null)
+            {
+                // do something
+                return NoContent();
+            }
+            var buildings = await _buildingRepository.GetBuildings();
+            var rooms = await _roomRepository.GetRooms();
+            var departments = await _departmentRepository.GetAllDepartments();
+
+			AddCourseViewModel viewModel = new AddCourseViewModel()
+            {
+                CourseID = currentCourse.id,
+				Department = currentCourse.DepartmentId,
+                CourseNumber = currentCourse.CourseNumber,
+                CourseName = currentCourse.CourseName,
+                CreditHours = currentCourse.CreditHours,
+                StartTime = currentCourse.StartTime,
+                EndTime = currentCourse.EndTime,
+                Building = currentCourse.Room.BuildingID,
+                Room = currentCourse.RoomId,
+                BuildingList = buildings,
+                RoomList = rooms,
+                DepartmentList = departments,
+            };
+            
+            foreach(char c in currentCourse.DaysOfWeek)
+            {
+                switch (c)
+                {
+                    case 'M':
+                        viewModel.DayOfWeekM = "true";
+                        break;
+                    case 'T':
+                        viewModel.DayOfWeekT = "true";
+                        break;
+                    case 'W':
+                        viewModel.DayOfWeekW = "true"; 
+                        break;
+                    case 'R':
+                        viewModel.DayOfWeekR = "true";
+                        break;
+                    case 'F':
+                        viewModel.DayOfWeekF = "true";
+                        break;
+                }
+            }
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditCourse(AddCourseViewModel viewModel, int courseId)
+        {
+			if (!ModelState.IsValid)
+			{
+				// get the building and departmen dropdowns
+				List<Building> buildings = await _buildingRepository.GetBuildings();
+				List<Department> departments = await _departmentRepository.GetAllDepartments();
+				List<Room> rooms = await _roomRepository.GetRooms();
+				viewModel.BuildingList = buildings;
+				viewModel.DepartmentList = departments;
+				viewModel.RoomList = rooms;
+
+				return View(viewModel);
+			}
+
+            Course updatedCourse = await _courseRepository.GetCourse(courseId);
+			
+            // update all the course values
+            updatedCourse.CourseNumber = viewModel.CourseNumber;
+			updatedCourse.CourseName = viewModel.CourseName;
+			updatedCourse.CreditHours = viewModel.CreditHours;
+			updatedCourse.StartTime = viewModel.StartTime;
+			updatedCourse.EndTime = viewModel.EndTime;
+            updatedCourse.DepartmentId = viewModel.Department;
+			updatedCourse.RoomId = viewModel.Room;
+			
+            // build the days of week
+            string selectedDays = "";
+			if (viewModel.DayOfWeekM == "true") selectedDays = selectedDays + "M";
+			if (viewModel.DayOfWeekT == "true") selectedDays = selectedDays + "T";
+			if (viewModel.DayOfWeekW == "true") selectedDays = selectedDays + "W";
+			if (viewModel.DayOfWeekR == "true") selectedDays = selectedDays + "R";
+			if (viewModel.DayOfWeekF == "true") selectedDays = selectedDays + "F";
+
+            updatedCourse.DaysOfWeek = selectedDays;
+
+            _courseRepository.Update(updatedCourse);
+
+			return RedirectToAction("CourseList", "Instructor");
+        }
+
+        #endregion
+
+        #endregion
+
         #region Assignment Methods
 
         public async Task<IActionResult> CourseAssignmentList(int courseId)
@@ -308,7 +416,7 @@ namespace LMSEarlyBird.Controllers
 				maxPoints = viewModel.maxPoints
 			};
 
-            _assignmentRepository.AddAssignment(assignment, courseId);
+            await _assignmentRepository.AddAssignment(assignment, courseId);
 			return RedirectToAction("CourseAssignmentList", new { courseId = viewModel.Course.id });
 
 		}

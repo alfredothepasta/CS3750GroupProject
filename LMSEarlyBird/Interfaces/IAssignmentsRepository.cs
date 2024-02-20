@@ -9,9 +9,9 @@ namespace LMSEarlyBird.Interfaces
         Task<List<Assignment>> GetStudentAssignmentsByCourse(string studentId, int courseId);
         Task<bool> AddStudentAssignments(string userId, int courseId);
         Task<bool> RemoveStudentAssignments(string userId, int courseId);
-
+        Task<Assignment> GetAssignmentById(int assignmentId);
 		Task<bool> AddAssignment(Assignment assignment, int courseId);
-        bool RemoveAssignment(Assignment assignment);
+        Task<bool> RemoveAssignment(Assignment assignment);
         bool UpdateAssignment(Assignment assignment);
         bool Save();
 

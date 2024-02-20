@@ -202,8 +202,8 @@ namespace LMSEarlyBird.Controllers
 
         public async Task<IActionResult> DeleteCourse(int courseId)
         {
-            string userId = _contextAccessor.HttpContext.User.GetUserId();
-            bool canDelete = await isInstructorAssignedToCourse(userId, courseId);
+            
+            bool canDelete = await isInstructorAssignedToCourse(courseId);
             if (!canDelete)
             {
                 return RedirectToAction("CourseList", "Instructor");
@@ -221,9 +221,7 @@ namespace LMSEarlyBird.Controllers
         [HttpGet]
         public async Task<IActionResult> EditCourse(int courseId)
         {
-            string userId = _contextAccessor.HttpContext.User.GetUserId();
-
-            if (isNotInstructor() || ! await isInstructorAssignedToCourse(userId, courseId))
+            if (isNotInstructor() || ! await isInstructorAssignedToCourse(courseId))
             {
                 return StatusCode(StatusCodes.Status403Forbidden);
             } 
@@ -322,13 +320,14 @@ namespace LMSEarlyBird.Controllers
 			return RedirectToAction("CourseList", "Instructor");
         }
 
-        #endregion
+		#endregion
 
-        #endregion
+		#endregion
 
-        #region Assignment Methods
+		#region Assignment Methods
 
-        public async Task<IActionResult> CourseAssignmentList(int courseId)
+		#region Create Assignment
+		public async Task<IActionResult> CourseAssignmentList(int courseId)
         {
             // check if the user is logged in to an account with the instructor role
             if (isNotInstructor())
@@ -359,8 +358,7 @@ namespace LMSEarlyBird.Controllers
             }
 
             // todo: validate that the user can access this course
-            string userId = _contextAccessor.HttpContext.User.GetUserId();
-            bool courseValidation = await isInstructorAssignedToCourse(userId, courseId);
+            bool courseValidation = await isInstructorAssignedToCourse(courseId);
 
 			Course course = await _courseRepository.GetCourse(courseId);
                 
@@ -389,8 +387,7 @@ namespace LMSEarlyBird.Controllers
                 return RedirectToAction("Dashboard", "User");
             }
 
-			string userId = _contextAccessor.HttpContext.User.GetUserId();
-            bool courseValidation = await isInstructorAssignedToCourse(userId, courseId);
+            bool courseValidation = await isInstructorAssignedToCourse(courseId);
 
             if (!courseValidation)
             {
@@ -421,15 +418,90 @@ namespace LMSEarlyBird.Controllers
 
 		}
 
-		#endregion
+        [HttpGet]
+        public async Task<IActionResult> DeleteAssignment(int assignmentId, int courseId)
+        {
+            Assignment assignmentToDelete = await _assignmentRepository.GetAssignmentById(assignmentId);
+            if (await _assignmentRepository.RemoveAssignment(assignmentToDelete))
+            {
+                return RedirectToAction("CourseAssignmentList", new { courseId = courseId });
+            } else
+            {
+                return StatusCode(StatusCodes.Status408RequestTimeout);
+            }
+        }
+        #endregion
 
-		#region Validation Methods
-		private bool isNotInstructor() {
+        #region Edit Assignment
+
+        [HttpGet]
+        public async Task<IActionResult> EditAssignment(int assignmentId, int courseId)
+        {
+			// check if the user is logged in to an account with the instructor role
+			if (isNotInstructor() || !await isInstructorAssignedToCourse(courseId))
+			{
+				return StatusCode(StatusCodes.Status403Forbidden);
+			}
+
+            Assignment assignmentToEdit = await _assignmentRepository.GetAssignmentById(assignmentId);
+
+
+			CreateAssignmentViewModel viewModel = new CreateAssignmentViewModel
+			{
+				AssignmentId = assignmentToEdit.Id,
+				Course = assignmentToEdit.Course,
+				Title = assignmentToEdit.Title,
+				Description = assignmentToEdit.Description,
+				Type = assignmentToEdit.Type,
+				DueDate = assignmentToEdit.DueDate,
+				maxPoints = assignmentToEdit.maxPoints
+			};
+
+			return View(viewModel);
+		}
+
+        [HttpPost]
+		public async Task<IActionResult> EditAssignment(int courseId, int assignmentId, CreateAssignmentViewModel viewModel)
+        {
+			// check if the user is logged in to an account with the instructor role
+			if (isNotInstructor() || !await isInstructorAssignedToCourse(courseId))
+			{
+				return StatusCode(StatusCodes.Status403Forbidden);
+			}
+
+			if (!ModelState.IsValid)
+			{
+                viewModel.Course = await _courseRepository.GetCourse(courseId);
+				return View(viewModel);
+			}
+
+			Assignment assignmentToEdit = await _assignmentRepository.GetAssignmentById(assignmentId);
+			assignmentToEdit.Title = viewModel.Title;
+			assignmentToEdit.Description = viewModel.Description;
+			assignmentToEdit.Type = viewModel.Type;
+			assignmentToEdit.DueDate = viewModel.DueDate;
+			assignmentToEdit.maxPoints = viewModel.maxPoints;
+
+            if (_assignmentRepository.UpdateAssignment(assignmentToEdit))
+            {
+				return RedirectToAction("CourseAssignmentList", new { courseId = courseId });
+			} else
+            {
+				return StatusCode(StatusCodes.Status408RequestTimeout);
+			}
+		}
+        #endregion  
+
+        #endregion
+
+        #region Validation Methods
+        private bool isNotInstructor() {
             return !User.IsInRole(UserRoles.Teacher);
         }
 
-		private async Task<bool> isInstructorAssignedToCourse(string userId, int courseId)
+		private async Task<bool> isInstructorAssignedToCourse(int courseId)
 		{
+            var userId = _contextAccessor.HttpContext.User.GetUserId();
 			List<Course> courses = await _courseRepository.GetCoursesByTeacher(userId);
 			Course currentCourse = await _courseRepository.GetCourse(courseId);
 			return courses.Contains(currentCourse);

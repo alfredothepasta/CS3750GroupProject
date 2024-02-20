@@ -34,6 +34,10 @@
         },
         // events from json string, retrieved from cshtml
         events: jsonEvents,
+        // on event click go to correct page
+		eventClick: function (info) {
+			window.location.href = info.event.url.replace("User/", "");
+		}
     });
     // render
     calendar.render();

@@ -1,4 +1,7 @@
 body {
+    margin-bottom: 60px;
+}
+.mainBody {
   display: flex;
   justify-content: center;
   align-items: center;

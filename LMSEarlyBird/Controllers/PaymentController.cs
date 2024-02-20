@@ -1,6 +1,7 @@
 ﻿using LMSEarlyBird.Interfaces;
 using LMSEarlyBird.Models;
 using LMSEarlyBird.Repository;
+using LMSEarlyBird.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMSEarlyBird.Controllers
@@ -22,40 +23,49 @@ namespace LMSEarlyBird.Controllers
             _appUserRepository = appUserRepository;
         }
 
+        private static decimal paymentAmount = 0;
+
         [HttpGet]
         public async Task<IActionResult> PaymentPage()
         {
-            //pull user based on logged in user
-            string userId = _userIdentityService.GetUserId();
-            AppUser profile = await _appUserRepository.GetUser(userId);
-
-            var userVM = new AppUser
+            PaymentViewModel paymentVM = new PaymentViewModel
             {
-                FirstName = profile.FirstName,
-                LastName = profile.LastName,
-                StudentCourses = profile.StudentCourses,
-                InstructorCourses = profile.InstructorCourses,
-
+                PaymentAmount = 0
             };
-            return View(userVM);
+            return View(paymentVM);
         }
-
+        [HttpGet]
         public async Task<IActionResult> Success()
         {
-            Startup startup = new Startup();
-            return View(startup);
+            //Startup startup = new Startup();
+            //return View(startup);
+            return View();
         }
-
+        [HttpGet]
         public async Task<IActionResult> Checkout()
         {
-            Program program = new Program { };
-            Startup startup = new Startup();
-            return View(startup);
+            PaymentViewModel paymentVM = new PaymentViewModel
+            {
+                PaymentAmount = paymentAmount
+            };
+            return View(paymentVM);
         }
-
+        [HttpGet]
         public async Task<IActionResult> Cancel()
         {
             return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> PaymentPage(PaymentViewModel paymentVM)
+        {
+            paymentAmount = paymentVM.PaymentAmount;
+
+            if (paymentAmount == 0)
+            {
+                return View();
+            }
+
+            return RedirectToAction("Checkout", "Payment");
         }
     }
 }

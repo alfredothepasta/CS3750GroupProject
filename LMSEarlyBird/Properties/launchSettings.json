@@ -16,6 +16,14 @@
       "applicationUrl": "http://localhost:5288",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "StripeExample": {
+        "commandName": "Project",
+        "launchBrowser": true,
+        "environmentVariables": {
+          "ASPNETCORE_ENVIRONMENT": "Development"
+        },
+        "applicationUrl": "https://localhost:52133;http://localhost:52134"
       }
     },
     "https": {
@@ -34,17 +42,17 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }
-  },
-  {
-    "profiles": {
-      "StripeExample": {
-        "commandName": "Project",
-        "launchBrowser": true,
-        "environmentVariables": {
-          "ASPNETCORE_ENVIRONMENT": "Development"
-        },
-        "applicationUrl": "https://localhost:52133;http://localhost:52134"
-      }
-    }
   }
 }
+//  },
+//  "profile": {
+//    "StripeExample": {
+//      "commandName": "Project",
+//      "launchBrowser": true,
+//      "environmentVariables": {
+//        "ASPNETCORE_ENVIRONMENT": "Development"
+//      },
+//      "applicationUrl": "https://localhost:52133;http://localhost:52134"
+//    }
+//  }
+//}

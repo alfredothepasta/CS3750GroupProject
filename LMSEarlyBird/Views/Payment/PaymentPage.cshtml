@@ -1,27 +1,28 @@
-﻿@model LMSEarlyBird.Models.AppUser
+﻿@using LMSEarlyBird.ViewModels
+@model PaymentViewModel
 @{
     ViewData["Title"] = "Payment Page";
 }
 
 <h1>Payment Page</h1>
 @{
-    int amount = 0;
+    decimal amount = 1000;
 }
-@foreach (var course in Model.StudentCourses)
+@* @foreach (var course in Model.StudentCourses)
 {
-    amount += 200 @* * course.Course.CreditHours *@;
-}
+    amount += 200 @* * course.Course.CreditHours; *@ @*
+} *@
 <div class="row">
     <div class="col-md-4">
-    <form asp-action="Checkout" >
+    <form asp-action="PaymentPage">
         <div class="form-group">
-            <label class="control-label">You currently owe: @amount</label>
+                <label class="control-label">You currently owe: @string.Format("{0:C}", amount)</label>
             <div class="row">
                     <div class="col-md-6">
                         How much would you like to pay:
                     </div>
                     <div class="col-md-6">
-                        <input class="form-control" />
+                        <input asp-for="PaymentAmount" class="form-control" />
                     </div>
             </div>
             @* <p class="float-left">How much would you like to pay: </p> <input class="form-control" /> *@

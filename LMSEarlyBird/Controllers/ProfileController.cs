@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Data;
 using LMSEarlyBird.Repository;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.Extensions.FileSystemGlobbing;
+using System.Buffers.Text;
 
 namespace LMSEarlyBird.Controllers
 {
@@ -66,6 +68,27 @@ namespace LMSEarlyBird.Controllers
                 _addressRepository.addUserAddress(userAddress);
             }
 
+            if (_linksRepository.hasUserLinks(userId))
+            {
+                userLinks = await _linksRepository.getUserLinks(userId);
+            }
+            else
+            {
+                userLinks.AppUser = profile;
+                _linksRepository.addUserLinks(userLinks);
+            }
+
+            // check if user has links implemented tied to the user ID
+            if (_linksRepository.hasUserLinks(userId))
+            {
+                userLinks = await _linksRepository.getUserLinks(userId);
+            }
+            else
+            {
+                userLinks.AppUser = profile;
+                _linksRepository.addUserLinks(userLinks);
+            }
+
             // build the model view
             var profileVM = new EditProfileViewModel
             {
@@ -115,8 +138,6 @@ namespace LMSEarlyBird.Controllers
             }
             else
             {
-
-                // other way, using preset AppUser = profile
                 userLinks.AppUser = profile;
                 _linksRepository.addUserLinks(userLinks);
             }
@@ -146,7 +167,7 @@ namespace LMSEarlyBird.Controllers
         {
             // validate the ModelState passes (User has entred information)
             if (!(ModelState.IsValid)) return View("EditProfile", profileVM);
-            
+
             // gather the userId based on the logged in profile
             var userId = _userIdentityService.GetUserId();
 
@@ -163,8 +184,10 @@ namespace LMSEarlyBird.Controllers
             _addressRepository.updateUserAddress(userAddress);
 
             // pull the links info from the Profile View
-            UserLinks userLinks = profileVM.Links;
-            userLinks.Id = profileVM.UserLinkId;
+            UserLinks userLinks = await _linksRepository.getUserLinks(userId);
+            userLinks.Link1 = profileVM.Links.Link1;
+            userLinks.Link2 = profileVM.Links.Link2;
+            userLinks.Link3 = profileVM.Links.Link3;
             // update the links
             _linksRepository.UpdateLinks(userLinks);
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Formats.Asn1;
 using System.Linq;
 using System.Threading.Tasks;
 using LMSEarlyBird.Interfaces;
@@ -45,31 +46,6 @@ namespace LMSEarlyBird.Controllers
             result.Courses = await GetRegisterCourseViewModels();
             return View(result);
         }  
-
-        public async Task<IActionResult> Course(int courseid){
-            var userid = _userIdentityService.GetUserId();
-
-            var user = await _appUserRepository.GetUser(userid);
-
-            if(!user.StudentCourses.Any(x => x.CourseId == courseid))
-            {
-                return NotFound();
-            }
-
-            var courseAssignments = 
-                await _assignmentsRepository.GetStudentAssignmentsByCourse(userid, courseid);         
-
-            courseAssignments = courseAssignments.OrderBy(x => x.DueDate).ToList();
-
-            CourseAssignmentListViewModel viewModel = new CourseAssignmentListViewModel
-            {
-                Course = await _courseRepository.GetCourse(courseid),
-                Assignments = courseAssignments
-            };
-
-            return View(viewModel);
-        }
-        
         public async Task<IActionResult> Search(string? query, string? category)
         {
 
@@ -93,7 +69,9 @@ namespace LMSEarlyBird.Controllers
             //Get filtered list of courses         
             result.Courses = await GetRegisterCourseViewModels(query, category);
             return View("Registration", result);
-        }     
+        }  
+        
+           
 
         public async Task<IActionResult> DropClass(int id, string? search, string? deptSelected)
         {
@@ -206,5 +184,113 @@ namespace LMSEarlyBird.Controllers
 
             return result;
         }
+
+        public async Task<IActionResult> Course(int courseid){
+            var userid = _userIdentityService.GetUserId();
+
+            var user = await _appUserRepository.GetUser(userid);
+
+            if(!user.StudentCourses.Any(x => x.CourseId == courseid))
+            {
+                return NotFound();
+            }
+
+            var courseAssignments = 
+                await _assignmentsRepository.GetStudentAssignmentsByCourse(userid, courseid);         
+
+            courseAssignments = courseAssignments.OrderBy(x => x.Assignment.DueDate).ToList();
+
+            CourseAssignmentsStudentViewModel viewModel = new CourseAssignmentsStudentViewModel
+            {
+                Course = await _courseRepository.GetCourse(courseid),
+                Assignments = courseAssignments
+            };
+
+            return View(viewModel);
+        }
+
+        private string FormatDueDate(DateTime date){
+            return date.ToString("MM/dd/yyyy hh:mm tt");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Submission(int assignmentId){
+            var userid = _userIdentityService.GetUserId();
+
+            //if student does not have the assignment do not show page
+            var studentAssignments = await _assignmentsRepository.GetStudentAssignments(userid);
+
+            if(!studentAssignments.Any(x => x.AssignmentId == assignmentId)){
+                return NotFound();
+            };
+
+            var assignment = await _assignmentsRepository.GetAssignment(assignmentId);
+
+            SubmissionViewModel submissionViewModel = new SubmissionViewModel
+            {
+                Title = assignment.Title,
+                Description = assignment.Description,
+                MaxPoints = assignment.maxPoints,
+                Type = assignment.Type,
+                DueDate = FormatDueDate(assignment.DueDate),
+                AssignmentId = assignment.Id,
+            };
+
+
+            return View(submissionViewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Submission(SubmissionViewModel submissionViewModel){
+            var userid = _userIdentityService.GetUserId();
+            var assignment = await _assignmentsRepository.GetAssignment(submissionViewModel.AssignmentId);
+
+            var file = submissionViewModel.File;
+
+            if(file != null){
+                //Mark assignment as submitted
+                _assignmentsRepository.SetStudentAssignmentSubmitted(userid, assignment.Id);
+
+                // Ensure the wwwroot/assignments directory exists
+                var webHostEnvironment = (IWebHostEnvironment)HttpContext.RequestServices.GetService(typeof(IWebHostEnvironment));
+                var assignmentsRoot = Path.Combine(webHostEnvironment.WebRootPath, "assignments");
+                if (!Directory.Exists(assignmentsRoot))
+                {
+                    Directory.CreateDirectory(assignmentsRoot);
+                }
+
+                // Ensure the user's directory exists
+                var userDirectory = Path.Combine(assignmentsRoot, userid.ToString());
+                if (!Directory.Exists(userDirectory))
+                {
+                    Directory.CreateDirectory(userDirectory);
+                }
+
+                // Ensure the course's directory exists
+                var courseDirectory = Path.Combine(userDirectory, assignment.CourseId.ToString());
+                if (!Directory.Exists(courseDirectory))
+                {
+                    Directory.CreateDirectory(courseDirectory);
+                }
+
+                // Determine the path to save the file
+                var filePath = Path.Combine(courseDirectory, assignment.Id.ToString());
+
+                // Copy the file
+                if (file != null)
+                {
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(fileStream);
+                    }
+                }
+            }
+            else{
+                _assignmentsRepository.SetStudentAssignmentSubmitted(userid, assignment.Id, submissionViewModel.SubmissionTxt);
+            }
+
+            return RedirectToAction(nameof(Course), new { courseid = assignment.CourseId });
+        }
+        
     }
 }

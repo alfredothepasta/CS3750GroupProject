@@ -77,8 +77,6 @@ namespace LMSEarlyBird.Repository
                 return await _context.Assignments.Where(a => a.Id == assignmentId).FirstAsync();
         }
 
-        public async Task<List<Assignment>> GetCourseAssignments(int courseId)
-
         public async Task<Assignment> GetAssignment(int assignmentId)
         {
             return await _context.Assignments.Where(x => x.Id == assignmentId).FirstAsync();

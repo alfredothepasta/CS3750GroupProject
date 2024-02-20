@@ -21,11 +21,11 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-12 col-md-8 sideborderright">
-            <div class="row">
-                <h3 class="text-center"> Classes </h3>
-                @if (User.IsInRole(LMSEarlyBird.Data.UserRoles.Student))
-                {
+        @if (User.IsInRole(LMSEarlyBird.Data.UserRoles.Student))
+        {
+            <div class="col-12 col-md-8 sideborderright">
+                <div class="row">
+                    <h3 class="text-center"> Classes </h3>
                     @foreach (var course in Model.StudentCourses)
                     {
                         <div class="card col-10 col-xl-5 border LeftMargin my-3 px-0">
@@ -57,72 +57,73 @@
                             </a>
                         </div>
                     }
-                }
-                else if (User.IsInRole(LMSEarlyBird.Data.UserRoles.Teacher))
-                {
-                    @foreach (var course in Model.InstructorCourses)
-                    {
-                        <div class="card col-10 col-xl-5 border LeftMargin my-3 px-0">
-                            <a class="card-block stretched-link text-decoration-none" asp-controller="Instructor" asp-action="CourseAssignmentList" asp-route-courseId="@course.Course.id">
-                                <div class="card-header text-black">
-                                    <h2>
-                                        @course.Course.Department.DeptCode
-                                        @course.Course.CourseNumber
-                                    </h2>
-                                    <h4>
-                                        @course.Course.CourseName
-                                    </h4>
-                                </div>
-                                <div class="card-body text-black">
-                                    <p>
-                                        @course.Course.InstructorCourses[0].User.FirstName
-                                        @course.Course.InstructorCourses[0].User.LastName
-                                    </p>
-                                    <p>
-                                        @course.Course.Room.Building.BuildingName
-                                        @course.Course.Room.RoomNumber
-                                    </p>
-                                    <p>
-                                        @course.Course.DaysOfWeek
-                                        @course.Course.StartTime
-                                        @course.Course.EndTime
-                                    </p>
-                                </div>
-                            </a>
-                        </div>
-                    }
-                }
                 </div>
             </div>
-        <div class="col-10 col-md-4 justify-content-center sideborderleft">
-            <h3 class="text-center">ToDo List</h3>
-            @foreach (var assignment in Model.StudentAssignment)
-            {
-                // verify assignment is not past it's due date
-                if (assignment.Assignment.DueDate >= localDate)
+            <div class="col-10 col-md-4 justify-content-center sideborderleft">
+                <h3 class="text-center">ToDo List</h3>
+                @foreach (var assignment in Model.StudentAssignment)
                 {
-                    <a class="card-block stretched-link text-decoration-none" asp-controller="User" asp-action="Dashboard">
-                        <div class="card border m-3 px-0 text-black">
-                            <div class="card-header">
-                                @assignment.Assignment.Title
-                            </div>
-                            <div class="card-body text-black">
-                                <p>Course: @assignment.Assignment.Course.CourseName</p>
-                                <p>Due Date: @assignment.Assignment.DueDate</p>
-                                <p>Max Points: @assignment.Assignment.maxPoints</p>
-                            </div>
-                        </div>
-                    </a>
-                    // increment counter, if counter = 5, break to prevent more than 5 assignments
-                    counter++;
-                    if (counter == 5)
+                    // verify assignment is not past it's due date
+                    if (assignment.Assignment.DueDate >= localDate)
                     {
-                        break;
+                        <a class="card-block stretched-link text-decoration-none" asp-controller="User" asp-action="Dashboard">
+                            <div class="card border m-3 px-0 text-black">
+                                <div class="card-header">
+                                    @assignment.Assignment.Title
+                                </div>
+                                <div class="card-body text-black">
+                                    <p>Course: @assignment.Assignment.Course.CourseName</p>
+                                    <p>Due Date: @assignment.Assignment.DueDate</p>
+                                    <p>Max Points: @assignment.Assignment.maxPoints</p>
+                                </div>
+                            </div>
+                        </a>
+                        // increment counter, if counter = 5, break to prevent more than 5 assignments
+                        counter++;
+                        if (counter == 5)
+                        {
+                            break;
+                        }
                     }
                 }
+                @* <h3 class="text-center">Completed Assignments</h3> *@
+            </div>
+        }
+        @if (User.IsInRole(LMSEarlyBird.Data.UserRoles.Teacher))
+        {
+            <h3 class="text-center"> Classes </h3>
+            @foreach (var course in Model.InstructorCourses)
+            {
+                <div class="card col-10 col-xl-5 border LeftMargin my-3 px-0">
+                    <a class="card-block stretched-link text-decoration-none" asp-controller="Instructor" asp-action="CourseAssignmentList" asp-route-courseId="@course.Course.id">
+                        <div class="card-header text-black">
+                            <h2>
+                                @course.Course.Department.DeptCode
+                                @course.Course.CourseNumber
+                            </h2>
+                            <h4>
+                                @course.Course.CourseName
+                            </h4>
+                        </div>
+                        <div class="card-body text-black">
+                            <p>
+                                @course.Course.InstructorCourses[0].User.FirstName
+                                @course.Course.InstructorCourses[0].User.LastName
+                            </p>
+                            <p>
+                                @course.Course.Room.Building.BuildingName
+                                @course.Course.Room.RoomNumber
+                            </p>
+                            <p>
+                                @course.Course.DaysOfWeek
+                                @course.Course.StartTime
+                                @course.Course.EndTime
+                            </p>
+                        </div>
+                    </a>
+                </div>
             }
-            @* <h3 class="text-center">Completed Assignments</h3> *@
-        </div>
+        }
     </div>
 </div>
 

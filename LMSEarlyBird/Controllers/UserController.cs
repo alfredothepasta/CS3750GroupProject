@@ -5,6 +5,8 @@ using LMSEarlyBird.Repository;
 using LMSEarlyBird.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LMSEarlyBird.Controllers
 {
@@ -52,8 +54,8 @@ namespace LMSEarlyBird.Controllers
         /// <param name="context"></param>
         /// <param name="contextAccessor"></param>
         public UserController(
-            IHttpContextAccessor contextAccessor, 
-            ICourseRepository courseRepository, 
+            IHttpContextAccessor contextAccessor,
+            ICourseRepository courseRepository,
             IUserIdentityService userIdentityService,
             IAppUserRepository appUserRepository,
             IDepartmentRepository departmentRepository,
@@ -69,18 +71,6 @@ namespace LMSEarlyBird.Controllers
             _roomRepository = roomRepository;
             _buildingRepository = buildingRepository;
             _assignmentRepository = assignmentsRepository;
-        }
-
-        private string FormatDaysOfWeek(string daysOfWeek)
-        {
-            string formatted = "";
-
-            foreach (char day in daysOfWeek)
-            {
-                formatted += day + " ";
-            }
-
-            return formatted;
         }
 
         /// <summary>
@@ -145,22 +135,41 @@ namespace LMSEarlyBird.Controllers
         {
             // get the courses associated with the student
             List<Course> courses;
+            List<StudentAssignment> assignments;
+            // gather the events for the callendar
+            List<CalendarEvent> events = new List<CalendarEvent>();
 
-			// if the user is a teacher, get the courses associated with the teacher
-			if (User.IsInRole(UserRoles.Teacher))
+            // if the user is a teacher, get the courses associated with the teacher
+            if (User.IsInRole(UserRoles.Teacher))
             {
-				var instructorId = _contextAccessor.HttpContext.User.GetUserId();
-				courses = await _courseRepository.GetCoursesByTeacher(instructorId);
-				
-			}
+                var instructorId = _contextAccessor.HttpContext.User.GetUserId();
+                courses = await _courseRepository.GetCoursesByTeacher(instructorId);
+
+            }
             else
             {
                 var studentId = _contextAccessor.HttpContext.User.GetUserId();
-				courses = await _courseRepository.GetCoursesByStudent(studentId);
+                courses = await _courseRepository.GetCoursesByStudent(studentId);
+
+                // get the assignments associated with the student
+                assignments = await _assignmentRepository.GetStudentAssignments(studentId);
+                // create a calendar event for each assignment
+                foreach (var assignment in assignments)
+                {
+                    // Create a CalendarEvent for the current assignment and date
+                    CalendarEvent calendarEvent = new CalendarEvent
+                    {
+                        title = assignment.Assignment.Title,
+                        start = assignment.Assignment.DueDate - TimeSpan.FromHours(1),
+                        end = assignment.Assignment.DueDate, 
+                        backgroundColor = "#FFF",
+                        borderColor = "#000",
+                        textColor = "#000",
+                    };
+                    events.Add(calendarEvent);
+                }
             }
 
-            // gather the events for the callendar
-            List<CalendarEvent> events = new List<CalendarEvent>();
 
 			// Define a mapping of day abbreviations to numbers
 			Dictionary<string, int> dayAbbreviationToNumber = new Dictionary<string, int>
@@ -230,11 +239,23 @@ namespace LMSEarlyBird.Controllers
 								title = course.Department + course.CourseNumber + " " + course.CourseName,
 								start = date + course.StartTime.ToTimeSpan(),
 								end = date + course.EndTime.ToTimeSpan(),
-								backgroundColor = eventColor
+								backgroundColor = eventColor,
+                                borderColor = eventColor,
 							};
 
-							// Add the CalendarEvent to the events list
-							events.Add(calendarEvent);
+                            if (User.IsInRole(UserRoles.Teacher))
+                            {
+                                // make it so a student can access as well
+                                calendarEvent.url = "/Instructor/CourseAssignmentList?courseId=" + course.id;
+                            }
+                            else if(User.IsInRole(UserRoles.Student))
+                            {
+                                // make it so a teacher can access as well
+                                calendarEvent.url = "/Student/Course?courseId=" + course.id;
+                            }
+
+                            // Add the CalendarEvent to the events list
+                            events.Add(calendarEvent);
 						}
 
 					}
@@ -247,5 +268,11 @@ namespace LMSEarlyBird.Controllers
 
 			return View("Calendar");
         }
-    }
+
+		public async Task<IActionResult> Chart()
+        {
+            return View("Chart");
+        }
+
+	}
 }

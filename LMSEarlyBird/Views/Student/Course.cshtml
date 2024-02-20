@@ -1,5 +1,5 @@
 @using LMSEarlyBird.ViewModels
-@model CourseAssignmentListViewModel
+@model CourseAssignmentsStudentViewModel
 
 @{
     ViewData["Title"] = "Course";
@@ -14,16 +14,16 @@
         <thead>
             <tr>
                 <th>
-                    @Html.DisplayNameFor(model => model.Assignments[0].Title)
+                    @Html.DisplayNameFor(model => model.Assignments[0].Assignment.Title)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Assignments[0].Description)
+                    @Html.DisplayNameFor(model => model.Assignments[0].Assignment.Description)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Assignments[0].DueDate)
+                    @Html.DisplayNameFor(model => model.Assignments[0].Assignment.DueDate)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Assignments[0].Type)
+                    @Html.DisplayNameFor(model => model.Assignments[0].Assignment.Type)
                 </th>   
                 <th></th>
             </tr>
@@ -33,32 +33,29 @@
             {
                 <tr>
                     <td>
-                        @item.Title
+                        @item.Assignment.Title
                     </td>
                     <td>
-                        @item.Description
+                        @item.Assignment.Description
                     </td>
                     <td>
-                        @item.DueDate
+                        @item.Assignment.DueDate
                     </td>
                     <td>
-                        @item.Type
+                        @item.Assignment.Type
                     </td>
                     <td>
-                        <a class="btn btn-primary" style="min-width: 6em;">Submit</a>
+                        @if(!item.Submitted){
+                            <a style="min-width: 6.5em;" href="@Url.Action("Submission", "Student" , new { assignmentId = item.Assignment.Id })" class="btn btn-primary" style="color: #fff;">
+                                Submit
+                            </a>
+                        }
+                        else{
+                            <a style="min-width: 6.5em;" class="btn btn-outline-success">Submitted</a>
+                        }
                     </td>
-
                 </tr>
             }
-            <tr>
-                <td>
-                </td>
-                <td>
-                </td>
-                <td>
-                </td>
-                <td>
-                </td>
         </tbody>
     </table>
 } else

@@ -15,6 +15,8 @@ namespace LMSEarlyBird.ViewModels
         public int MaxPoints { get; set; }
         public string Type {get; set;} = string.Empty;
 
+        public bool Submitted = false;
+
         public string DueDate {get; set;} = string.Empty;
 
         [Required(ErrorMessage = "Must provide text")]

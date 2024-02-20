@@ -224,6 +224,8 @@ namespace LMSEarlyBird.Controllers
                 return NotFound();
             };
 
+            var studentAssignment = studentAssignments.FirstOrDefault(x => x.AssignmentId == assignmentId);
+
             var assignment = await _assignmentsRepository.GetAssignment(assignmentId);
 
             SubmissionViewModel submissionViewModel = new SubmissionViewModel
@@ -234,6 +236,7 @@ namespace LMSEarlyBird.Controllers
                 Type = assignment.Type,
                 DueDate = FormatDueDate(assignment.DueDate),
                 AssignmentId = assignment.Id,
+                Submitted = studentAssignment.Submitted,
             };
 
 
@@ -274,7 +277,8 @@ namespace LMSEarlyBird.Controllers
                 }
 
                 // Determine the path to save the file
-                var filePath = Path.Combine(courseDirectory, assignment.Id.ToString());
+                var fileExtension = Path.GetExtension(file.FileName);
+                var filePath = Path.Combine(courseDirectory, $"{assignment.Id}{fileExtension}");
 
                 // Copy the file
                 if (file != null)

@@ -51,7 +51,7 @@
                             </a>
                         }
                         else{
-                            <a style="min-width: 6.5em;" class="btn btn-outline-success">Submitted</a>
+                            <a href="@Url.Action("Submission", "Student" , new { assignmentId = item.Assignment.Id })" style="min-width: 6.5em;" class="btn btn-outline-success">Submitted</a>
                         }
                     </td>
                 </tr>

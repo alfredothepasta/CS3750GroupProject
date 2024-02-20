@@ -28,6 +28,12 @@
         <span asp-validation-for="File" class="text-danger"></span>
     }
 
-    <button type="submit" class="btn btn-primary" style="margin: 1em;">Submit</button>
+    @if(!Model.Submitted){
+        <button type="submit" class="btn btn-primary" style="margin: 1em;">Submit</button>
+    }
+    else{
+        <button type="submit" class="btn btn-outline-success" style="margin: 1em;">Resubmit</button>
+    }
+    
 </form>
 

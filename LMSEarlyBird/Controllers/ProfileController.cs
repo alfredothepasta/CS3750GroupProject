@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Data;
 using LMSEarlyBird.Repository;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.Extensions.FileSystemGlobbing;
+using System.Buffers.Text;
 
 namespace LMSEarlyBird.Controllers
 {
@@ -26,31 +28,18 @@ namespace LMSEarlyBird.Controllers
         /// Context for accessing the user database
         /// </summary>
         private readonly IAppUserRepository _appUserRepository;
+        /// <summary>
+        /// Context for accessing the user links
+        /// </summary>
+        private readonly ILinksRepository _linksRepository;
 
-        public ProfileController(IAddressRepository addressRepository, IHttpContextAccessor contextAccessor, IUserIdentityService userIdentityService,
-            IAppUserRepository appUserRepository)
+        public ProfileController(IAddressRepository addressRepository, IUserIdentityService userIdentityService,
+            IAppUserRepository appUserRepository, ILinksRepository linksRepository)
         {
             _addressRepository = addressRepository;
             _userIdentityService = userIdentityService;
             _appUserRepository = appUserRepository;
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> PaymentPage()
-        {
-            //pull user based on logged in user
-            string userId = _userIdentityService.GetUserId();
-            AppUser profile = await _appUserRepository.GetUser(userId);
-
-            var userVM = new AppUser
-            {
-                FirstName = profile.FirstName,
-                LastName = profile.LastName,
-                StudentCourses = profile.StudentCourses,
-                InstructorCourses = profile.InstructorCourses,
-
-            };
-            return View(userVM);
+            _linksRepository = linksRepository;
         }
 
         [HttpGet]
@@ -61,6 +50,7 @@ namespace LMSEarlyBird.Controllers
             AppUser profile = await _appUserRepository.GetUser(userId);
 
             Address userAddress = new Address();
+            UserLinks userLinks = new UserLinks();
 
             // check if user has address implemented tied to the user ID
             if (_addressRepository.hasUserAddress(userId))
@@ -78,6 +68,27 @@ namespace LMSEarlyBird.Controllers
                 _addressRepository.addUserAddress(userAddress);
             }
 
+            if (_linksRepository.hasUserLinks(userId))
+            {
+                userLinks = await _linksRepository.getUserLinks(userId);
+            }
+            else
+            {
+                userLinks.AppUser = profile;
+                _linksRepository.addUserLinks(userLinks);
+            }
+
+            // check if user has links implemented tied to the user ID
+            if (_linksRepository.hasUserLinks(userId))
+            {
+                userLinks = await _linksRepository.getUserLinks(userId);
+            }
+            else
+            {
+                userLinks.AppUser = profile;
+                _linksRepository.addUserLinks(userLinks);
+            }
+
             // build the model view
             var profileVM = new EditProfileViewModel
             {
@@ -86,7 +97,8 @@ namespace LMSEarlyBird.Controllers
                 FirstName = profile.FirstName,
                 LastName = profile.LastName,
                 AddressId = userAddress.Id,
-                Address = userAddress
+                Address = userAddress,
+                Links = userLinks
             };
             return View(profileVM);
         }
@@ -101,6 +113,7 @@ namespace LMSEarlyBird.Controllers
             AppUser profile = await _appUserRepository.GetUser(userId);
 
             Address userAddress = new Address();
+            UserLinks userLinks = new UserLinks();
 
             // check if user has address implemented tied to the user ID
             if (_addressRepository.hasUserAddress(userId))
@@ -118,6 +131,17 @@ namespace LMSEarlyBird.Controllers
                 _addressRepository.addUserAddress(userAddress);
             }
 
+            // check if user has links implemented tied to the user ID
+            if (_linksRepository.hasUserLinks(userId))
+            {
+                userLinks = await _linksRepository.getUserLinks(userId);
+            }
+            else
+            {
+                userLinks.AppUser = profile;
+                _linksRepository.addUserLinks(userLinks);
+            }
+
             // build the model view
             var profileVM = new EditProfileViewModel
             {
@@ -126,7 +150,8 @@ namespace LMSEarlyBird.Controllers
                 FirstName = profile.FirstName,
                 LastName = profile.LastName,
                 AddressId = userAddress.Id,
-                Address = userAddress
+                Address = userAddress,
+                Links = userLinks
             };
             return View(profileVM);
         }
@@ -141,8 +166,8 @@ namespace LMSEarlyBird.Controllers
         public async Task<IActionResult> EditProfile(EditProfileViewModel profileVM)
         {
             // validate the ModelState passes (User has entred information)
-            if (!(ModelState.IsValid)) return View("Profiles", profileVM);
-            
+            if (!(ModelState.IsValid)) return View("EditProfile", profileVM);
+
             // gather the userId based on the logged in profile
             var userId = _userIdentityService.GetUserId();
 
@@ -157,6 +182,15 @@ namespace LMSEarlyBird.Controllers
             userAddress.Id = profileVM.AddressId;
             // update the address
             _addressRepository.updateUserAddress(userAddress);
+
+            // pull the links info from the Profile View
+            UserLinks userLinks = await _linksRepository.getUserLinks(userId);
+            userLinks.Link1 = profileVM.Links.Link1;
+            userLinks.Link2 = profileVM.Links.Link2;
+            userLinks.Link3 = profileVM.Links.Link3;
+            // update the links
+            _linksRepository.UpdateLinks(userLinks);
+
 
             return RedirectToAction("DisplayProfile", "Profile");
         }

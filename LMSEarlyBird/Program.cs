@@ -9,6 +9,11 @@ using Microsoft.Extensions.DependencyInjection;
 using LMSEarlyBird.Interfaces;
 using LMSEarlyBird.Repository;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
+using Microsoft.AspNetCore;
+using Stripe;
+using Stripe.Checkout;
+using Azure;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,10 +41,13 @@ builder.Services.AddScoped<IBuildingRepository, BuildingRepository>();
 builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddScoped<IAssignmentsRepository, AssignmentsRepository>();
+builder.Services.AddScoped<ILinksRepository, LinksRepository>();
 builder.Services.AddMemoryCache();
 builder.Services.AddSession();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+builder.Services.AddMvc().AddNewtonsoftJson();
 
+StripeConfiguration.ApiKey = "sk_test_51Ogs9OA3uLdsTHsjYGPdb0TTncfQoAirAiKbDqVRhHD13TwX28i76mFpSLtHUXssoXoATUlQDGXTScu1e27UJsWp00TfVoL8CR";
 
 var app = builder.Build();
 
@@ -53,7 +61,6 @@ if (args.Length == 1 && args[0].ToLower() == "seeddata")
 {
 
 }
-
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -71,8 +78,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
-
-
 
 name: "default",
 pattern: "{controller=Home}/{action=Index}/{id?}");

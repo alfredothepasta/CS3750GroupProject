@@ -5,6 +5,7 @@ using LMSEarlyBird.Repository;
 using LMSEarlyBird.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LMSEarlyBird.Controllers
@@ -149,7 +150,10 @@ namespace LMSEarlyBird.Controllers
             {
                 var studentId = _contextAccessor.HttpContext.User.GetUserId();
                 courses = await _courseRepository.GetCoursesByStudent(studentId);
+
+                // get the assignments associated with the student
                 assignments = await _assignmentRepository.GetStudentAssignments(studentId);
+                // create a calendar event for each assignment
                 foreach (var assignment in assignments)
                 {
                     // Create a CalendarEvent for the current assignment and date
@@ -161,7 +165,8 @@ namespace LMSEarlyBird.Controllers
                         backgroundColor = "#FFF",
                         borderColor = "#000",
                         textColor = "#000",
-                    };
+                        url = Url.Action("Submission", "Student", new { assignmentId = assignment.AssignmentId })
+					};
                     events.Add(calendarEvent);
                 }
             }
@@ -236,11 +241,22 @@ namespace LMSEarlyBird.Controllers
 								start = date + course.StartTime.ToTimeSpan(),
 								end = date + course.EndTime.ToTimeSpan(),
 								backgroundColor = eventColor,
-                                borderColor = "#000",
-                            };
+                                borderColor = eventColor,
+							};
 
-							// Add the CalendarEvent to the events list
-							events.Add(calendarEvent);
+                            if (User.IsInRole(UserRoles.Teacher))
+                            {
+                                // make it so a student can access as well
+                                calendarEvent.url = Url.Action("CourseAssignmentList", "Instructor", new { courseId = course.id });
+                            }
+                            else if(User.IsInRole(UserRoles.Student))
+                            {
+                                // make it so a teacher can access as well
+                                calendarEvent.url = Url.Action("Course", "Student", new { courseId = course.id });
+							}
+
+                            // Add the CalendarEvent to the events list
+                            events.Add(calendarEvent);
 						}
 
 					}
@@ -253,5 +269,11 @@ namespace LMSEarlyBird.Controllers
 
 			return View("Calendar");
         }
-    }
+
+		public async Task<IActionResult> Chart()
+        {
+            return View("Chart");
+        }
+
+	}
 }

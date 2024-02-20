@@ -1,0 +1,39 @@
+@using LMSEarlyBird.ViewModels
+@model SubmissionViewModel
+
+@{
+    ViewData["Title"] = "Submission";
+}
+
+<h1 style="color: #007bff;">@Model.Title</h1>
+<hr/>
+<div style="display: flex; align-items: baseline;">
+    <p style="font-size: larger; margin-right: 1em;">Due Date: @Model.DueDate</p>
+    <p style="font-size: larger;">Max Points: @Model.MaxPoints</p>
+</div>
+<hr/>
+<p style="font-size: x-large;">@Model.Description</p>
+
+<form asp-action="Submission" asp-controller="Student" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="assignmentId" value="@Model.AssignmentId" />
+    
+    @if (Model.Type == "text")
+    {
+        <textarea asp-for="SubmissionTxt" class="form-control" style="height: 200px;"></textarea>
+        <span asp-validation-for="SubmissionTxt" class="text-danger"></span>
+    }
+    else if (Model.Type == "file")
+    {
+        <input asp-for="File" type="file" class="form-control" />
+        <span asp-validation-for="File" class="text-danger"></span>
+    }
+
+    @if(!Model.Submitted){
+        <button type="submit" class="btn btn-primary" style="margin: 1em;">Submit</button>
+    }
+    else{
+        <button type="submit" class="btn btn-outline-success" style="margin: 1em;">Resubmit</button>
+    }
+    
+</form>
+

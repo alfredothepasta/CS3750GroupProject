@@ -5,7 +5,8 @@ namespace LMSEarlyBird.ViewModels
 {
     public class CreateAssignmentViewModel
     {
-        public Course? Course { get; set; }
+        public int AssignmentId { get; set; }
+		public Course? Course { get; set; }
         [Required]
         public string Title { get; set; }
         [Required]

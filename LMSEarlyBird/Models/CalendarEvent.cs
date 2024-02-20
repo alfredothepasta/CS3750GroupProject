@@ -9,5 +9,6 @@
 		public string backgroundColor { get; set; }
 		public string borderColor { get; set; }
         public string textColor { get; set; }
-    }
+		public string url { get; set; }
+	}
 }

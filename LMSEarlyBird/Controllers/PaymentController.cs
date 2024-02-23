@@ -16,22 +16,44 @@ namespace LMSEarlyBird.Controllers
         /// Context for accessing the user database
         /// </summary>
         private readonly IAppUserRepository _appUserRepository;
+        /// <summary>
+        /// Context for accessing the balance database
+        /// </summary>
+        private readonly IBalanceRepository _balanceRepository;
 
-        public PaymentController(IUserIdentityService userIdentityService, IAppUserRepository appUserRepository)
+        public PaymentController(IUserIdentityService userIdentityService, IAppUserRepository appUserRepository, IBalanceRepository balanceRepository)
         {
             _userIdentityService = userIdentityService;
             _appUserRepository = appUserRepository;
+            _balanceRepository = balanceRepository;
         }
 
-        private static decimal paymentAmount = 0;
+        //private static decimal paymentAmount = 0;
 
         [HttpGet]
         public async Task<IActionResult> PaymentPage()
         {
+            string userId = _userIdentityService.GetUserId();
+            //AppUser profile = await _appUserRepository.GetUser(userId);
+
+            // gather the current balance for the user
+            decimal currentBalance = await _balanceRepository.GetCurrentBalance(userId);
+
+            // insert the current balance into the view
             PaymentViewModel paymentVM = new PaymentViewModel
             {
-                PaymentAmount = 0
+                CurrentBalance = currentBalance
             };
+            // if the balance is not 0, gather a list of the balances for the user
+            // find a better way to do this, as if they have a paid off balance, it should still be displayed
+            if (paymentVM.CurrentBalance != 0)
+            {
+                
+            }
+
+            List<BalanceHistory> balances = await _balanceRepository.GetBalanceHistory(userId);
+            paymentVM.Payments = balances;
+
             return View(paymentVM);
         }
         [HttpGet]
@@ -46,7 +68,7 @@ namespace LMSEarlyBird.Controllers
         {
             PaymentViewModel paymentVM = new PaymentViewModel
             {
-                PaymentAmount = paymentAmount
+                //PaymentAmount = paymentAmount
             };
             return View(paymentVM);
         }
@@ -56,9 +78,14 @@ namespace LMSEarlyBird.Controllers
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> PaymentPage(PaymentViewModel paymentVM)
+        public async Task<IActionResult> PaymentPage(decimal paymentAmount)
         {
-            paymentAmount = paymentVM.PaymentAmount;
+            //paymentAmount = paymentVM.PaymentAmount;
+
+            //PaymentViewModel paymentVM = new PaymentViewModel
+            //{
+            //    CurrentBalance = paymentAmount
+            //};
 
             if (paymentAmount == 0)
             {

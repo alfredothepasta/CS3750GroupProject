@@ -18,5 +18,7 @@ namespace LMSEarlyBird.Models
         public List<InstructorCourse> InstructorCourses { get; set; }
 
 		public List<StudentAssignment> StudentAssignment { get; set; }
-	  } 
+
+        public List<BalanceHistory> BalanceHistory { get; set; }
+    } 
 }

@@ -1,15 +1,19 @@
-﻿<!DOCTYPE html>
-<html>
+﻿@using LMSEarlyBird.ViewModels
+@model PaymentViewModel
+
 <head>
-    <title>Thanks for your order!</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Thanks for your Payment!</title>
+    @* <link rel="stylesheet" href="~/css/style.css"> *@
 </head>
 <body>
     <section>
+        <p>Your payment of @string.Format("{0:C}", Model.PaymentAmount) was successful!</p>
         <p>
             We appreciate your business! If you have any questions, please email
             <a href="mailto:orders@example.com">orders@example.com</a>.
         </p>
+        <form>
+            <button asp-controller="User" asp-action="Dashboard">Return to your Dashboard</button>
+        </form>
     </section>
 </body>
-</html>

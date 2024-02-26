@@ -276,9 +276,14 @@ namespace LMSEarlyBird.Controllers
                     Directory.CreateDirectory(courseDirectory);
                 }
 
-                // Determine the path to save the file
-                var fileExtension = Path.GetExtension(file.FileName);
-                var filePath = Path.Combine(courseDirectory, $"{assignment.Id}{fileExtension}");
+                // Ensure the assignment's directory exists
+                var assignmentDirectory = Path.Combine(courseDirectory, assignment.Id.ToString());
+                if (!Directory.Exists(assignmentDirectory))
+                {
+                    Directory.CreateDirectory(assignmentDirectory);
+                }
+
+                var filePath = Path.Combine(assignmentDirectory, file.FileName);
 
                 // Copy the file
                 if (file != null)

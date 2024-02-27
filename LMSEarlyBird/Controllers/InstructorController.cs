@@ -337,6 +337,8 @@ namespace LMSEarlyBird.Controllers
 
             var viewModel = new AssigmentGradeViewModel();
 
+            return View(viewModel);
+
             //Get student assignment 
             var assignment = await _assignmentRepository.GetStudentAssignment(studentId, assignmentId);
 

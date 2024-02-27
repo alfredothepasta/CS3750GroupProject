@@ -177,5 +177,9 @@ namespace LMSEarlyBird.Repository
             return Save();
         }
 
+        public async Task<StudentAssignment> GetStudentAssignment(string studentId, int assignmentId)
+        {
+            return await _context.StudentAssignments.FirstOrDefaultAsync(x => x.AssignmentId == assignmentId && x.StudentId == studentId);
+        }
     }
 }

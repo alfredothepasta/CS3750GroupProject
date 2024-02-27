@@ -71,11 +71,11 @@
                     <td>
                         @if (item.Graded)
                         {
-                            <a class="btn btn-outline-success" asp-controller="" asp-action="">Change Grade</a>
+                                <a class="btn btn-outline-success" href="@Url.Action("AssignmentGrade", "Instructor", new {assignmentId = item.AssignmentId, studentId = item.StudentId})">Change Grade</a>
                         }
                         else
                         {
-                            <a class="btn btn-success" asp-controller="" asp-action="">Submit Grade</a>
+                                <a class="btn btn-success" href="@Url.Action("AssignmentGrade", "Instructor", new {assignmentId = item.AssignmentId, studentId = item.StudentId})">Submit Grade</a>
                         }
                     </td>
                 </tr>

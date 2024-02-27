@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Formats.Asn1;
 using System.Linq;
 using System.Threading.Tasks;
+using LMSEarlyBird.Data;
 using LMSEarlyBird.Interfaces;
 using LMSEarlyBird.Models;
 using LMSEarlyBird.Repository;
@@ -37,6 +38,7 @@ namespace LMSEarlyBird.Controllers
         }
 
         public async Task<IActionResult> Registration(){      
+            
             RegistrationViewModel result = new RegistrationViewModel();
 
             //Create list of department names
@@ -276,14 +278,9 @@ namespace LMSEarlyBird.Controllers
                     Directory.CreateDirectory(courseDirectory);
                 }
 
-                // Ensure the assignment's directory exists
-                var assignmentDirectory = Path.Combine(courseDirectory, assignment.Id.ToString());
-                if (!Directory.Exists(assignmentDirectory))
-                {
-                    Directory.CreateDirectory(assignmentDirectory);
-                }
-
-                var filePath = Path.Combine(assignmentDirectory, file.FileName);
+                // Determine the path to save the file
+                var fileExtension = Path.GetExtension(file.FileName);
+                var filePath = Path.Combine(courseDirectory, $"{assignment.Id}{fileExtension}");
 
                 // Copy the file
                 if (file != null)
@@ -300,6 +297,12 @@ namespace LMSEarlyBird.Controllers
 
             return RedirectToAction(nameof(Course), new { courseid = assignment.CourseId });
         }
-        
+
+        //validation
+        private bool isNotStudent()
+        {
+            return !User.IsInRole(UserRoles.Student);
+        }
+
     }
 }

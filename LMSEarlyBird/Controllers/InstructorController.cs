@@ -4,6 +4,8 @@ using LMSEarlyBird.Models;
 using LMSEarlyBird.Repository;
 using LMSEarlyBird.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
+using System.Web;
 
 namespace LMSEarlyBird.Controllers
 {
@@ -24,6 +26,7 @@ namespace LMSEarlyBird.Controllers
         private readonly IDepartmentRepository _departmentRepository;
         private readonly IAppUserRepository _appUserRepository;
         private readonly IAssignmentsRepository _assignmentRepository;
+        private readonly FileExtensionContentTypeProvider _contentTypeProvider;
         private readonly IStudentCourseRepository _studentCourseRepository;
         #endregion
 
@@ -36,6 +39,7 @@ namespace LMSEarlyBird.Controllers
             IDepartmentRepository departmentRepository,
             IAppUserRepository appUserRepository,
             IAssignmentsRepository assignmentRepository,
+            FileExtensionContentTypeProvider contentTypeProvider,
             IStudentCourseRepository studentCourseRepository)
         {
             _context = context;
@@ -46,6 +50,7 @@ namespace LMSEarlyBird.Controllers
             _departmentRepository = departmentRepository;
             _appUserRepository = appUserRepository;
             _assignmentRepository = assignmentRepository;
+            _contentTypeProvider = contentTypeProvider;
             _studentCourseRepository = studentCourseRepository;
         }
 
@@ -323,6 +328,67 @@ namespace LMSEarlyBird.Controllers
 		#endregion
 
 		#endregion
+
+        #region AssignmentGradePage
+        public async Task<IActionResult> AssignmentGrade(int assignmentId, string studentId){
+            if (isNotInstructor())
+            {
+                return NotFound();
+            }
+
+            var viewModel = new AssigmentGradeViewModel();
+
+            //Get student assignment 
+            var assignment = await _assignmentRepository.GetStudentAssignment(studentId, assignmentId);
+
+            if(assignment == null){
+                return NotFound();
+            }
+
+            viewModel.StudentName = assignment.Student.FirstName + " " + assignment.Student.LastName;
+            viewModel.DueDate = FormatDueDate(assignment.Assignment.DueDate);
+            //ADD SUBMISSION DATE HERE WHEN ADDED TO DATABASE
+            viewModel.SubmissionDate = "02/26/2024 10:30 AM";
+            viewModel.Graded = assignment.Graded;
+            viewModel.GradedPoints = 90;
+            viewModel.MaxPoints = assignment.Assignment.maxPoints;
+            viewModel.Submitted = assignment.Submitted;
+            viewModel.LateSubmission = true;
+
+            viewModel.AssignmentId = assignment.AssignmentId;
+            viewModel.StudentId = assignment.StudentId;
+            viewModel.CourseId = assignment.Assignment.CourseId;
+            
+            return View(viewModel);
+        }
+
+        public ActionResult DownloadAssignment(string studentId,int courseId, int assignmentId)
+        {
+                var webHostEnvironment = (IWebHostEnvironment)HttpContext.RequestServices.GetService(typeof(IWebHostEnvironment));
+                var assignmentsRoot = Path.Combine(webHostEnvironment.WebRootPath, "assignments");
+
+            string fileName = "";
+            string dir = Path.Combine(assignmentsRoot, studentId + "/" + courseId.ToString() + "/" + assignmentId.ToString());
+            string filePath = Path.Combine(dir, fileName);
+            string contentType;
+
+            // Try to get the content type based on the file extension
+            if (_contentTypeProvider.TryGetContentType(fileName, out contentType))
+            {
+                return File(filePath, contentType, fileName);
+            }
+            else
+            {
+                return File(filePath, "application/octet-stream", fileName);
+            }
+
+        }
+
+        private string FormatDueDate(DateTime date){
+            return date.ToString("MM/dd/yyyy hh:mm tt");
+        }
+
+        #endregion
 
 		#region Assignment Methods
 

@@ -14,5 +14,8 @@ namespace LMSEarlyBird.Models
         public bool Submitted { get; set; }
         public bool Graded { get; set; }
         public string? Submission { get; set; }
+        public DateTime? SubmissionTime { get; set; }
+        public string? SubmissionComment { get; set; }
+        public string? FileName { get; set; }
     }
 }

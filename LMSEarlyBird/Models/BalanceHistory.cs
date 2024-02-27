@@ -18,5 +18,6 @@ namespace LMSEarlyBird.Models
         public DateTime Time { get; set; }
         [RegularExpression("^(?:AddClass|DropClass|Payment)$")]
         public string Type { get; set; }
+        public string? ClassName { get; set; }
     }
 }

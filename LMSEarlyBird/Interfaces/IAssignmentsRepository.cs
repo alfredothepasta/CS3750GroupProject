@@ -19,7 +19,7 @@ namespace LMSEarlyBird.Interfaces
         bool UpdateAssignment(Assignment assignment);
 
         bool SetStudentAssignmentSubmitted(string studentId, int assignmentId, string txtSubmission);
-        bool SetStudentAssignmentSubmitted(string studentId, int assignmentId);
+        bool SetStudentAssignmentSubmitted(string fileName, string studentId, int assignmentId);
         bool Save();
 
     }

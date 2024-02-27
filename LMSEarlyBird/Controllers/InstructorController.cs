@@ -335,10 +335,6 @@ namespace LMSEarlyBird.Controllers
                 return NotFound();
             }
 
-            var viewModel = new AssigmentGradeViewModel();
-
-            return View(viewModel);
-
             //Get student assignment 
             var assignment = await _assignmentRepository.GetStudentAssignment(studentId, assignmentId);
 
@@ -346,20 +342,25 @@ namespace LMSEarlyBird.Controllers
                 return NotFound();
             }
 
-            viewModel.StudentName = assignment.Student.FirstName + " " + assignment.Student.LastName;
-            viewModel.DueDate = FormatDueDate(assignment.Assignment.DueDate);
-            //ADD SUBMISSION DATE HERE WHEN ADDED TO DATABASE
-            viewModel.SubmissionDate = "02/26/2024 10:30 AM";
-            viewModel.Graded = assignment.Graded;
-            viewModel.GradedPoints = 90;
-            viewModel.MaxPoints = assignment.Assignment.maxPoints;
-            viewModel.Submitted = assignment.Submitted;
-            viewModel.LateSubmission = true;
+            var viewModel = new AssigmentGradeViewModel
+            {
+                AssignmentName = assignment.Assignment.Title,
+                StudentName = assignment.Student.FirstName + " " + assignment.Student.LastName,
+                DueDate = FormatDueDate(assignment.Assignment.DueDate),
+                //ADD SUBMISSION DATE HERE WHEN ADDED TO DATABASE
+                SubmissionDate = FormatDueDate((DateTime)assignment.SubmissionTime),
+                Graded = assignment.Graded,
+                GradedPoints = assignment.Score,
+                MaxPoints = assignment.Assignment.maxPoints,
+                Submitted = assignment.Submitted,
+                LateSubmission = assignment.SubmissionTime > assignment.Assignment.DueDate,
 
-            viewModel.AssignmentId = assignment.AssignmentId;
-            viewModel.StudentId = assignment.StudentId;
-            viewModel.CourseId = assignment.Assignment.CourseId;
-            
+                AssignmentId = assignment.AssignmentId,
+                StudentId = assignment.StudentId,
+                CourseId = assignment.Assignment.CourseId
+            };
+
+
             return View(viewModel);
         }
 

@@ -142,7 +142,7 @@ namespace LMSEarlyBird.Repository
             return saved > 0;
         }
 
-        public bool SetStudentAssignmentSubmitted(string studentId, int assignmentId)
+        public bool SetStudentAssignmentSubmitted(string fileName, string studentId, int assignmentId)
         {
             var assignment = GetStudentAssignments(studentId).Result.FirstOrDefault(x => x.AssignmentId == assignmentId);
 
@@ -152,6 +152,8 @@ namespace LMSEarlyBird.Repository
             }
 
             assignment.Submitted = true;
+            assignment.FileName = fileName;
+            assignment.SubmissionTime = DateTime.Now;
 
             return Save();
         }
@@ -167,6 +169,7 @@ namespace LMSEarlyBird.Repository
 
             assignment.Submitted = true;
             assignment.Submission = txtSubmission;
+            assignment.SubmissionTime = DateTime.Now;
 
             return Save();
         }

@@ -153,6 +153,9 @@ namespace LMSEarlyBird.Controllers
 
             var courses = await _courseRepository.GetAllCoursesWithInstructor();
 
+            if(courses == null)
+                return new List<RegisterCourseViewModel>();
+
             if (search != null)
             {
                 courses = courses.Where(x => x.CourseName.ToUpper().Contains(search.ToUpper())).ToList();
@@ -254,7 +257,7 @@ namespace LMSEarlyBird.Controllers
 
             if(file != null){
                 //Mark assignment as submitted
-                _assignmentsRepository.SetStudentAssignmentSubmitted(userid, assignment.Id);
+                _assignmentsRepository.SetStudentAssignmentSubmitted(file.FileName, userid, assignment.Id);
 
                 // Ensure the wwwroot/assignments directory exists
                 var webHostEnvironment = (IWebHostEnvironment)HttpContext.RequestServices.GetService(typeof(IWebHostEnvironment));

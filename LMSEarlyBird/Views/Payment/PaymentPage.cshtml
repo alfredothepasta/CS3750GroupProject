@@ -18,6 +18,10 @@
                 {
                     <p>You have no outstanding balance</p>
                 }
+                else if (balanceDue < 0)
+                {
+                    <p>You have a negative balance of -@string.Format("{0:C}", balanceDue)</p>
+                }
                 else
                 {
                     <label class="control-label">You currently owe: @string.Format("{0:C}", balanceDue)</label>

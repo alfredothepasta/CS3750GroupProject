@@ -361,27 +361,29 @@ namespace LMSEarlyBird.Controllers
             return View(viewModel);
         }
 
-        // public ActionResult DownloadAssignment(string studentId,int courseId, int assignmentId)
-        // {
-        //         var webHostEnvironment = (IWebHostEnvironment)HttpContext.RequestServices.GetService(typeof(IWebHostEnvironment));
-        //         var assignmentsRoot = Path.Combine(webHostEnvironment.WebRootPath, "assignments");
+        public ActionResult DownloadAssignment(string studentId,int courseId, int assignmentId)
+        {
+                var webHostEnvironment = (IWebHostEnvironment)HttpContext.RequestServices.GetService(typeof(IWebHostEnvironment));
+                var assignmentsRoot = Path.Combine(webHostEnvironment.WebRootPath, "assignments");
 
-        //     string fileName = "";
-        //     string dir = Path.Combine(assignmentsRoot, studentId + "/" + courseId.ToString() + "/" + assignmentId.ToString());
-        //     string filePath = Path.Combine(dir, fileName);
-        //     string contentType;
+            string fileName = "";
+            string dir = Path.Combine(assignmentsRoot, studentId + "/" + courseId.ToString() + "/" + assignmentId.ToString());
+            string filePath = Path.Combine(dir, fileName);
+            string contentType;
 
-        //     // Try to get the content type based on the file extension
-        //     if (_contentTypeProvider.TryGetContentType(fileName, out contentType))
-        //     {
-        //         return File(filePath, contentType, fileName);
-        //     }
-        //     else
-        //     {
-        //         return File(filePath, "application/octet-stream", fileName);
-        //     }
+            return File(filePath, "application/octet-stream", fileName);
 
-        // }
+            // // Try to get the content type based on the file extension
+            // if (_contentTypeProvider.TryGetContentType(fileName, out contentType))
+            // {
+            //     return File(filePath, contentType, fileName);
+            // }
+            // else
+            // {
+                
+            // }
+
+        }
 
         private string FormatDueDate(DateTime date){
             return date.ToString("MM/dd/yyyy hh:mm tt");

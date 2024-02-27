@@ -247,6 +247,7 @@ namespace LMSEarlyBird.Controllers
                 DueDate = FormatDueDate(assignment.DueDate),
                 AssignmentId = assignment.Id,
                 Submitted = studentAssignment.Submitted,
+                SubmissionTxt = studentAssignment.Submission,
             };
 
 

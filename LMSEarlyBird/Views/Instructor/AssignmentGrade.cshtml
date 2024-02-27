@@ -43,15 +43,19 @@
                 </tbody>
             </table>
         }
+        else{
+            <input class="form-control" type="text" value="@Model.TextSubmission" readonly />
+        }
     </div>
     
     <div class="p-2 ml-auto text-right" style="flex: 2; min-width: 250px; max-width: 300px;">
         <form asp-action="AssignmentGrade" asp-controller="Instructor" method="post" enctype="multipart/form-data">
             <input type="hidden" name="assignmentId" value="@Model.AssignmentId"/>
             <input type="hidden" name="studentId" value="@Model.StudentId"/>
+            <input type="hidden" name="courseId" value="@Model.CourseId"/>
 
             <div class="form-group">
-                <label for="scoreInput" class="float-left">Score:_/@Model.MaxPoints</label>
+                <label for="scoreInput" class="float-left">Score / @Model.MaxPoints</label>
                 <input asp-for="GradedPoints" type="number" class="form-control" id="scoreInput" />
                 <span asp-validation-for="GradedPoints" class="text-danger"></span>
             </div>

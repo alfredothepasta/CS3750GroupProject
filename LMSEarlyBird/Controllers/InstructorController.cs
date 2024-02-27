@@ -367,6 +367,9 @@ namespace LMSEarlyBird.Controllers
             if(assignment.FileName != null && assignment.FileName.Length > 0){
                 viewModel.FileSubmission = true;
             }
+            else{
+                viewModel.TextSubmission = assignment.Submission;
+            }
             if(assignment.SubmissionComment != null){
                 viewModel.SubmissionComment = assignment.SubmissionComment;
             }
@@ -382,7 +385,7 @@ namespace LMSEarlyBird.Controllers
             }
 
             _assignmentRepository.GradeAssignment(gradeInfo.StudentId, gradeInfo.AssignmentId, gradeInfo.GradedPoints, gradeInfo.SubmissionComment);
-            return RedirectToAction("Dashboard", "User");
+            return RedirectToAction("AssignmentSubmissionsList", "Instructor", new { assignmentId = gradeInfo.AssignmentId, courseId = gradeInfo.CourseId });
         }
 
         public ActionResult DownloadAssignment(string studentId,int courseId, int assignmentId, string fileName)

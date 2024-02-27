@@ -184,5 +184,16 @@ namespace LMSEarlyBird.Repository
         {
             return await _context.StudentAssignments.Include(x => x.Assignment).Include(x => x.Student).FirstOrDefaultAsync(x => x.AssignmentId == assignmentId && x.StudentId == studentId);
         }
+
+        public bool GradeAssignment(string studentId, int assignmentId, int grade, string comment)
+        {
+            var assignment = GetStudentAssignment(studentId, assignmentId).Result;
+            assignment.Graded = true;
+            assignment.Score = grade;
+            assignment.SubmissionComment = comment;
+
+            _context.StudentAssignments.Update(assignment);
+            return Save();
+        }
     }
 }

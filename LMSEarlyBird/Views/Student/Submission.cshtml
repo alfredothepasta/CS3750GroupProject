@@ -19,7 +19,7 @@
     
     @if (Model.Type == "text")
     {
-        <textarea asp-for="SubmissionTxt" class="form-control" style="height: 200px;"></textarea>
+        <textarea asp-for="SubmissionTxt" class="form-control" style="height: 200px;">@Model.SubmissionTxt</textarea>
         <span asp-validation-for="SubmissionTxt" class="text-danger"></span>
     }
     else if (Model.Type == "file")

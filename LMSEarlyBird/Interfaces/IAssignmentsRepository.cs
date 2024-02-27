@@ -18,6 +18,8 @@ namespace LMSEarlyBird.Interfaces
         Task<bool> RemoveAssignment(Assignment assignment);
         bool UpdateAssignment(Assignment assignment);
 
+        bool GradeAssignment(string studentId, int assignmentId, int grade, string comment);
+
         bool SetStudentAssignmentSubmitted(string studentId, int assignmentId, string txtSubmission);
         bool SetStudentAssignmentSubmitted(string fileName, string studentId, int assignmentId);
         bool Save();

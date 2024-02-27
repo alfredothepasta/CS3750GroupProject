@@ -98,6 +98,13 @@ namespace LMSEarlyBird.Repository
             return user.StudentAssignment;
         }
 
+        public async Task<StudentAssignment> GetStudentAssignment(int assignmentId, string studentId)
+        {
+            return await _context.StudentAssignments
+                .Where(x => x.AssignmentId == assignmentId && x.StudentId == studentId)
+                .FirstAsync();
+        }
+
         public async Task<List<StudentAssignment>> GetStudentAssignmentsByCourse(string studentId, int courseId)
         {
             var user = await _context.AppUsers

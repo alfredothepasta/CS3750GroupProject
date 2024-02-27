@@ -32,6 +32,9 @@
                 <th>
                     Delete
                 </th>
+                <th>
+                    Submissions
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -56,9 +59,14 @@
                     <td>
                         <a class="btn btn-danger" asp-controller="Instructor" asp-action="DeleteAssignment" asp-route-assignmentId="@item.Id" asp-route-courseId="@Model.Course.id">Delete</a>
                     </td>
+                    <td>
+                        <a class="btn btn-success" asp-controller="Instructor" asp-action="AssignmentSubmissionsList" asp-route-assignmentId="@item.Id" asp-route-courseId="@Model.Course.id">Submissions</a>
+                    </td>
                 </tr>
             }
             <tr>
+                <td>
+                </td>
                 <td>
                 </td>
                 <td>

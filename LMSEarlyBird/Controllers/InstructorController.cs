@@ -1,6 +1,7 @@
 ﻿using LMSEarlyBird.Data;
 using LMSEarlyBird.Interfaces;
 using LMSEarlyBird.Models;
+using LMSEarlyBird.Repository;
 using LMSEarlyBird.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
@@ -26,7 +27,7 @@ namespace LMSEarlyBird.Controllers
         private readonly IAppUserRepository _appUserRepository;
         private readonly IAssignmentsRepository _assignmentRepository;
         private readonly FileExtensionContentTypeProvider _contentTypeProvider;
-
+        private readonly IStudentCourseRepository _studentCourseRepository;
         #endregion
 
         #region constructor
@@ -38,7 +39,8 @@ namespace LMSEarlyBird.Controllers
             IDepartmentRepository departmentRepository,
             IAppUserRepository appUserRepository,
             IAssignmentsRepository assignmentRepository,
-            FileExtensionContentTypeProvider contentTypeProvider)
+            FileExtensionContentTypeProvider contentTypeProvider,
+            IStudentCourseRepository studentCourseRepository)
         {
             _context = context;
             _contextAccessor = contextAccessor;
@@ -49,6 +51,7 @@ namespace LMSEarlyBird.Controllers
             _appUserRepository = appUserRepository;
             _assignmentRepository = assignmentRepository;
             _contentTypeProvider = contentTypeProvider;
+            _studentCourseRepository = studentCourseRepository;
         }
 
         #endregion  
@@ -553,7 +556,41 @@ namespace LMSEarlyBird.Controllers
 				return StatusCode(StatusCodes.Status408RequestTimeout);
 			}
 		}
-        #endregion  
+        #endregion
+
+        #region AssignmentList
+
+        public async Task<IActionResult> AssignmentSubmissionsList(int assignmentId, int courseId)
+        {
+            // check if the user is logged in to an account with the instructor role
+            if (isNotInstructor())
+            {
+                return View("Dashboard", "User");
+            }
+
+            List<AppUser> registeredStudents = await _studentCourseRepository.GetStudentsByCourse(courseId);
+            List<StudentAssignment> studentAssignments = new List<StudentAssignment>();
+
+            foreach (var student in registeredStudents)
+            {
+                StudentAssignment studentAssignment = await _assignmentRepository.GetStudentAssignment(assignmentId, student.Id);
+
+                if (studentAssignment.Submitted)
+                {
+                    studentAssignments.Add(studentAssignment);
+                }
+            }
+
+            AssignmentSubmissionsListViewModel viewModel = new AssignmentSubmissionsListViewModel
+            {
+                Course = await _courseRepository.GetCourse(courseId),
+                Assignment = await _assignmentRepository.GetAssignment(assignmentId),
+                Assignments = studentAssignments
+            };
+            return View(viewModel);
+        }
+
+        #endregion
 
         #endregion
 

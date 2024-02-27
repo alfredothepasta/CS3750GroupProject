@@ -13,5 +13,6 @@ namespace LMSEarlyBird.Interfaces
         bool Save();
 
         Task<IEnumerable<StudentCourse>> GetAllStudentCourses();
+        Task<List<AppUser>> GetStudentsByCourse(int courseId);
     }
 }

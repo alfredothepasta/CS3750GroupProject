@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Formats.Asn1;
 using System.Linq;
 using System.Threading.Tasks;
+using LMSEarlyBird.Data;
 using LMSEarlyBird.Interfaces;
 using LMSEarlyBird.Models;
 using LMSEarlyBird.Repository;
@@ -36,7 +37,13 @@ namespace LMSEarlyBird.Controllers
             return View();
         }
 
-        public async Task<IActionResult> Registration(){      
+        public async Task<IActionResult> Registration(){
+
+            if (isNotStudent())
+            {
+                return Redirect(Url.Action("Dashboard", "User"));
+            }
+            
             RegistrationViewModel result = new RegistrationViewModel();
 
             //Create list of department names
@@ -151,6 +158,9 @@ namespace LMSEarlyBird.Controllers
 
             var courses = await _courseRepository.GetAllCoursesWithInstructor();
 
+            if(courses == null)
+                return new List<RegisterCourseViewModel>();
+
             if (search != null)
             {
                 courses = courses.Where(x => x.CourseName.ToUpper().Contains(search.ToUpper())).ToList();
@@ -252,7 +262,7 @@ namespace LMSEarlyBird.Controllers
 
             if(file != null){
                 //Mark assignment as submitted
-                _assignmentsRepository.SetStudentAssignmentSubmitted(userid, assignment.Id);
+                _assignmentsRepository.SetStudentAssignmentSubmitted(file.FileName, userid, assignment.Id);
 
                 // Ensure the wwwroot/assignments directory exists
                 var webHostEnvironment = (IWebHostEnvironment)HttpContext.RequestServices.GetService(typeof(IWebHostEnvironment));
@@ -295,6 +305,12 @@ namespace LMSEarlyBird.Controllers
 
             return RedirectToAction(nameof(Course), new { courseid = assignment.CourseId });
         }
-        
+
+        //validation
+        private bool isNotStudent()
+        {
+            return !User.IsInRole(UserRoles.Student);
+        }
+
     }
 }

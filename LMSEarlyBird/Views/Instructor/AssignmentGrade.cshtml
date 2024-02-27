@@ -1,0 +1,48 @@
+@using LMSEarlyBird.ViewModels
+@model AssigmentGradeViewModel
+
+@{
+    ViewData["Title"] = "AssignmentGrade";
+}
+
+<h1 style="color: #007bff;">@Model.AssignmentName</h1>
+<hr/>
+
+<div style="display: flex; align-items: baseline; font-size: medium; font-weight: bold;">
+    <p style="margin-right: 1.5em;">Student: Jordan Allen</p>
+    <p style="margin-right: 1.5em;">Due Date: 02/25/24 11:59 PM</p>
+    <p style="margin-right: 1.5em;">Submission Date: 02/26/24 10:30 PM</p>
+    <p class="btn btn-outline-danger">LATE</p>
+    <p></p>
+</div>
+<hr/>
+
+<div class="d-flex flex-wrap">
+    <div class="p-2" style="flex: 1; min-width: 250px; max-width: 30%;">
+        <p style="font-weight: bold;">Graded: 90/100</p>
+        <p>Submission: </p>
+        <table 
+            <tbody>
+                <tr>
+                    <td class="pr-3">example.pdf</td>
+                    <td><a href="#" class="text-primary">Download</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="p-2 ml-auto text-right" style="flex: 2; min-width: 250px; max-width: 300px;">
+        <form>
+            <div class="mb-2">
+                <label for="scoreInput" class="float-left">Score:</label>
+                <input type="number" class="form-control" id="scoreInput" name="score">
+            </div>
+            <div class="mb-2">
+                <label for="feedbackTextarea" class="float-left">Instructor Feedback:</label>
+                <textarea class="form-control" id="feedbackTextarea" name="feedback" rows="4"></textarea>
+            </div>
+            <div class="text-right">
+                <button type="submit" class="btn btn-success">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>

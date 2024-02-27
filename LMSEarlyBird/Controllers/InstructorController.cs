@@ -26,7 +26,7 @@ namespace LMSEarlyBird.Controllers
         private readonly IDepartmentRepository _departmentRepository;
         private readonly IAppUserRepository _appUserRepository;
         private readonly IAssignmentsRepository _assignmentRepository;
-        private readonly FileExtensionContentTypeProvider _contentTypeProvider;
+        //private readonly FileExtensionContentTypeProvider _contentTypeProvider;
         private readonly IStudentCourseRepository _studentCourseRepository;
         #endregion
 
@@ -39,7 +39,6 @@ namespace LMSEarlyBird.Controllers
             IDepartmentRepository departmentRepository,
             IAppUserRepository appUserRepository,
             IAssignmentsRepository assignmentRepository,
-            FileExtensionContentTypeProvider contentTypeProvider,
             IStudentCourseRepository studentCourseRepository)
         {
             _context = context;
@@ -50,7 +49,7 @@ namespace LMSEarlyBird.Controllers
             _departmentRepository = departmentRepository;
             _appUserRepository = appUserRepository;
             _assignmentRepository = assignmentRepository;
-            _contentTypeProvider = contentTypeProvider;
+            //_contentTypeProvider = contentTypeProvider;
             _studentCourseRepository = studentCourseRepository;
         }
 
@@ -362,27 +361,27 @@ namespace LMSEarlyBird.Controllers
             return View(viewModel);
         }
 
-        public ActionResult DownloadAssignment(string studentId,int courseId, int assignmentId)
-        {
-                var webHostEnvironment = (IWebHostEnvironment)HttpContext.RequestServices.GetService(typeof(IWebHostEnvironment));
-                var assignmentsRoot = Path.Combine(webHostEnvironment.WebRootPath, "assignments");
+        // public ActionResult DownloadAssignment(string studentId,int courseId, int assignmentId)
+        // {
+        //         var webHostEnvironment = (IWebHostEnvironment)HttpContext.RequestServices.GetService(typeof(IWebHostEnvironment));
+        //         var assignmentsRoot = Path.Combine(webHostEnvironment.WebRootPath, "assignments");
 
-            string fileName = "";
-            string dir = Path.Combine(assignmentsRoot, studentId + "/" + courseId.ToString() + "/" + assignmentId.ToString());
-            string filePath = Path.Combine(dir, fileName);
-            string contentType;
+        //     string fileName = "";
+        //     string dir = Path.Combine(assignmentsRoot, studentId + "/" + courseId.ToString() + "/" + assignmentId.ToString());
+        //     string filePath = Path.Combine(dir, fileName);
+        //     string contentType;
 
-            // Try to get the content type based on the file extension
-            if (_contentTypeProvider.TryGetContentType(fileName, out contentType))
-            {
-                return File(filePath, contentType, fileName);
-            }
-            else
-            {
-                return File(filePath, "application/octet-stream", fileName);
-            }
+        //     // Try to get the content type based on the file extension
+        //     if (_contentTypeProvider.TryGetContentType(fileName, out contentType))
+        //     {
+        //         return File(filePath, contentType, fileName);
+        //     }
+        //     else
+        //     {
+        //         return File(filePath, "application/octet-stream", fileName);
+        //     }
 
-        }
+        // }
 
         private string FormatDueDate(DateTime date){
             return date.ToString("MM/dd/yyyy hh:mm tt");
@@ -573,7 +572,7 @@ namespace LMSEarlyBird.Controllers
 
             foreach (var student in registeredStudents)
             {
-                StudentAssignment studentAssignment = await _assignmentRepository.GetStudentAssignment(assignmentId, student.Id);
+                StudentAssignment studentAssignment = await _assignmentRepository.GetStudentAssignment(student.Id,assignmentId);
 
                 if (studentAssignment.Submitted)
                 {

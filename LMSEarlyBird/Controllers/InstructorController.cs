@@ -54,7 +54,7 @@ namespace LMSEarlyBird.Controllers
             // check if the user is logged in to an account with the instructor role
             if (isNotInstructor())
             {
-                return View("Dashboard", "User");
+                return RedirectToAction("Dashboard", "User");
             }
             
             // get the current users's roles for accessing the courses associated with them in the db
@@ -99,7 +99,7 @@ namespace LMSEarlyBird.Controllers
             // check if the user is logged in to an account with the instructor role
             if (isNotInstructor())
             {
-                return View("Dashboard", "User");
+                return RedirectToAction("Dashboard", "User");
             }
 
             // check if the course is valid

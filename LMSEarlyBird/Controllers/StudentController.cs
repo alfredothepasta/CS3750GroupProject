@@ -37,7 +37,12 @@ namespace LMSEarlyBird.Controllers
             return View();
         }
 
-        public async Task<IActionResult> Registration(){      
+        public async Task<IActionResult> Registration(){
+
+            if (isNotStudent())
+            {
+                return Redirect(Url.Action("Dashboard", "User"));
+            }
             
             RegistrationViewModel result = new RegistrationViewModel();
 

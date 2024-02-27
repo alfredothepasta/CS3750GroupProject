@@ -72,17 +72,17 @@ namespace LMSEarlyBird.Controllers
             };
 
             // create payment intent
-            var options = new PaymentIntentCreateOptions
-            {
-                Amount = Convert.ToInt64(paymentVM.PaymentAmount) * 100,
-                Currency = "usd",
-                AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
-                {
-                    Enabled = true,
-                },
-            };
-            var service = new PaymentIntentService();
-            service.Create(options);
+            //var options = new PaymentIntentCreateOptions
+            //{
+            //    Amount = Convert.ToInt64(paymentVM.PaymentAmount) * 100,
+            //    Currency = "usd",
+            //    AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
+            //    {
+            //        Enabled = true,
+            //    },
+            //};
+            //var service = new PaymentIntentService();
+            //service.Create(options);
 
             // pass on the payment view model for the payment amount
             return View(paymentVM2);
@@ -165,8 +165,8 @@ namespace LMSEarlyBird.Controllers
         },
                 Mode = "payment",
                 SuccessUrl = "https://localhost:7243/Payment/Success",
-                //CancelUrl = "https://localhost:7243/Payment/Cancel?paymentVM={paymentVM}",
-                CancelUrl = "https://localhost:7243/Payment/Cancel",
+                CancelUrl = "https://localhost:7243/Payment/Cancel?paymentVM={@paymentVM}",
+                //CancelUrl = "https://localhost:7243/Payment/Cancel",
             };
 
             var service = new SessionService();

@@ -23,6 +23,8 @@ namespace LMSEarlyBird.ViewModels
         public bool Graded {get; set;}
         public int Score {get; set;}
 
+        public string SubmissionComment {get; set;} = string.Empty;
+
         public string DueDate {get; set;} = string.Empty;
 
         [Required(ErrorMessage = "Must provide text")]

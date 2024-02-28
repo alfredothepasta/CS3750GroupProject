@@ -279,6 +279,8 @@ namespace LMSEarlyBird.Controllers
                 submissionViewModel.SubmissionDate = FormatDueDate((DateTime)studentAssignment.SubmissionTime);
 
                 submissionViewModel.Late = studentAssignment.SubmissionTime > assignment.DueDate;
+
+                submissionViewModel.SubmissionComment = studentAssignment.SubmissionComment;
             }
 
             return View(submissionViewModel);

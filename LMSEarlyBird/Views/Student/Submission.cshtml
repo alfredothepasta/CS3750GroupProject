@@ -7,73 +7,81 @@
 
 <h1 style="color: #007bff;">@Model.Title</h1>
 <hr/>
-    <div style="display: flex; align-items: baseline; font-weight: bold">
-        <p style="font-size: larger; margin-right: 1em;">Due Date: @Model.DueDate</p>
-        @if(Model.Graded){
-            <p style="font-size: larger;">Graded: @Model.Score / @Model.MaxPoints</p>
-        }
-        else{
-            <p style="font-size: larger;">Not Graded / @Model.MaxPoints</p>
-        }  
-    </div>
-<hr/>
-    <div style="display: block; font-weight: bold">
-        @if(Model.Submitted){
-            <p>
-            Submission Date: @Model.SubmissionDate
-                @if(Model.Late){
-                    <span class="btn btn-outline-danger">LATE</span>
+<div class="d-flex flex-column">
+    <div class="d-flex justify-content-between">
+        <div class="p-2" style="order: 1; flex: 1; max-width: 600px;">
+            <p style="font-weight: bold; font-size: larger;">Description:</p>
+            <p>@Model.Description</p>
+
+            @if(Model.Submitted){
+                <hr/>
+                @if(Model.Late){<p class="btn btn-outline-danger">LATE</p>}
+                <p style="font-weight: bold;">Submitted: @Model.SubmissionDate</p>
+
+                @if(Model.Type != "text"){
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td class="pr-3">@Model.FileName</td>
+                                <td><a href="@Url.Action("DownloadAssignment", "Instructor", new {
+                                    studentId = @Model.StudentId,
+                                    courseId = @Model.CourseId,
+                                    assignmentId = @Model.AssignmentId,
+                                    fileName = @Model.FileName})" class="text-primary">Download</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 }
-            </p>
+                else{
+                    <input class="form-control" type="text" value="@Model.SubmissionTxt" readonly />
+                }
+            }
+        </div>
+        <div class="p-2 text-right" style="order: 2; flex: 2; min-width: 250px; max-width: 300px;">
+            <div class="mb-3 text-left">
+                @if(Model.Graded){
+                    <p class="form-label" style="font-weight: bold;">Graded: @Model.Score/@Model.MaxPoints</p>
+                }
+                else{
+                    <p class="form-label" style="font-weight: bold;">Not Graded</p>
+                }
+            </div>
+            <div class="mb-3 text-left">
+                <p>Instructor Feedback:</p>
+                <textarea class="form-control" rows="4" placeholder="@Model.SubmissionComment" readonly></textarea>
+            </div>
+        </div>
+    </div>
 
-            @if(Model.Type != "text"){
-                <table>
-                <tbody>
-                    <tr>
-                        <td class="pr-3">Submitted File: @Model.FileName</td>
-                        <td><a href="@Url.Action("DownloadAssignment", "Instructor", new {
-                            studentId = @Model.StudentId,
-                            courseId = @Model.CourseId,
-                            assignmentId = @Model.AssignmentId,
-                            fileName = @Model.FileName})" class="text-primary">Download</a></td>
-                    </tr>
-                </tbody>
-                </table>
-            }
-            else{
-                <input class="form-control" type="text" value="@Model.SubmissionTxt" readonly />
-            }
-            
-            <hr/>
+    <hr/>
+
+    <form asp-action="Submission" asp-controller="Student" method="post" enctype="multipart/form-data">
+        @if(Model.Submitted){
+            <p style="font-weight: bold; font-size: larger;">New Submission:</p>
         }
         else{
-            <p style="font-size: larger; margin-right: 1em;">
-                Not Submitted
-            </p>
+            <p style="font-weight: bold; font-size: larger;">Submission:</p>
         }
-    </div>
-<p style="font-size: x-large;">@Model.Description</p>
+        <input type="hidden" name="assignmentId" value="@Model.AssignmentId" />
+        
+        @if (Model.Type == "text")
+        {
+            <textarea asp-for="SubmissionTxt" class="form-control" style="height: 200px;">@Model.SubmissionTxt</textarea>
+            <span asp-validation-for="SubmissionTxt" class="text-danger"></span>
+        }
+        else if (Model.Type == "file")
+        {
+            <input asp-for="File" type="file" class="form-control" />
+            <span asp-validation-for="File" class="text-danger"></span>
+        }
 
-<form asp-action="Submission" asp-controller="Student" method="post" enctype="multipart/form-data">
-    <input type="hidden" name="assignmentId" value="@Model.AssignmentId" />
+        @if(!Model.Submitted){
+            <button type="submit" class="btn btn-primary" style="margin: 1em;">Submit</button>
+        }
+        else{
+            <button type="submit" class="btn btn-outline-success" style="margin: 1em;">Resubmit</button>
+        } 
+    </form>
     
-    @if (Model.Type == "text")
-    {
-        <textarea asp-for="SubmissionTxt" class="form-control" style="height: 200px;">@Model.SubmissionTxt</textarea>
-        <span asp-validation-for="SubmissionTxt" class="text-danger"></span>
-    }
-    else if (Model.Type == "file")
-    {
-        <input asp-for="File" type="file" class="form-control" />
-        <span asp-validation-for="File" class="text-danger"></span>
-    }
-
-    @if(!Model.Submitted){
-        <button type="submit" class="btn btn-primary" style="margin: 1em;">Submit</button>
-    }
-    else{
-        <button type="submit" class="btn btn-outline-success" style="margin: 1em;">Resubmit</button>
-    }
-    
-</form>
+</div>
 

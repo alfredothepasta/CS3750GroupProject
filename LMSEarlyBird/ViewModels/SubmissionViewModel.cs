@@ -14,8 +14,14 @@ namespace LMSEarlyBird.ViewModels
         public string Description { get; set; } = string.Empty;
         public int MaxPoints { get; set; }
         public string Type {get; set;} = string.Empty;
-
+        public string FileName {get; set;} = string.Empty;
+        public string StudentId {get; set;} = string.Empty;
+        public int CourseId {get; set;}
         public bool Submitted = false;
+        public bool Late {get; set;}
+        public string SubmissionDate {get; set;}
+        public bool Graded {get; set;}
+        public int Score {get; set;}
 
         public string DueDate {get; set;} = string.Empty;
 

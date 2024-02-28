@@ -248,8 +248,18 @@ namespace LMSEarlyBird.Controllers
                 AssignmentId = assignment.Id,
                 Submitted = studentAssignment.Submitted,
                 SubmissionTxt = studentAssignment.Submission,
+                Graded = studentAssignment.Graded,
+                Score = studentAssignment.Score,
+                FileName = studentAssignment.FileName,
+                CourseId = assignment.CourseId,
+                StudentId = studentAssignment.StudentId,
             };
 
+            if(studentAssignment.Submitted){
+                submissionViewModel.SubmissionDate = FormatDueDate((DateTime)studentAssignment.SubmissionTime);
+
+                submissionViewModel.Late = studentAssignment.SubmissionTime > assignment.DueDate;
+            }
 
             return View(submissionViewModel);
         }

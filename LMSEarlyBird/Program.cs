@@ -42,6 +42,7 @@ builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddScoped<IAssignmentsRepository, AssignmentsRepository>();
 builder.Services.AddScoped<ILinksRepository, LinksRepository>();
+builder.Services.AddScoped<IBalanceRepository, BalanceRepository>();
 builder.Services.AddMemoryCache();
 builder.Services.AddSession();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();

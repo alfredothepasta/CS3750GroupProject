@@ -5,6 +5,7 @@ using LMSEarlyBird.Repository;
 using LMSEarlyBird.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.FileProviders;
 using System.Web;
 
 namespace LMSEarlyBird.Controllers
@@ -62,7 +63,7 @@ namespace LMSEarlyBird.Controllers
             // check if the user is logged in to an account with the instructor role
             if (isNotInstructor())
             {
-                return View("Dashboard", "User");
+                return RedirectToAction("Dashboard", "User");
             }
             
             // get the current users's roles for accessing the courses associated with them in the db
@@ -107,7 +108,7 @@ namespace LMSEarlyBird.Controllers
             // check if the user is logged in to an account with the instructor role
             if (isNotInstructor())
             {
-                return View("Dashboard", "User");
+                return RedirectToAction("Dashboard", "User");
             }
 
             // check if the course is valid
@@ -329,15 +330,13 @@ namespace LMSEarlyBird.Controllers
 		#endregion
 
         #region AssignmentGradePage
+
+        [HttpGet]
         public async Task<IActionResult> AssignmentGrade(int assignmentId, string studentId){
             if (isNotInstructor())
             {
                 return NotFound();
             }
-
-            var viewModel = new AssigmentGradeViewModel();
-
-            return View(viewModel);
 
             //Get student assignment 
             var assignment = await _assignmentRepository.GetStudentAssignment(studentId, assignmentId);
@@ -346,34 +345,70 @@ namespace LMSEarlyBird.Controllers
                 return NotFound();
             }
 
-            viewModel.StudentName = assignment.Student.FirstName + " " + assignment.Student.LastName;
-            viewModel.DueDate = FormatDueDate(assignment.Assignment.DueDate);
-            //ADD SUBMISSION DATE HERE WHEN ADDED TO DATABASE
-            viewModel.SubmissionDate = "02/26/2024 10:30 AM";
-            viewModel.Graded = assignment.Graded;
-            viewModel.GradedPoints = 90;
-            viewModel.MaxPoints = assignment.Assignment.maxPoints;
-            viewModel.Submitted = assignment.Submitted;
-            viewModel.LateSubmission = true;
+            var viewModel = new AssigmentGradeViewModel
+            {
+                AssignmentName = assignment.Assignment.Title,
+                StudentName = assignment.Student.FirstName + " " + assignment.Student.LastName,
+                DueDate = FormatDueDate(assignment.Assignment.DueDate),
+                //ADD SUBMISSION DATE HERE WHEN ADDED TO DATABASE
+                SubmissionDate = FormatDueDate((DateTime)assignment.SubmissionTime),
+                Graded = assignment.Graded,
+                GradedPoints = assignment.Score,
+                MaxPoints = assignment.Assignment.maxPoints,
+                Submitted = assignment.Submitted,
+                LateSubmission = assignment.SubmissionTime > assignment.Assignment.DueDate,
+                FileName = assignment.FileName,
 
-            viewModel.AssignmentId = assignment.AssignmentId;
-            viewModel.StudentId = assignment.StudentId;
-            viewModel.CourseId = assignment.Assignment.CourseId;
-            
+                AssignmentId = assignment.AssignmentId,
+                StudentId = assignment.StudentId,
+                CourseId = assignment.Assignment.CourseId
+            };
+
+            if(assignment.FileName != null && assignment.FileName.Length > 0){
+                viewModel.FileSubmission = true;
+            }
+            else{
+                viewModel.TextSubmission = assignment.Submission;
+            }
+            if(assignment.SubmissionComment != null){
+                viewModel.SubmissionComment = assignment.SubmissionComment;
+            }
+
+
             return View(viewModel);
         }
 
-        public ActionResult DownloadAssignment(string studentId,int courseId, int assignmentId)
+        [HttpPost]
+        public async Task<IActionResult> AssignmentGrade(AssigmentGradeViewModel gradeInfo){
+            if (isNotInstructor()){
+                return NotFound();
+            }
+
+            _assignmentRepository.GradeAssignment(gradeInfo.StudentId, gradeInfo.AssignmentId, gradeInfo.GradedPoints, gradeInfo.SubmissionComment);
+            return RedirectToAction("AssignmentSubmissionsList", "Instructor", new { assignmentId = gradeInfo.AssignmentId, courseId = gradeInfo.CourseId });
+        }
+
+        public ActionResult DownloadAssignment(string studentId,int courseId, int assignmentId, string fileName)
         {
-                var webHostEnvironment = (IWebHostEnvironment)HttpContext.RequestServices.GetService(typeof(IWebHostEnvironment));
-                var assignmentsRoot = Path.Combine(webHostEnvironment.WebRootPath, "assignments");
+            if (isNotInstructor())
+            {
+                return NotFound();
+            }
 
-            string fileName = "";
-            string dir = Path.Combine(assignmentsRoot, studentId + "/" + courseId.ToString() + "/" + assignmentId.ToString());
-            string filePath = Path.Combine(dir, fileName);
-            string contentType;
+            var webHostEnvironment = (IWebHostEnvironment)HttpContext.RequestServices.GetService(typeof(IWebHostEnvironment));
+            var assignmentsRoot = Path.Combine(webHostEnvironment.WebRootPath, "assignments");
 
-            return File(filePath, "application/octet-stream", fileName);
+            string contentType = "application/octet-stream";
+            var fileProvider = new PhysicalFileProvider(assignmentsRoot);
+            IFileInfo fileInfo = fileProvider.GetFileInfo(Path.Combine(studentId, courseId.ToString(), assignmentId.ToString(), fileName));
+
+            if (!fileInfo.Exists)
+            {
+                return NotFound();
+            }
+
+            var readStream = fileInfo.CreateReadStream();
+            return File(readStream, contentType, fileName);
 
             // // Try to get the content type based on the file extension
             // if (_contentTypeProvider.TryGetContentType(fileName, out contentType))

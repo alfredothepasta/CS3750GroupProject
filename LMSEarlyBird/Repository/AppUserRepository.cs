@@ -20,7 +20,7 @@ namespace LMSEarlyBird.Repository
 
         public async Task<AppUser> GetUser(string id)
         {
-            return await _context.Users.Include(x => x.StudentCourses).FirstAsync(x => x.Id == id);
+            return await _context.Users.Include(x => x.StudentCourses).Include(x=> x.InstructorCourses).FirstAsync(x => x.Id == id);
         }
 
         public bool UpdateUser(AppUser user)

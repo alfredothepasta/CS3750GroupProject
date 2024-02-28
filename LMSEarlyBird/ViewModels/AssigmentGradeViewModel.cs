@@ -7,6 +7,7 @@ namespace LMSEarlyBird.ViewModels
 {
     public class AssigmentGradeViewModel
     {
+        public string AssignmentName {get; set;} = string.Empty;
         public bool Submitted {get; set;}
         public string StudentName {get; set;} = string.Empty;
         public string DueDate {get; set;} = string.Empty;
@@ -19,6 +20,8 @@ namespace LMSEarlyBird.ViewModels
         public bool FileSubmission {get; set;}
         public string FileName {get; set;} = string.Empty;
         public string SubmissionComment {get; set;} = string.Empty;
+
+        public string TextSubmission {get; set;} = string.Empty;
 
         public string StudentId { get; set; }
         public int CourseId { get; set; }

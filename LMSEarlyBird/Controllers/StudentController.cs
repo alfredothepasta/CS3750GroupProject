@@ -22,7 +22,17 @@ namespace LMSEarlyBird.Controllers
         private readonly IStudentCourseRepository _studentCourseRepository;
         private readonly IAssignmentsRepository _assignmentsRepository;
         private readonly IDepartmentRepository _departmentRepository;
-        public StudentController(ICourseRepository courseRepository, IUserIdentityService userIdentityService, IAppUserRepository appUserRepository, IStudentCourseRepository studentCourseRepository, IDepartmentRepository departmentRepository, IAssignmentsRepository assignmentsRepository)
+        /// <summary>
+        /// Context for accessing the balance database
+        /// </summary>
+        private readonly IBalanceRepository _balanceRepository;
+        public StudentController(ICourseRepository courseRepository
+            , IUserIdentityService userIdentityService
+            , IAppUserRepository appUserRepository
+            , IStudentCourseRepository studentCourseRepository
+            , IDepartmentRepository departmentRepository
+            , IAssignmentsRepository assignmentsRepository
+            , IBalanceRepository balanceRepository)
         {
             _courseRepository = courseRepository;
             _userIdentityService = userIdentityService;
@@ -30,6 +40,7 @@ namespace LMSEarlyBird.Controllers
             _studentCourseRepository = studentCourseRepository;
             _departmentRepository = departmentRepository;
             _assignmentsRepository = assignmentsRepository;
+            _balanceRepository = balanceRepository;
         }
 
         public IActionResult Index()
@@ -90,11 +101,15 @@ namespace LMSEarlyBird.Controllers
                 CourseId = id
             };
 
+            // gather the course information as the credit hours will be required to remove the course cost
+            studentCourse.Course = await _courseRepository.GetCourse(id);
 
             try
             {
                 _studentCourseRepository.Delete(studentCourse);
                 await _assignmentsRepository.RemoveStudentAssignments(userid,id);
+                await _balanceRepository.UpdateBalanceDropCourse(userid, studentCourse.Course.CreditHours, studentCourse.Course.CourseName);
+
             }
             catch(Exception ex)
             {
@@ -119,12 +134,17 @@ namespace LMSEarlyBird.Controllers
             {
                 UserId = userid,
                 CourseId = id
+                
             };
+
+            // gather the course information as the credit hours will be required to add the course cost
+            studentCourse.Course = await _courseRepository.GetCourse(id);
 
             try
             {
                 _studentCourseRepository.Add(studentCourse);
                 await _assignmentsRepository.AddStudentAssignments(userid,id);
+                await _balanceRepository.UpdateBalanceAddCourse(userid, studentCourse.Course.CreditHours, studentCourse.Course.CourseName);
             }
             catch(Exception ex)
             {
@@ -157,6 +177,9 @@ namespace LMSEarlyBird.Controllers
             //var test = await _studentCourseRepository.GetAllStudentCourses();
 
             var courses = await _courseRepository.GetAllCoursesWithInstructor();
+
+            if(courses == null)
+                return new List<RegisterCourseViewModel>();
 
             if (search != null)
             {
@@ -244,6 +267,7 @@ namespace LMSEarlyBird.Controllers
                 DueDate = FormatDueDate(assignment.DueDate),
                 AssignmentId = assignment.Id,
                 Submitted = studentAssignment.Submitted,
+                SubmissionTxt = studentAssignment.Submission,
             };
 
 
@@ -259,7 +283,7 @@ namespace LMSEarlyBird.Controllers
 
             if(file != null){
                 //Mark assignment as submitted
-                _assignmentsRepository.SetStudentAssignmentSubmitted(userid, assignment.Id);
+                _assignmentsRepository.SetStudentAssignmentSubmitted(file.FileName, userid, assignment.Id);
 
                 // Ensure the wwwroot/assignments directory exists
                 var webHostEnvironment = (IWebHostEnvironment)HttpContext.RequestServices.GetService(typeof(IWebHostEnvironment));
@@ -283,9 +307,14 @@ namespace LMSEarlyBird.Controllers
                     Directory.CreateDirectory(courseDirectory);
                 }
 
-                // Determine the path to save the file
-                var fileExtension = Path.GetExtension(file.FileName);
-                var filePath = Path.Combine(courseDirectory, $"{assignment.Id}{fileExtension}");
+                // Ensure Assignment directory exists
+                var assignmentDirectory = Path.Combine(courseDirectory, assignment.Id.ToString());
+                if (!Directory.Exists(assignmentDirectory))
+                {
+                    Directory.CreateDirectory(assignmentDirectory);
+                }
+
+                var filePath = Path.Combine(assignmentDirectory, file.FileName);
 
                 // Copy the file
                 if (file != null)

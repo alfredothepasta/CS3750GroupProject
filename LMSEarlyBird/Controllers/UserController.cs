@@ -21,7 +21,6 @@ namespace LMSEarlyBird.Controllers
         /// <summary>
         /// Context accessor for reading User Identification data
         /// </summary>
-
         private readonly IUserIdentityService _userIdentityService;
         /// <summary>
         /// Context accessor for reading User data

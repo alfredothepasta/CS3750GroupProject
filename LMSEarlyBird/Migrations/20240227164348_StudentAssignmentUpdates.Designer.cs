@@ -4,6 +4,7 @@ using LMSEarlyBird.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LMSEarlyBird.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240227164348_StudentAssignmentUpdates")]
+    partial class StudentAssignmentUpdates
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -184,9 +187,6 @@ namespace LMSEarlyBird.Migrations
 
                     b.Property<decimal>("Balance")
                         .HasColumnType("money");
-
-                    b.Property<string>("ClassName")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("NetChange")
                         .HasColumnType("money");

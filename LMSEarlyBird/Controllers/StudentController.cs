@@ -41,7 +41,7 @@ namespace LMSEarlyBird.Controllers
 
             if (isNotStudent())
             {
-                return Redirect(Url.Action("Dashboard", "User"));
+                return Redirect(Url.Action("Dashboard", "Dashboard"));
             }
             
             RegistrationViewModel result = new RegistrationViewModel();

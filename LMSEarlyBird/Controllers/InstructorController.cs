@@ -392,7 +392,9 @@ namespace LMSEarlyBird.Controllers
         {
             if (isNotInstructor())
             {
-                return NotFound();
+                if(studentId != _contextAccessor.HttpContext.User.GetUserId()){
+                    return NotFound();
+                }
             }
 
             var webHostEnvironment = (IWebHostEnvironment)HttpContext.RequestServices.GetService(typeof(IWebHostEnvironment));

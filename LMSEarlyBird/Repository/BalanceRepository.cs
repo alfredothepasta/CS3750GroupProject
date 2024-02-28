@@ -9,18 +9,18 @@ namespace LMSEarlyBird.Repository
     public class BalanceRepository : IBalanceRepository
     {
         private readonly ApplicationDbContext _context;
-
+        // create our context for use
         public BalanceRepository(ApplicationDbContext context)
         {
             _context = context;
         }
-
+        // add balance if none created
         public bool addUserBalance(BalanceHistory balanceHistory)
         {
             _context.Add(balanceHistory);
             return Save();
         }
-
+        // gather balance history
         public async Task<List<BalanceHistory>> GetBalanceHistory(string userId)
         {
             var user = await _context.AppUsers
@@ -34,7 +34,7 @@ namespace LMSEarlyBird.Repository
 
             return user.BalanceHistory;
         }
-
+        // gather the current balance by using the most recent from the list of balancehistory based on the userid
         public async Task<decimal> GetCurrentBalance(string userId)
         {
             // build a list of the balance history
@@ -74,7 +74,8 @@ namespace LMSEarlyBird.Repository
             return saved > 0;
         }
 
-        public async Task<bool> UpdateBalanceAddCourse(string userId, int courseHours)
+        // add course to the balance listing
+        public async Task<bool> UpdateBalanceAddCourse(string userId, int courseHours, string className)
         {
 
             // calculate the balance to add
@@ -87,6 +88,7 @@ namespace LMSEarlyBird.Repository
             newBalance.NetChange = balancetoAdd ;
             newBalance.Time = DateTime.Now;
             newBalance.Balance = await GetCurrentBalance(userId) + balancetoAdd;
+            newBalance.ClassName = className;
             newBalance.Type = "AddClass";
 
             // add balance
@@ -94,7 +96,8 @@ namespace LMSEarlyBird.Repository
             return Save();
         }
 
-        public async Task<bool> UpdateBalanceDropCourse(string userId, int courseHours)
+        // remove course from the balance listing
+        public async Task<bool> UpdateBalanceDropCourse(string userId, int courseHours, string className)
         {
 
             // calculate the balance to add
@@ -107,7 +110,25 @@ namespace LMSEarlyBird.Repository
             newBalance.NetChange = balanceToRemove;
             newBalance.Time = DateTime.Now;
             newBalance.Balance = await GetCurrentBalance(userId) + balanceToRemove;
+            newBalance.ClassName = className;
             newBalance.Type = "DropClass";
+
+            // add balance
+            _context.Add(newBalance);
+            return Save();
+        }
+
+        // add a payment to the balance listing
+        public async Task<bool> UpdateBalancePayment(string userId, decimal payment)
+        {
+            // add the balance components
+            BalanceHistory newBalance = new BalanceHistory();
+            newBalance.UserId = userId;
+            newBalance.AppUser = await _context.AppUsers.FirstAsync(x => x.Id == userId);
+            newBalance.NetChange = payment * -1;
+            newBalance.Time = DateTime.Now;
+            newBalance.Balance = await GetCurrentBalance(userId) - payment;
+            newBalance.Type = "Payment";
 
             // add balance
             _context.Add(newBalance);

@@ -1,12 +1,8 @@
 ﻿using LMSEarlyBird.Interfaces;
 using LMSEarlyBird.Models;
-using LMSEarlyBird.Repository;
 using LMSEarlyBird.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Stripe.Checkout;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Security.Policy;
-using System.Text.Encodings.Web;
 using Stripe;
 
 namespace LMSEarlyBird.Controllers
@@ -33,6 +29,7 @@ namespace LMSEarlyBird.Controllers
         [HttpGet]
         public async Task<IActionResult> PaymentPage()
         {
+            // gather the user id
             string userId = _userIdentityService.GetUserId();
 
             // gather the current balance for the user
@@ -43,74 +40,63 @@ namespace LMSEarlyBird.Controllers
             {
                 CurrentBalance = currentBalance
             };
-            // if the balance is not 0, gather a list of the balances for the user
-            // find a better way to do this, as if they have a paid off balance, it should still be displayed
-            //if (paymentVM.CurrentBalance != 0)
-            //{
-                
-            //}
-
+            // gather the current ballance history and place it into the view
             List<BalanceHistory> balances = await _balanceRepository.GetBalanceHistory(userId);
             paymentVM.Payments = balances;
 
             return View(paymentVM);
         }
+
+        // gather the payment intent (aka the payment reciept) and pass it to the paymentsuccess for processing the payment, then pass to the success view
         [HttpGet]
-        public async Task<IActionResult> Success(PaymentViewModel PaymentVM)
+        public async Task<IActionResult> PaymentSuccess(string x)
         {
+            // gather the user id
+            string userId = _userIdentityService.GetUserId();
+
+            // gather the payment intent (aka the payment reciept)
+            var service = new PaymentIntentService();
+            var reciept = service.Get(x);
+
+            // create a new view model for the passing of the payment amount
+            PaymentViewModel paymentVM = new PaymentViewModel();
+            // pass on the payment amount into the view model
+            paymentVM.PaymentAmount = reciept.Amount / 100.00m;
+
+            // create a new balance update for the payment
+            await _balanceRepository.UpdateBalancePayment(userId, paymentVM.PaymentAmount);
+
             // pass on the payment view model for the payment amount
-            return View(PaymentVM);
+            return RedirectToAction("Success", "Payment", paymentVM);
         }
+
+        // pass on the payment view model for the payment amount to the success view
+        [HttpGet]
+        public async Task<IActionResult> Success(PaymentViewModel paymentVM)
+        {
+            return View(paymentVM);
+        }
+
+        // pass on the payment view model for the payment amount to the checkout view
         [HttpGet]
         public async Task<IActionResult> Checkout(PaymentViewModel paymentVM)
         {
-            string userId = _userIdentityService.GetUserId();
-
+            //gather the payment amount and place into a new view model so that we don't include the balance as well
             PaymentViewModel paymentVM2 = new PaymentViewModel
             {
                 PaymentAmount = paymentVM.PaymentAmount
             };
-
-            // create payment intent
-            //var options = new PaymentIntentCreateOptions
-            //{
-            //    Amount = Convert.ToInt64(paymentVM.PaymentAmount) * 100,
-            //    Currency = "usd",
-            //    AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
-            //    {
-            //        Enabled = true,
-            //    },
-            //};
-            //var service = new PaymentIntentService();
-            //service.Create(options);
-
-            // pass on the payment view model for the payment amount
             return View(paymentVM2);
         }
+
+        // pass on the payment view model for the payment amount to the cancel view
         [HttpGet]
-        public async Task<IActionResult> Cancel(PaymentViewModel paymentVM)
+        public async Task<IActionResult> Cancel()
         {
-            //StripeConfiguration.ApiKey = "sk_test_51Ogs9OA3uLdsTHsjYGPdb0TTncfQoAirAiKbDqVRhHD13TwX28i76mFpSLtHUXssoXoATUlQDGXTScu1e27UJsWp00TfVoL8CR";
-            var service = new PaymentIntentService();
-            service.Get("pi_3MtwBwLkdIwHu7ix28a3tqPa");
-            //var service = new ChargeService();
-            //service.Get("ch_3MmlLrLkdIwHu7ix0snN0B15");
-
-            //(async () => {
-            //    const { paymentIntent, error} = await stripe.confirmCardPayment(clientSecret);
-            //    if (error)
-            //    {
-            //        // Handle error here
-            //    }
-            //    else if (paymentIntent && paymentIntent.status == "succeeded")
-            //    {
-            //        // Handle successful payment here
-            //    }
-            //})();
-
-
             return View();
         }
+
+        // pass on the payment view model for the payment amount to the payment page
         [HttpPost]
         public async Task<IActionResult> PaymentPage(decimal paymentAmount)
         {
@@ -118,7 +104,7 @@ namespace LMSEarlyBird.Controllers
 
             // gather the current balance for the user
             decimal currentBalance = await _balanceRepository.GetCurrentBalance(userId);
-
+            // insert the current balance and payment amount into the view
             PaymentViewModel paymentVM = new PaymentViewModel
             {
                 PaymentAmount = paymentAmount,
@@ -128,7 +114,7 @@ namespace LMSEarlyBird.Controllers
             // check to verify the user has entered an amount to pay
             if (paymentAmount == 0)
             {
-                // gather a list of the balances
+                // gather a list of the balances and insert it into the view
                 List<BalanceHistory> balances = await _balanceRepository.GetBalanceHistory(userId);
                 paymentVM.Payments = balances;
 
@@ -142,79 +128,61 @@ namespace LMSEarlyBird.Controllers
 
         // run the payment process
         [HttpPost]
-        //public ActionResult Create()
         public async Task<IActionResult> CreateCheckout(PaymentViewModel paymentVM)
         {
+            // create the amount for the payment for the intent of converting to int64
+            decimal paymentAmount = paymentVM.PaymentAmount * 100;
+
+            // create the payment intent (aka the payment reciept)
+            var optionsIntent = new PaymentIntentCreateOptions
+            {
+                Amount = Convert.ToInt64(paymentAmount),
+                Currency = "usd",
+                AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
+                {
+                    Enabled = true,
+                },
+            };
+            var serviceIntent = new PaymentIntentService();
+            var x = serviceIntent.Create(optionsIntent);
+
+            // create the checkout session
             var options = new SessionCreateOptions
             {
                 LineItems = new List<SessionLineItemOptions>
-        {
-          new SessionLineItemOptions
-          {
-            PriceData = new SessionLineItemPriceDataOptions
-            {
-              UnitAmount = Convert.ToInt64(paymentVM.PaymentAmount) * 100,
-              Currency = "usd",
-              ProductData = new SessionLineItemPriceDataProductDataOptions
-              {
-                Name = "Payment on Tuition",
-              },
-            },
-            Quantity = 1,
-          },
-        },
+                {
+                    new SessionLineItemOptions
+                    {
+                        PriceData = new SessionLineItemPriceDataOptions
+                            {
+                                UnitAmount = Convert.ToInt64(paymentAmount),
+                                Currency = "usd",
+                                ProductData = new SessionLineItemPriceDataProductDataOptions
+                                {
+                                    Name = "Payment on Tuition",
+                                },
+                            },
+                        Quantity = 1,
+                    },
+                },
                 Mode = "payment",
-                SuccessUrl = "https://localhost:7243/Payment/Success",
-                CancelUrl = "https://localhost:7243/Payment/Cancel?paymentVM={@paymentVM}",
-                //CancelUrl = "https://localhost:7243/Payment/Cancel",
+                SuccessUrl = "https://localhost:7243/Payment/PaymentSuccess/?x=" + x.Id, // sends over payment intent id to success page
+                CancelUrl = "https://localhost:7243/Payment/Cancel",
             };
-
             var service = new SessionService();
             Session session = service.Create(options);
 
-            // update payment intent
+            // update the payment intent (aka the payment reciept)
             var options2 = new PaymentIntentUpdateOptions
             {
                 Metadata = new Dictionary<string, string> { { "order_id", "6735" } },
             };
             var service2 = new PaymentIntentService();
-            service2.Update("pi_3MtwBwLkdIwHu7ix28a3tqPa", options2);
+            service2.Update(x.Id, options2);
 
+            // pass on all of the information for checking out to the stripe website
             Response.Headers.Add("Location", session.Url);
             return new StatusCodeResult(303);
         }
-
-        //[HttpPost("create-checkout-session")]
-        //public ActionResult CreateCheckoutSession()
-        //{
-        //    var options = new SessionCreateOptions
-        //    {
-        //        LineItems = new List<SessionLineItemOptions>
-        //{
-        //  new SessionLineItemOptions
-        //  {
-        //    PriceData = new SessionLineItemPriceDataOptions
-        //    {
-        //      UnitAmount = 2000,
-        //      Currency = "usd",
-        //      ProductData = new SessionLineItemPriceDataProductDataOptions
-        //      {
-        //        Name = "T-shirt",
-        //      },
-        //    },
-        //    Quantity = 1,
-        //  },
-        //},
-        //        Mode = "payment",
-        //        SuccessUrl = "https://localhost:7243/Payment/success",
-        //        CancelUrl = "https://localhost:7243/Payment/cancel",
-        //    };
-
-        //    var service = new SessionService();
-        //    Session session = service.Create(options);
-
-        //    Response.Headers.Add("Location", session.Url);
-        //    return new StatusCodeResult(303);
-        //}
     }
 }

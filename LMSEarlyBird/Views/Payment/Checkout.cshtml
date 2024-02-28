@@ -1,35 +1,23 @@
 ﻿@using LMSEarlyBird.ViewModels
 @model PaymentViewModel
 @{
-    ViewData["Title"] = "Checkout";
+    ViewData["Title"] = "Checkout Page";
 }
 
-@* <head>
-    <title>Buy cool new product</title>
-    <link rel="stylesheet" href="~/css/style.css">
-    <script src="https://js.stripe.com/v3/"></script>
-</head> 
-<body> *@
-    <div class="checkoutBody">
-        <div class="section">
-            @* <form action="/create-checkout-session" method="POST"> *@
-            <form asp-action="CreateCheckout">
-                <div class="product">
-                    <img class="img float-left" src="https://media-s3-us-east-1.ceros.com/boston-globe/images/2023/09/13/e39a504117fca3e70cfd46991923ca95/istock-887313736.jpg?imageOpt=1&fit=bounds&width=1082&crop=1459,1152,x662,y262" alt="College Students in class" />
-                    <div class="description">
-                        <h3 class="h3">Pay off your schooling</h3>
-                        <h5 classs="h3">@Model.PaymentAmount</h5>
-                    </div>
+
+<div class="checkoutBody">
+    <div class="section">
+        <form asp-action="CreateCheckout">
+            <div class="product">
+                <img class="img float-left" src="https://media-s3-us-east-1.ceros.com/boston-globe/images/2023/09/13/e39a504117fca3e70cfd46991923ca95/istock-887313736.jpg?imageOpt=1&fit=bounds&width=1082&crop=1459,1152,x662,y262" alt="College Students in class" />
+                <div class="description">
+                    <h3 class="h3">Pay off your schooling</h3>
+                    <h5 classs="h3">@Model.PaymentAmount</h5>
                 </div>
-                @* <form action="createCheckoutSession" method="POST"> *@
-                @* <form action="/create-checkout-session" method="POST"> *@
-                <input type="hidden" name="paymentAmount" value="@Model.PaymentAmount" />
-                <button class="button" type="submit" id="checkout-button">Make Payment</button>
-                @* <button asp-controller="Payment" asp-action="Cancel">Cancel</button> *@
-                @* <input type="button" id="checkout-button" value="Cancel" onclick="location.href='@Url.Action("Cancel", "Payment")'" /> *@
-                @* <a class="button" asp-controller="Payment" asp-action="Cancel">Cancel</a> *@
-                <button class="button" type="button" onclick="location.href='@Url.Action("Cancel", "Payment")'">Cancel</button>
-            </form>
-        </div>
+            </div>
+            <input type="hidden" name="paymentAmount" value="@Model.PaymentAmount" />
+            <button class="button" type="submit" id="checkout-button">Make Payment</button>
+            <button class="button" type="button" onclick="location.href='@Url.Action("Cancel", "Payment")'">Cancel</button>
+        </form>
     </div>
-@* </body> *@
+</div>

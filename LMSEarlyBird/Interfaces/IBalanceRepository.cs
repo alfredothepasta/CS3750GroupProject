@@ -12,8 +12,10 @@ namespace LMSEarlyBird.Interfaces
 
         bool Save();
 
-        Task<bool> UpdateBalanceAddCourse(string userId, int courseHours);
+        Task<bool> UpdateBalanceAddCourse(string userId, int courseHours, string courseName);
 
-        Task<bool> UpdateBalanceDropCourse(string userId, int courseHours);
+        Task<bool> UpdateBalanceDropCourse(string userId, int courseHours, string courseName);
+
+        Task<bool> UpdateBalancePayment(string userId, decimal payment);
     }
 }

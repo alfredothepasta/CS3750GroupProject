@@ -64,14 +64,22 @@
                         <div class="card-body">
                             @if (transaction.Type == "AddClass")
                             {
-                                <div class="text-danger">
-                                    Amount: @string.Format("{0:C}", transaction.NetChange)
+                                <div>
+                                    Class: @transaction.ClassName <br />
+                                    Amount: <span class="text-danger">@string.Format("{0:C}", transaction.NetChange)</span>
+                                </div>
+                            }
+                            else if (transaction.Type == "DropClass")
+                            {
+                                <div>
+                                    Class: @transaction.ClassName <br />
+                                    Amount: <span class="text-success">-@string.Format("{0:C}", transaction.NetChange)</span>
                                 </div>
                             }
                             else
                             {
-                                <div class="text-success">
-                                    Amount: -@string.Format("{0:C}", transaction.NetChange)
+                                <div>
+                                    Amount: <span class="text-success">-@string.Format("{0:C}", transaction.NetChange)</span>
                                 </div>
                             }
                             DateTime: @transaction.Time

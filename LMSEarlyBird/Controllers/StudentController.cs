@@ -101,7 +101,7 @@ namespace LMSEarlyBird.Controllers
             {
                 _studentCourseRepository.Delete(studentCourse);
                 await _assignmentsRepository.RemoveStudentAssignments(userid,id);
-                await _balanceRepository.UpdateBalanceDropCourse(userid, studentCourse.Course.CreditHours);
+                await _balanceRepository.UpdateBalanceDropCourse(userid, studentCourse.Course.CreditHours, studentCourse.Course.CourseName);
 
             }
             catch(Exception ex)
@@ -137,7 +137,7 @@ namespace LMSEarlyBird.Controllers
             {
                 _studentCourseRepository.Add(studentCourse);
                 await _assignmentsRepository.AddStudentAssignments(userid,id);
-                await _balanceRepository.UpdateBalanceAddCourse(userid, studentCourse.Course.CreditHours);
+                await _balanceRepository.UpdateBalanceAddCourse(userid, studentCourse.Course.CreditHours, studentCourse.Course.CourseName);
             }
             catch(Exception ex)
             {

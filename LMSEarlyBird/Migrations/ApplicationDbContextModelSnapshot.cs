@@ -185,6 +185,9 @@ namespace LMSEarlyBird.Migrations
                     b.Property<decimal>("Balance")
                         .HasColumnType("money");
 
+                    b.Property<string>("ClassName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<decimal>("NetChange")
                         .HasColumnType("money");
 

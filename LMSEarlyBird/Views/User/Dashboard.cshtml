@@ -92,36 +92,39 @@
         @if (User.IsInRole(LMSEarlyBird.Data.UserRoles.Teacher))
         {
             <h3 class="text-center"> Classes </h3>
-            @foreach (var course in Model.InstructorCourses)
+            @if (Model.InstructorCourses != null)
             {
-                <div class="card col-10 col-xl-5 border LeftMargin my-3 px-0">
-                    <a class="card-block stretched-link text-decoration-none" asp-controller="Instructor" asp-action="CourseAssignmentList" asp-route-courseId="@course.Course.id">
-                        <div class="card-header text-black">
-                            <h2>
-                                @course.Course.Department.DeptCode
-                                @course.Course.CourseNumber
-                            </h2>
-                            <h4>
-                                @course.Course.CourseName
-                            </h4>
-                        </div>
-                        <div class="card-body text-black">
-                            <p>
-                                @course.Course.InstructorCourses[0].User.FirstName
-                                @course.Course.InstructorCourses[0].User.LastName
-                            </p>
-                            <p>
-                                @course.Course.Room.Building.BuildingName
-                                @course.Course.Room.RoomNumber
-                            </p>
-                            <p>
-                                @course.Course.DaysOfWeek
-                                @course.Course.StartTime
-                                @course.Course.EndTime
-                            </p>
-                        </div>
-                    </a>
-                </div>
+                @foreach (var course in Model.InstructorCourses)
+                {
+                    <div class="card col-10 col-xl-5 border LeftMargin my-3 px-0">
+                        <a class="card-block stretched-link text-decoration-none" asp-controller="Instructor" asp-action="CourseAssignmentList" asp-route-courseId="@course.Course.id">
+                            <div class="card-header text-black">
+                                <h2>
+                                    @course.Course.Department.DeptCode
+                                    @course.Course.CourseNumber
+                                </h2>
+                                <h4>
+                                    @course.Course.CourseName
+                                </h4>
+                            </div>
+                            <div class="card-body text-black">
+                                <p>
+                                    @course.Course.InstructorCourses[0].User.FirstName
+                                    @course.Course.InstructorCourses[0].User.LastName
+                                </p>
+                                <p>
+                                    @course.Course.Room.Building.BuildingName
+                                    @course.Course.Room.RoomNumber
+                                </p>
+                                <p>
+                                    @course.Course.DaysOfWeek
+                                    @course.Course.StartTime
+                                    @course.Course.EndTime
+                                </p>
+                            </div>
+                        </a>
+                    </div>
+                }
             }
         }
     </div>

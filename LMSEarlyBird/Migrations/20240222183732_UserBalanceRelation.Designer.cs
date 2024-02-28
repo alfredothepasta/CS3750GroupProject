@@ -4,6 +4,7 @@ using LMSEarlyBird.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LMSEarlyBird.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240222183732_UserBalanceRelation")]
+    partial class UserBalanceRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -185,9 +188,6 @@ namespace LMSEarlyBird.Migrations
                     b.Property<decimal>("Balance")
                         .HasColumnType("money");
 
-                    b.Property<string>("ClassName")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<decimal>("NetChange")
                         .HasColumnType("money");
 
@@ -341,9 +341,6 @@ namespace LMSEarlyBird.Migrations
                     b.Property<int>("AssignmentId")
                         .HasColumnType("int");
 
-                    b.Property<string>("FileName")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("Graded")
                         .HasColumnType("bit");
 
@@ -356,12 +353,6 @@ namespace LMSEarlyBird.Migrations
 
                     b.Property<string>("Submission")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SubmissionComment")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("SubmissionTime")
-                        .HasColumnType("datetime2");
 
                     b.Property<bool>("Submitted")
                         .HasColumnType("bit");

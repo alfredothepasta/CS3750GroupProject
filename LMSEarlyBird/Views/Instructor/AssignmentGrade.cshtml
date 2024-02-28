@@ -1,0 +1,72 @@
+@using LMSEarlyBird.ViewModels
+@model AssigmentGradeViewModel
+
+@{
+    ViewData["Title"] = "AssignmentGrade";
+}
+
+<h1 style="color: #007bff;">@Model.AssignmentName</h1>
+<hr/>
+
+<div style="display: flex; align-items: baseline; font-size: medium; font-weight: bold;">
+    <p style="margin-right: 1.5em;">Student: @Model.StudentName</p>
+    <p style="margin-right: 1.5em;">Due Date: @Model.DueDate</p>
+    <p style="margin-right: 1.5em;">Submission Date: @Model.SubmissionDate</p>
+    @if(Model.LateSubmission){
+        <p class="btn btn-outline-danger">LATE</p>
+    }
+    <p></p>
+</div>
+<hr/>
+
+<div class="d-flex flex-wrap">
+    <div class="p-2" style="flex: 1; min-width: 250px; max-width: 30%;">
+        @if(Model.Graded){
+            <p style="font-weight: bold;">Graded: @Model.GradedPoints/@Model.MaxPoints</p>
+        }
+        else{
+            <p style="font-weight: bold;">Not Graded</p>
+        }
+
+        <p>Submission: </p>
+        @if(Model.FileSubmission){
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="pr-3">@Model.FileName</td>
+                        <td><a href="@Url.Action("DownloadAssignment", "Instructor", new {
+                            studentId = @Model.StudentId,
+                            courseId = @Model.CourseId,
+                            assignmentId = @Model.AssignmentId,
+                            fileName = @Model.FileName})" class="text-primary">Download</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        }
+        else{
+            <input class="form-control" type="text" value="@Model.TextSubmission" readonly />
+        }
+    </div>
+    
+    <div class="p-2 ml-auto text-right" style="flex: 2; min-width: 250px; max-width: 300px;">
+        <form asp-action="AssignmentGrade" asp-controller="Instructor" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="assignmentId" value="@Model.AssignmentId"/>
+            <input type="hidden" name="studentId" value="@Model.StudentId"/>
+            <input type="hidden" name="courseId" value="@Model.CourseId"/>
+
+            <div class="form-group">
+                <label for="scoreInput" class="float-left">Score / @Model.MaxPoints</label>
+                <input asp-for="GradedPoints" type="number" class="form-control" id="scoreInput" />
+                <span asp-validation-for="GradedPoints" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label for="feedbackTextarea" class="float-left">Instructor Feedback:</label>
+                <textarea asp-for="SubmissionComment" class="form-control" id="feedbackTextarea" rows="4" placeholder="@Model.SubmissionComment"></textarea>
+                <span asp-validation-for="SubmissionComment" class="text-danger"></span>
+            </div>
+            <div class="form-group text-right float-left">
+                <button type="submit" class="btn btn-success">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,8 +1,12 @@
 ﻿using LMSEarlyBird.Data;
 using LMSEarlyBird.Interfaces;
 using LMSEarlyBird.Models;
+using LMSEarlyBird.Repository;
 using LMSEarlyBird.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.FileProviders;
+using System.Web;
 
 namespace LMSEarlyBird.Controllers
 {
@@ -23,6 +27,8 @@ namespace LMSEarlyBird.Controllers
         private readonly IDepartmentRepository _departmentRepository;
         private readonly IAppUserRepository _appUserRepository;
         private readonly IAssignmentsRepository _assignmentRepository;
+        //private readonly FileExtensionContentTypeProvider _contentTypeProvider;
+        private readonly IStudentCourseRepository _studentCourseRepository;
         #endregion
 
         #region constructor
@@ -33,7 +39,8 @@ namespace LMSEarlyBird.Controllers
             IRoomRepository roomRepository,
             IDepartmentRepository departmentRepository,
             IAppUserRepository appUserRepository,
-            IAssignmentsRepository assignmentRepository)
+            IAssignmentsRepository assignmentRepository,
+            IStudentCourseRepository studentCourseRepository)
         {
             _context = context;
             _contextAccessor = contextAccessor;
@@ -43,6 +50,8 @@ namespace LMSEarlyBird.Controllers
             _departmentRepository = departmentRepository;
             _appUserRepository = appUserRepository;
             _assignmentRepository = assignmentRepository;
+            //_contentTypeProvider = contentTypeProvider;
+            _studentCourseRepository = studentCourseRepository;
         }
 
         #endregion  
@@ -54,7 +63,7 @@ namespace LMSEarlyBird.Controllers
             // check if the user is logged in to an account with the instructor role
             if (isNotInstructor())
             {
-                return View("Dashboard", "User");
+                return RedirectToAction("Dashboard", "User");
             }
             
             // get the current users's roles for accessing the courses associated with them in the db
@@ -99,7 +108,7 @@ namespace LMSEarlyBird.Controllers
             // check if the user is logged in to an account with the instructor role
             if (isNotInstructor())
             {
-                return View("Dashboard", "User");
+                return RedirectToAction("Dashboard", "User");
             }
 
             // check if the course is valid
@@ -320,6 +329,105 @@ namespace LMSEarlyBird.Controllers
 
 		#endregion
 
+        #region AssignmentGradePage
+
+        [HttpGet]
+        public async Task<IActionResult> AssignmentGrade(int assignmentId, string studentId){
+            if (isNotInstructor())
+            {
+                return NotFound();
+            }
+
+            //Get student assignment 
+            var assignment = await _assignmentRepository.GetStudentAssignment(studentId, assignmentId);
+
+            if(assignment == null){
+                return NotFound();
+            }
+
+            var viewModel = new AssigmentGradeViewModel
+            {
+                AssignmentName = assignment.Assignment.Title,
+                StudentName = assignment.Student.FirstName + " " + assignment.Student.LastName,
+                DueDate = FormatDueDate(assignment.Assignment.DueDate),
+                //ADD SUBMISSION DATE HERE WHEN ADDED TO DATABASE
+                SubmissionDate = FormatDueDate((DateTime)assignment.SubmissionTime),
+                Graded = assignment.Graded,
+                GradedPoints = assignment.Score,
+                MaxPoints = assignment.Assignment.maxPoints,
+                Submitted = assignment.Submitted,
+                LateSubmission = assignment.SubmissionTime > assignment.Assignment.DueDate,
+                FileName = assignment.FileName,
+
+                AssignmentId = assignment.AssignmentId,
+                StudentId = assignment.StudentId,
+                CourseId = assignment.Assignment.CourseId
+            };
+
+            if(assignment.FileName != null && assignment.FileName.Length > 0){
+                viewModel.FileSubmission = true;
+            }
+            else{
+                viewModel.TextSubmission = assignment.Submission;
+            }
+            if(assignment.SubmissionComment != null){
+                viewModel.SubmissionComment = assignment.SubmissionComment;
+            }
+
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AssignmentGrade(AssigmentGradeViewModel gradeInfo){
+            if (isNotInstructor()){
+                return NotFound();
+            }
+
+            _assignmentRepository.GradeAssignment(gradeInfo.StudentId, gradeInfo.AssignmentId, gradeInfo.GradedPoints, gradeInfo.SubmissionComment);
+            return RedirectToAction("AssignmentSubmissionsList", "Instructor", new { assignmentId = gradeInfo.AssignmentId, courseId = gradeInfo.CourseId });
+        }
+
+        public ActionResult DownloadAssignment(string studentId,int courseId, int assignmentId, string fileName)
+        {
+            if (isNotInstructor())
+            {
+                return NotFound();
+            }
+
+            var webHostEnvironment = (IWebHostEnvironment)HttpContext.RequestServices.GetService(typeof(IWebHostEnvironment));
+            var assignmentsRoot = Path.Combine(webHostEnvironment.WebRootPath, "assignments");
+
+            string contentType = "application/octet-stream";
+            var fileProvider = new PhysicalFileProvider(assignmentsRoot);
+            IFileInfo fileInfo = fileProvider.GetFileInfo(Path.Combine(studentId, courseId.ToString(), assignmentId.ToString(), fileName));
+
+            if (!fileInfo.Exists)
+            {
+                return NotFound();
+            }
+
+            var readStream = fileInfo.CreateReadStream();
+            return File(readStream, contentType, fileName);
+
+            // // Try to get the content type based on the file extension
+            // if (_contentTypeProvider.TryGetContentType(fileName, out contentType))
+            // {
+            //     return File(filePath, contentType, fileName);
+            // }
+            // else
+            // {
+                
+            // }
+
+        }
+
+        private string FormatDueDate(DateTime date){
+            return date.ToString("MM/dd/yyyy hh:mm tt");
+        }
+
+        #endregion
+
 		#region Assignment Methods
 
 		#region Create Assignment
@@ -486,7 +594,41 @@ namespace LMSEarlyBird.Controllers
 				return StatusCode(StatusCodes.Status408RequestTimeout);
 			}
 		}
-        #endregion  
+        #endregion
+
+        #region AssignmentList
+
+        public async Task<IActionResult> AssignmentSubmissionsList(int assignmentId, int courseId)
+        {
+            // check if the user is logged in to an account with the instructor role
+            if (isNotInstructor())
+            {
+                return View("Dashboard", "User");
+            }
+
+            List<AppUser> registeredStudents = await _studentCourseRepository.GetStudentsByCourse(courseId);
+            List<StudentAssignment> studentAssignments = new List<StudentAssignment>();
+
+            foreach (var student in registeredStudents)
+            {
+                StudentAssignment studentAssignment = await _assignmentRepository.GetStudentAssignment(student.Id,assignmentId);
+
+                if (studentAssignment.Submitted)
+                {
+                    studentAssignments.Add(studentAssignment);
+                }
+            }
+
+            AssignmentSubmissionsListViewModel viewModel = new AssignmentSubmissionsListViewModel
+            {
+                Course = await _courseRepository.GetCourse(courseId),
+                Assignment = await _assignmentRepository.GetAssignment(assignmentId),
+                Assignments = studentAssignments
+            };
+            return View(viewModel);
+        }
+
+        #endregion
 
         #endregion
 

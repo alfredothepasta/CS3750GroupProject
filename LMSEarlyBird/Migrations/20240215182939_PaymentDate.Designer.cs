@@ -4,6 +4,7 @@ using LMSEarlyBird.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LMSEarlyBird.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240215182939_PaymentDate")]
+    partial class PaymentDate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -174,41 +177,6 @@ namespace LMSEarlyBird.Migrations
                     b.ToTable("Assignments");
                 });
 
-            modelBuilder.Entity("LMSEarlyBird.Models.BalanceHistory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Balance")
-                        .HasColumnType("money");
-
-                    b.Property<string>("ClassName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("NetChange")
-                        .HasColumnType("money");
-
-                    b.Property<DateTime>("Time")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("PaymentHistory");
-                });
-
             modelBuilder.Entity("LMSEarlyBird.Models.Building", b =>
                 {
                     b.Property<int>("Id")
@@ -306,6 +274,31 @@ namespace LMSEarlyBird.Migrations
                     b.ToTable("InstructorCourses");
                 });
 
+            modelBuilder.Entity("LMSEarlyBird.Models.PaymentHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("money");
+
+                    b.Property<DateTime>("PaymentTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PaymentHistory");
+                });
+
             modelBuilder.Entity("LMSEarlyBird.Models.Room", b =>
                 {
                     b.Property<int>("Id")
@@ -341,9 +334,6 @@ namespace LMSEarlyBird.Migrations
                     b.Property<int>("AssignmentId")
                         .HasColumnType("int");
 
-                    b.Property<string>("FileName")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("Graded")
                         .HasColumnType("bit");
 
@@ -356,12 +346,6 @@ namespace LMSEarlyBird.Migrations
 
                     b.Property<string>("Submission")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SubmissionComment")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("SubmissionTime")
-                        .HasColumnType("datetime2");
 
                     b.Property<bool>("Submitted")
                         .HasColumnType("bit");
@@ -399,15 +383,19 @@ namespace LMSEarlyBird.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Link1")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Link2")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Link3")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
@@ -570,17 +558,6 @@ namespace LMSEarlyBird.Migrations
                     b.Navigation("Course");
                 });
 
-            modelBuilder.Entity("LMSEarlyBird.Models.BalanceHistory", b =>
-                {
-                    b.HasOne("LMSEarlyBird.Models.AppUser", "AppUser")
-                        .WithMany("BalanceHistory")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AppUser");
-                });
-
             modelBuilder.Entity("LMSEarlyBird.Models.Course", b =>
                 {
                     b.HasOne("LMSEarlyBird.Models.Department", "Department")
@@ -617,6 +594,17 @@ namespace LMSEarlyBird.Migrations
                     b.Navigation("Course");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("LMSEarlyBird.Models.PaymentHistory", b =>
+                {
+                    b.HasOne("LMSEarlyBird.Models.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
                 });
 
             modelBuilder.Entity("LMSEarlyBird.Models.Room", b =>
@@ -672,7 +660,9 @@ namespace LMSEarlyBird.Migrations
                 {
                     b.HasOne("LMSEarlyBird.Models.AppUser", "AppUser")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("AppUser");
                 });
@@ -732,8 +722,6 @@ namespace LMSEarlyBird.Migrations
                 {
                     b.Navigation("Address")
                         .IsRequired();
-
-                    b.Navigation("BalanceHistory");
 
                     b.Navigation("InstructorCourses");
 

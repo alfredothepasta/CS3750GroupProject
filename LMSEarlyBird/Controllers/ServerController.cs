@@ -1,28 +1,15 @@
-using System.Collections.Generic;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Stripe;
+﻿using Microsoft.AspNetCore.Mvc;
+using LMSEarlyBird.ViewModels;
 using Stripe.Checkout;
 
-public class StripeOptions
+namespace LMSEarlyBird.Controllers
 {
-    public string option { get; set; }
-}
-
-namespace LMSEarlyBird
-{
-
     [Route("create-checkout-session")]
-    [ApiController]
-    public class CheckoutApiController : Controller
+    public class ServerController : Controller
     {
-
         [HttpPost]
-        public ActionResult Create()
+        //public ActionResult Create()
+        public async Task<IActionResult> CreateCheckout(PaymentViewModel paymentVM)
         {
             var options = new SessionCreateOptions
             {
@@ -32,19 +19,19 @@ namespace LMSEarlyBird
           {
             PriceData = new SessionLineItemPriceDataOptions
             {
-              UnitAmount = 2000,
+              UnitAmount = 2 * 100,
               Currency = "usd",
               ProductData = new SessionLineItemPriceDataProductDataOptions
               {
-                Name = "T-shirt",
+                Name = "Payment on Tuition",
               },
             },
             Quantity = 1,
           },
         },
                 Mode = "payment",
-                SuccessUrl = "http://localhost:7243/Payment/Success",
-                CancelUrl = "http://localhost:7243/Payment/Cancel",
+                SuccessUrl = "https://localhost:7243/Payment/Success",
+                CancelUrl = "https://localhost:7243/Payment/Cancel",
             };
 
             var service = new SessionService();
@@ -76,8 +63,8 @@ namespace LMSEarlyBird
           },
         },
                 Mode = "payment",
-                SuccessUrl = "http://localhost:7243/Payment/success",
-                CancelUrl = "http://localhost:7243/Payment/cancel",
+                SuccessUrl = "https://localhost:7243/Payment/success",
+                CancelUrl = "https://localhost:7243/Payment/cancel",
             };
 
             var service = new SessionService();

@@ -6,32 +6,87 @@
 
 <h1>Payment Page</h1>
 @{
-    decimal amount = 1000;
+    // gather the current balance as it is used multiple times
+    decimal balanceDue = Model.CurrentBalance;
 }
-@* @foreach (var course in Model.StudentCourses)
-{
-    amount += 200 @* * course.Course.CreditHours; *@ @*
-} *@
+
 <div class="row">
     <div class="col-md-4">
     <form asp-action="PaymentPage">
         <div class="form-group">
-                <label class="control-label">You currently owe: @string.Format("{0:C}", amount)</label>
-            <div class="row">
-                    <div class="col-md-6">
-                        How much would you like to pay:
+                @if (balanceDue == 0)
+                {
+                    <p>You have no outstanding balance</p>
+                }
+                else if (balanceDue < 0)
+                {
+                    <p>You have a negative balance of -@string.Format("{0:C}", balanceDue)</p>
+                }
+                else
+                {
+                    <label class="control-label">You currently owe: @string.Format("{0:C}", balanceDue)</label>
+                    <div class="row">
+                        <div class="col-md-6">
+                            How much would you like to pay:
+                        </div>
+                        <div class="col-md-6">
+                            <input asp-for="PaymentAmount" class="form-control" />
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <input asp-for="PaymentAmount" class="form-control" />
-                    </div>
-            </div>
-            @* <p class="float-left">How much would you like to pay: </p> <input class="form-control" /> *@
-            @* <span asp-validation-for="int" class="text-danger"></span> *@
+                }
         </div>
         <div class="form-group">
-            <input class="btn btn-outline-success float-right" type="submit" value="Make Payment" />
-            <a class="btn btn-outline-secondary" asp-controller="Profile" asp-action="PaymentPage">Cancel</a>
+            @if (balanceDue != 0)
+            {
+                <input class="btn btn-outline-success float-right" type="submit" value="Make Payment" />
+            }
+            <a class="btn btn-outline-secondary" asp-controller="User" asp-action="Dashboard">Cancel</a>
         </div>
     </form>
     </div>
+</div>
+<div>
+    @if (Model.Payments.Count == 0)
+    {
+        <p>You have no transactions yet</p>
+    }
+    else
+    {
+        <p>History of transactions:</p>
+        <div class="row">
+            @foreach (var transaction in Model.Payments)
+            {
+                <div class="card border col-4 px-0 m-3">
+                    <div class="card-block">
+                        <div class="card-header">
+                            Type: @transaction.Type
+                        </div>
+                        <div class="card-body">
+                            @if (transaction.Type == "AddClass")
+                            {
+                                <div>
+                                    Class: @transaction.ClassName <br />
+                                    Amount: <span class="text-danger">@string.Format("{0:C}", transaction.NetChange)</span>
+                                </div>
+                            }
+                            else if (transaction.Type == "DropClass")
+                            {
+                                <div>
+                                    Class: @transaction.ClassName <br />
+                                    Amount: <span class="text-success">-@string.Format("{0:C}", transaction.NetChange)</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <div>
+                                    Amount: <span class="text-success">-@string.Format("{0:C}", transaction.NetChange)</span>
+                                </div>
+                            }
+                            DateTime: @transaction.Time
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
 </div>

@@ -22,7 +22,17 @@ namespace LMSEarlyBird.Controllers
         private readonly IStudentCourseRepository _studentCourseRepository;
         private readonly IAssignmentsRepository _assignmentsRepository;
         private readonly IDepartmentRepository _departmentRepository;
-        public StudentController(ICourseRepository courseRepository, IUserIdentityService userIdentityService, IAppUserRepository appUserRepository, IStudentCourseRepository studentCourseRepository, IDepartmentRepository departmentRepository, IAssignmentsRepository assignmentsRepository)
+        /// <summary>
+        /// Context for accessing the balance database
+        /// </summary>
+        private readonly IBalanceRepository _balanceRepository;
+        public StudentController(ICourseRepository courseRepository
+            , IUserIdentityService userIdentityService
+            , IAppUserRepository appUserRepository
+            , IStudentCourseRepository studentCourseRepository
+            , IDepartmentRepository departmentRepository
+            , IAssignmentsRepository assignmentsRepository
+            , IBalanceRepository balanceRepository)
         {
             _courseRepository = courseRepository;
             _userIdentityService = userIdentityService;
@@ -30,6 +40,7 @@ namespace LMSEarlyBird.Controllers
             _studentCourseRepository = studentCourseRepository;
             _departmentRepository = departmentRepository;
             _assignmentsRepository = assignmentsRepository;
+            _balanceRepository = balanceRepository;
         }
 
         public IActionResult Index()
@@ -90,11 +101,15 @@ namespace LMSEarlyBird.Controllers
                 CourseId = id
             };
 
+            // gather the course information as the credit hours will be required to remove the course cost
+            studentCourse.Course = await _courseRepository.GetCourse(id);
 
             try
             {
                 _studentCourseRepository.Delete(studentCourse);
                 await _assignmentsRepository.RemoveStudentAssignments(userid,id);
+                await _balanceRepository.UpdateBalanceDropCourse(userid, studentCourse.Course.CreditHours, studentCourse.Course.CourseName);
+
             }
             catch(Exception ex)
             {
@@ -119,12 +134,17 @@ namespace LMSEarlyBird.Controllers
             {
                 UserId = userid,
                 CourseId = id
+                
             };
+
+            // gather the course information as the credit hours will be required to add the course cost
+            studentCourse.Course = await _courseRepository.GetCourse(id);
 
             try
             {
                 _studentCourseRepository.Add(studentCourse);
                 await _assignmentsRepository.AddStudentAssignments(userid,id);
+                await _balanceRepository.UpdateBalanceAddCourse(userid, studentCourse.Course.CreditHours, studentCourse.Course.CourseName);
             }
             catch(Exception ex)
             {

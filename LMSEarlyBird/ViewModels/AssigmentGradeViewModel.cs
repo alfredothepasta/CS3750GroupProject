@@ -21,6 +21,8 @@ namespace LMSEarlyBird.ViewModels
         public string FileName {get; set;} = string.Empty;
         public string SubmissionComment {get; set;} = string.Empty;
 
+        public string TextSubmission {get; set;} = string.Empty;
+
         public string StudentId { get; set; }
         public int CourseId { get; set; }
         public int AssignmentId { get; set; }

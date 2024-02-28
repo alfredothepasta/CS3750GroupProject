@@ -17,7 +17,7 @@
                     @Html.DisplayNameFor(model => model.Assignments[0].Assignment.Title)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Assignments[0].Assignment.Description)
+                    Grade
                 </th>
                 <th>
                     @Html.DisplayNameFor(model => model.Assignments[0].Assignment.DueDate)
@@ -36,7 +36,13 @@
                         @item.Assignment.Title
                     </td>
                     <td>
-                        @item.Assignment.Description
+                        @if(item.Graded){
+                            <p>@item.Score / @item.Assignment.maxPoints</p>
+                        }
+                        else{
+                            <p>Not Graded</p>
+                        }
+                        
                     </td>
                     <td>
                         @item.Assignment.DueDate

@@ -15,13 +15,14 @@ namespace TeamEarlyBirdUnitTest
     {
         private ApplicationDbContext _dbContext;
         private InstructorController _testController;
-       
+
         [TestMethod]
         public void InstructorCanCreateACourseTest()
         {
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseSqlServer("Data Source=titan.cs.weber.edu,10433;Initial Catalog=3750_S24_EarlyBird;User ID=3750_S24_EarlyBird;Password=earlybird1!;TrustServerCertificate=True")
+                .UseSqlServer("Data Source=titan.cs.weber.edu,10433;Initial Catalog=3750_S24_EarlyBird;User ID=3750_S24_EarlyBird;Password=earlyBird@2;TrustServerCertificate=True")
                 .Options;
+
 
             _dbContext = new ApplicationDbContext(options);
             _testController = new InstructorController(
@@ -32,8 +33,7 @@ namespace TeamEarlyBirdUnitTest
                 new RoomRepository(_dbContext),
                 new DepartmentRepository(_dbContext),
                 new AppUserRepository(_dbContext),
-                new AssignmentsRepository(_dbContext),
-                new StudentCourseRepository(_dbContext)
+                new AssignmentsRepository(_dbContext)
             );
 
             // given an instructor ID
@@ -57,15 +57,19 @@ namespace TeamEarlyBirdUnitTest
             testViewModel.Building = 1;
             testViewModel.Room = 1;
 
-            _testController.pushCourseToDb( testViewModel, instructorId);
-            
+            Task.Run(async () =>
+            {
+                await _testController.pushCourseToDb(testViewModel, instructorId);
+            }).GetAwaiter().GetResult();
+
             int numCoursesAfterTest = _dbContext.Courses
-                .Where(c => c.InstructorCourses
-                    .Where(i => i.UserId == instructorId)
-                    .Any())
-                .Count();
+                    .Where(c => c.InstructorCourses
+                        .Where(i => i.UserId == instructorId)
+                        .Any())
+                    .Count();
 
             Assert.IsTrue(numCoursesAfterTest == (numCourses + 1));
+
         }
     }
 }

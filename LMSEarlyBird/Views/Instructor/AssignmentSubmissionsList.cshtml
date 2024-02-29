@@ -13,9 +13,7 @@
 
 @if (Model.Assignments != null)
 {
-    
-    @foreach (var item in Model.Assignments)
-    {
+ 
             <table class="table">
             <thead>
                 <tr>
@@ -32,7 +30,9 @@
                         Grade Actions
                     </th>
                 </tr>
-            </thead>
+            </thead>   
+    @foreach (var item in Model.Assignments)
+    {
             <tbody>
                 <tr>
                     <td>
@@ -80,8 +80,8 @@
                     </td>
                 </tr>
             </tbody>
+            }
         </table>
-        }
 
 }
 </div>

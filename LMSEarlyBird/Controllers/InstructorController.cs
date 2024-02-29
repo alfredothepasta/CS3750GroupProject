@@ -121,37 +121,6 @@ namespace LMSEarlyBird.Controllers
             return RedirectToAction("CourseList", "Instructor");
         }
 
-        public async Task pushCourseToDb(AddCourseViewModel viewModel, string userId)
-        {
-
-            // Find the days that have been selected
-            string selectedDays = "";
-            if (viewModel.DayOfWeekM == "true") selectedDays = selectedDays + "M";
-            if (viewModel.DayOfWeekT == "true") selectedDays = selectedDays + "T";
-            if (viewModel.DayOfWeekW == "true") selectedDays = selectedDays + "W";
-            if (viewModel.DayOfWeekR == "true") selectedDays = selectedDays + "R";
-            if (viewModel.DayOfWeekF == "true") selectedDays = selectedDays + "F";
-
-            // get the room and department to add to the new course
-            Room room = await _roomRepository.GetRoomById(viewModel.Room);
-            Department department = await _departmentRepository.GetDepartmentById(viewModel.Department);
-            Course course = new Course
-            {
-                CourseName = viewModel.CourseName,
-                CourseNumber = viewModel.CourseNumber,
-                CreditHours = viewModel.CreditHours,
-                StartTime = viewModel.StartTime,
-                EndTime = viewModel.EndTime,
-                DaysOfWeek = selectedDays,
-                Room = room,
-                Department = department
-            };
-
-            AppUser instructor = await _appUserRepository.GetUser(userId);
-
-            _courseRepository.Add(course, instructor);
-        }
-
         [AcceptVerbs("GET", "POST")]
         public async Task<IActionResult> roomAvailability(int Room, TimeOnly? StartTime, TimeOnly? EndTime, string DayOfWeekM, string DayOfWeekT, string DayOfWeekW, string DayOfWeekR, string DayOfWeekF)
         {
@@ -214,6 +183,41 @@ namespace LMSEarlyBird.Controllers
             await _courseRepository.Delete(courseToDelete);
             return RedirectToAction("CourseList", "Instructor");
         }
+
+        #region Course Helpers
+        public async Task pushCourseToDb(AddCourseViewModel viewModel, string userId)
+        {
+
+            // Find the days that have been selected
+            string selectedDays = "";
+            if (viewModel.DayOfWeekM == "true") selectedDays = selectedDays + "M";
+            if (viewModel.DayOfWeekT == "true") selectedDays = selectedDays + "T";
+            if (viewModel.DayOfWeekW == "true") selectedDays = selectedDays + "W";
+            if (viewModel.DayOfWeekR == "true") selectedDays = selectedDays + "R";
+            if (viewModel.DayOfWeekF == "true") selectedDays = selectedDays + "F";
+
+            // get the room and department to add to the new course
+            Room room = await _roomRepository.GetRoomById(viewModel.Room);
+            Department department = await _departmentRepository.GetDepartmentById(viewModel.Department);
+            Course course = new Course
+            {
+                CourseName = viewModel.CourseName,
+                CourseNumber = viewModel.CourseNumber,
+                CreditHours = viewModel.CreditHours,
+                StartTime = viewModel.StartTime,
+                EndTime = viewModel.EndTime,
+                DaysOfWeek = selectedDays,
+                Room = room,
+                Department = department
+            };
+
+            AppUser instructor = await _appUserRepository.GetUser(userId);
+
+            _courseRepository.Add(course, instructor);
+        }
+
+        #endregion
+
         #endregion
 
 

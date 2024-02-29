@@ -63,8 +63,8 @@
                 <h3 class="text-center">ToDo List</h3>
                 @foreach (var assignment in Model.StudentAssignment)
                 {
-                    // verify assignment is not past it's due date
-                    if (assignment.Assignment.DueDate >= localDate)
+                    // verify assignment is not past it's due date, and has not been submitted
+                    if (assignment.Assignment.DueDate >= localDate && assignment.Submitted == false)
                     {
                             <div class="card border m-3 px-0 text-black">
                                 <a class="card-block stretched-link text-decoration-none" asp-controller="Student" asp-action="Submission" asp-route-assignmentId="@assignment.Assignment.Id">

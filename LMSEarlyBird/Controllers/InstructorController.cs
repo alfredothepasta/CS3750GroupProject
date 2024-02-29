@@ -115,11 +115,18 @@ namespace LMSEarlyBird.Controllers
 
                 return View(viewModel);
             }
+            string instructorId = _contextAccessor.HttpContext.User.GetUserId();
+            await pushCourseToDb(viewModel, instructorId);
 
+            return RedirectToAction("CourseList", "Instructor");
+        }
+
+        public async Task pushCourseToDb(AddCourseViewModel viewModel, string userId)
+        {
 
             // Find the days that have been selected
             string selectedDays = "";
-            if(viewModel.DayOfWeekM == "true") selectedDays = selectedDays + "M";
+            if (viewModel.DayOfWeekM == "true") selectedDays = selectedDays + "M";
             if (viewModel.DayOfWeekT == "true") selectedDays = selectedDays + "T";
             if (viewModel.DayOfWeekW == "true") selectedDays = selectedDays + "W";
             if (viewModel.DayOfWeekR == "true") selectedDays = selectedDays + "R";
@@ -140,11 +147,9 @@ namespace LMSEarlyBird.Controllers
                 Department = department
             };
 
-            AppUser instructor = await _appUserRepository.GetUser(_contextAccessor.HttpContext.User.GetUserId());
-            
-            _courseRepository.Add(course, instructor);
+            AppUser instructor = await _appUserRepository.GetUser(userId);
 
-            return RedirectToAction("CourseList", "Instructor");
+            _courseRepository.Add(course, instructor);
         }
 
         [AcceptVerbs("GET", "POST")]

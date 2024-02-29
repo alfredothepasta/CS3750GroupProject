@@ -1,7 +1,7 @@
 ﻿@model LMSEarlyBird.Models.AppUser
 @{
     ViewData["Title"] = "Dashboard";
-    //DateTime myDate = new DateTime();
+    //create variable for local date, used remove past due assignments from todo list
     DateTime localDate = DateTime.Now;
 
     // order by due date
@@ -23,6 +23,7 @@
     <div class="row">
         @if (User.IsInRole(LMSEarlyBird.Data.UserRoles.Student))
         {
+            // create list of courses for this student
             <div class="col-12 col-md-8 sideborderright">
                 <div class="row">
                     <h3 class="text-center"> Classes </h3>
@@ -91,6 +92,7 @@
         }
         @if (User.IsInRole(LMSEarlyBird.Data.UserRoles.Teacher))
         {
+            // create list of courses for this teacher
             <h3 class="text-center"> Classes </h3>
             @foreach (var course in Model.InstructorCourses)
             {

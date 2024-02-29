@@ -24,8 +24,7 @@ namespace LMSEarlyBird.Controllers
             _balanceRepository = balanceRepository;
         }
 
-        //private static decimal paymentAmount = 0;
-
+        // gather the current balance for the user and pass it on to the payment page
         [HttpGet]
         public async Task<IActionResult> PaymentPage()
         {

@@ -29,6 +29,10 @@ namespace LMSEarlyBird.Controllers
         private readonly IAssignmentsRepository _assignmentRepository;
         //private readonly FileExtensionContentTypeProvider _contentTypeProvider;
         private readonly IStudentCourseRepository _studentCourseRepository;
+        /// <summary>
+        /// Context for accessing the balance database
+        /// </summary>
+        private readonly IBalanceRepository _balanceRepository;
         #endregion
 
         #region constructor
@@ -40,7 +44,8 @@ namespace LMSEarlyBird.Controllers
             IDepartmentRepository departmentRepository,
             IAppUserRepository appUserRepository,
             IAssignmentsRepository assignmentRepository,
-            IStudentCourseRepository studentCourseRepository)
+            IStudentCourseRepository studentCourseRepository,
+            IBalanceRepository balanceRepository)
         {
             _context = context;
             _contextAccessor = contextAccessor;
@@ -52,6 +57,7 @@ namespace LMSEarlyBird.Controllers
             _assignmentRepository = assignmentRepository;
             //_contentTypeProvider = contentTypeProvider;
             _studentCourseRepository = studentCourseRepository;
+            _balanceRepository = balanceRepository;
         }
 
         #endregion  
@@ -214,8 +220,19 @@ namespace LMSEarlyBird.Controllers
                 return RedirectToAction("CourseList", "Instructor");
             }
 
+            // create a list of the students that are assigned to the course
+            List<AppUser> students = await _studentCourseRepository.GetStudentsByCourse(courseId);
+
+            // delete the course
             Course courseToDelete = await _courseRepository.GetCourse(courseId);
             await _courseRepository.Delete(courseToDelete);
+
+            // delete each student's balance in the list for the course that was just deleted
+            foreach (AppUser student in students)
+            {
+                await _balanceRepository.UpdateBalanceDropCourse(student.Id, courseToDelete.CreditHours, courseToDelete.CourseName);
+            }
+
             return RedirectToAction("CourseList", "Instructor");
         }
         #endregion

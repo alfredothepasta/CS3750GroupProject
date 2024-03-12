@@ -48,14 +48,14 @@ namespace LMSEarlyBird.Controllers
 
         // gather the payment intent (aka the payment reciept) and pass it to the paymentsuccess for processing the payment, then pass to the success view
         [HttpGet]
-        public async Task<IActionResult> PaymentSuccess(string x)
+        public async Task<IActionResult> PaymentSuccess(string recieptNumber)
         {
             // gather the user id
             string userId = _userIdentityService.GetUserId();
 
             // gather the payment intent (aka the payment reciept)
             var service = new PaymentIntentService();
-            var reciept = service.Get(x);
+            var reciept = service.Get(recieptNumber);
 
             // create a new view model for the passing of the payment amount
             PaymentViewModel paymentVM = new PaymentViewModel();
@@ -66,7 +66,7 @@ namespace LMSEarlyBird.Controllers
             await _balanceRepository.UpdateBalancePayment(userId, paymentVM.PaymentAmount);
 
             // pass on the payment view model for the payment amount
-            return RedirectToAction("Success", "Payment", paymentVM);
+            return RedirectToAction("Success", paymentVM);
         }
 
         // pass on the payment view model for the payment amount to the success view
@@ -144,7 +144,7 @@ namespace LMSEarlyBird.Controllers
                 },
             };
             var serviceIntent = new PaymentIntentService();
-            var x = serviceIntent.Create(optionsIntent);
+            var reciept = serviceIntent.Create(optionsIntent);
 
             // create the checkout session
             var options = new SessionCreateOptions
@@ -166,7 +166,7 @@ namespace LMSEarlyBird.Controllers
                     },
                 },
                 Mode = "payment",
-                SuccessUrl = "https://localhost:7243/Payment/PaymentSuccess/?x=" + x.Id, // sends over payment intent id to success page
+                SuccessUrl = "https://localhost:7243/Payment/PaymentSuccess/?x=" + reciept.Id, // sends over payment intent id to success page
                 CancelUrl = "https://localhost:7243/Payment/Cancel",
             };
             var service = new SessionService();
@@ -178,7 +178,7 @@ namespace LMSEarlyBird.Controllers
                 Metadata = new Dictionary<string, string> { { "order_id", "6735" } },
             };
             var service2 = new PaymentIntentService();
-            service2.Update(x.Id, options2);
+            service2.Update(reciept.Id, options2);
 
             // pass on all of the information for checking out to the stripe website
             Response.Headers.Add("Location", session.Url);

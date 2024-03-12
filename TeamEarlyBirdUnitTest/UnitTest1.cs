@@ -17,7 +17,7 @@ namespace TeamEarlyBirdUnitTest
         private InstructorController _testController;
 
         [TestMethod]
-        public void InstructorCanCreateACourseTest()
+        public async Task InstructorCanCreateACourseTest()
         {
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
                 .UseSqlServer("Data Source=titan.cs.weber.edu,10433;Initial Catalog=3750_S24_EarlyBird;User ID=3750_S24_EarlyBird;Password=earlyBird@2;TrustServerCertificate=True")
@@ -57,10 +57,7 @@ namespace TeamEarlyBirdUnitTest
             testViewModel.Building = 1;
             testViewModel.Room = 1;
 
-            Task.Run(async () =>
-            {
-                await _testController.pushCourseToDb(testViewModel, instructorId);
-            }).GetAwaiter().GetResult();
+            await _testController.pushCourseToDb(testViewModel, instructorId);
 
             int numCoursesAfterTest = _dbContext.Courses
                     .Where(c => c.InstructorCourses

@@ -76,15 +76,16 @@ namespace LMSEarlyBird.Controllers
             return View(paymentVM);
         }
 
-        // pass on the payment view model for the payment amount to the checkout view
-        [HttpGet]
-        public async Task<IActionResult> Checkout(PaymentViewModel paymentVM)
+        //pass on the payment view model for the payment amount to the checkout view
+       [HttpGet]
+        public async Task<IActionResult> Checkout(decimal paymentAmount)
         {
             //gather the payment amount and place into a new view model so that we don't include the balance as well
             PaymentViewModel paymentVM2 = new PaymentViewModel
             {
-                PaymentAmount = paymentVM.PaymentAmount
+                PaymentAmount = paymentAmount
             };
+
             return View(paymentVM2);
         }
 
@@ -121,7 +122,7 @@ namespace LMSEarlyBird.Controllers
             }
 
             // send all information to the payment view
-            return RedirectToAction("Checkout", "Payment", paymentVM);
+            return View("Checkout", paymentVM);
         }
 
 

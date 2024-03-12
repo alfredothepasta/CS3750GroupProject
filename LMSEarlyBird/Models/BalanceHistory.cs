@@ -23,5 +23,6 @@ namespace LMSEarlyBird.Models
         public string Type { get; set; }
       
         public string? ClassName { get; set; }
+        public string? Reciept { get; set; }
     }
 }

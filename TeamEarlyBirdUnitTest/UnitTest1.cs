@@ -33,7 +33,9 @@ namespace TeamEarlyBirdUnitTest
                 new RoomRepository(_dbContext),
                 new DepartmentRepository(_dbContext),
                 new AppUserRepository(_dbContext),
-                new AssignmentsRepository(_dbContext)
+                new AssignmentsRepository(_dbContext),
+                new StudentCourseRepository(_dbContext),
+                new BalanceRepository(_dbContext)
             );
 
             // given an instructor ID

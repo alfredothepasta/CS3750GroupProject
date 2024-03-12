@@ -526,14 +526,20 @@ namespace LMSEarlyBird.Controllers
                 return RedirectToAction("Dashboard", "User");
             }
 
+            await pushAssignmentToDb(viewModel, courseId);
+
+            if (!ModelState.IsValid)
+            {
+                return View(viewModel);
+            }
+            return RedirectToAction("CourseAssignmentList", new { courseId = viewModel.Course.id });
+
+		}
+
+        public async Task pushAssignmentToDb(CreateAssignmentViewModel viewModel, int courseId)
+        {
             Course course = await _courseRepository.GetCourse(courseId);
 			viewModel.Course = course;
-            
-
-			if (!ModelState.IsValid)
-			{
-				return View(viewModel);
-			}
 
 			Assignment assignment = new Assignment
             {
@@ -546,9 +552,7 @@ namespace LMSEarlyBird.Controllers
 			};
 
             await _assignmentRepository.AddAssignment(assignment, courseId);
-			return RedirectToAction("CourseAssignmentList", new { courseId = viewModel.Course.id });
-
-		}
+        }
 
         [HttpGet]
         public async Task<IActionResult> DeleteAssignment(int assignmentId, int courseId)

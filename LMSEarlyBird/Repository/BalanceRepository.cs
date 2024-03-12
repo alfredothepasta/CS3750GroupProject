@@ -119,7 +119,7 @@ namespace LMSEarlyBird.Repository
         }
 
         // add a payment to the balance listing
-        public async Task<bool> UpdateBalancePayment(string userId, decimal payment)
+        public async Task<bool> UpdateBalancePayment(string userId, decimal payment, string recieptNumber)
         {
             // add the balance components
             BalanceHistory newBalance = new BalanceHistory();
@@ -129,10 +129,30 @@ namespace LMSEarlyBird.Repository
             newBalance.Time = DateTime.Now;
             newBalance.Balance = await GetCurrentBalance(userId) - payment;
             newBalance.Type = "Payment";
+            newBalance.Reciept = recieptNumber;
 
             // add balance
             _context.Add(newBalance);
             return Save();
         }
+
+        // gather reciepts
+        public async Task<List<BalanceHistory>> GetAllReciepts()
+        {
+            return await _context.PaymentHistory.ToListAsync();
+            //return await _context
+            //    .PaymentHistory
+            //    .Where(x => x.UserId == userId)
+            //    .ToListAsync();
+        }
+
+        //public async Task<List<Course>> GetCoursesByTeacher(string teacherId)
+        //{
+        //    return await _context.Courses
+        //        .Where(c => c.InstructorCourses
+        //            .Where(i => i.UserId == teacherId)
+        //            .Any())
+        //        .ToListAsync();
+        //}
     }
 }

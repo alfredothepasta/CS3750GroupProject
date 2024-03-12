@@ -4,6 +4,7 @@ using LMSEarlyBird.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Stripe.Checkout;
 using Stripe;
+using LMSEarlyBird.Repository;
 
 namespace LMSEarlyBird.Controllers
 {
@@ -48,10 +49,22 @@ namespace LMSEarlyBird.Controllers
 
         // gather the payment intent (aka the payment reciept) and pass it to the paymentsuccess for processing the payment, then pass to the success view
         [HttpGet]
-        public async Task<IActionResult> PaymentSuccess(string recieptNumber)
+        public async Task<IActionResult> Success(string recieptNumber)
         {
             // gather the user id
             string userId = _userIdentityService.GetUserId();
+
+            // check to make sure this reciept has not been used yet
+            List<string> recipetNumbers = _balanceRepository.GetAllReciepts().Result.Select(x => x.Reciept).ToList();
+            //List<string> recieptNumbers = _balanceRepository.GetBalanceHistory(userId).Result.Select(x => x.RecieptNumber).ToList();
+
+            foreach (string reicpet in recipetNumbers)
+            {
+                if (reicpet == recieptNumber)
+                {
+                    return RedirectToAction("Error", "Payment");;
+                }
+            }
 
             // gather the payment intent (aka the payment reciept)
             var service = new PaymentIntentService();
@@ -63,18 +76,18 @@ namespace LMSEarlyBird.Controllers
             paymentVM.PaymentAmount = reciept.Amount / 100.00m;
 
             // create a new balance update for the payment
-            await _balanceRepository.UpdateBalancePayment(userId, paymentVM.PaymentAmount);
+            await _balanceRepository.UpdateBalancePayment(userId, paymentVM.PaymentAmount, reciept.Id);
 
             // pass on the payment view model for the payment amount
-            return RedirectToAction("Success", paymentVM);
-        }
-
-        // pass on the payment view model for the payment amount to the success view
-        [HttpGet]
-        public async Task<IActionResult> Success(PaymentViewModel paymentVM)
-        {
             return View(paymentVM);
         }
+
+        //// pass on the payment view model for the payment amount to the success view
+        //[HttpGet]
+        //public async Task<IActionResult> Success(PaymentViewModel paymentVM)
+        //{
+        //    return View(paymentVM);
+        //}
 
         //pass on the payment view model for the payment amount to the checkout view
        [HttpGet]

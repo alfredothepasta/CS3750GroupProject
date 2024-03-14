@@ -160,7 +160,7 @@ namespace LMSEarlyBird.Controllers
                         }
 
                         //Cache classes in memory
-                        _cache.Set(cacheKeyClassCards, classCards, TimeSpan.FromMinutes(5));
+                        _cache.Set(cacheKeyClassCards, classCards, TimeSpan.FromMinutes(30));
                         cachedClasses = classCards;
                     }
 

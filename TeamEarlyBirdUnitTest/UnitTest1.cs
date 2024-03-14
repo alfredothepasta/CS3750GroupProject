@@ -5,11 +5,11 @@ using LMSEarlyBird.Repository;
 using LMSEarlyBird.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace TeamEarlyBirdUnitTest
 {
-    
     [TestClass]
     public class UnitTest1
     {

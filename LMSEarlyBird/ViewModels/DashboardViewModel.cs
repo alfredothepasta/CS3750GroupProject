@@ -4,10 +4,11 @@ namespace LMSEarlyBird.ViewModels
 {
     public class DashboardViewModel
     {
-        public List<string>? DepartmentNames { get; set; }
-        public List<Room>? RoomList { get; set; }
-        public List<Department>? DepartmentList { get; set; }
-        public List<Building>? BuildingList { get; set; }
-        public List<Assignment>? Assignments { get; set; }
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+
+        public List<StudentAssignment> StudentAssignment { get; set; } = new List<StudentAssignment>();
+       
+        public List<ClassCardViewModel> ClassCards { get; set; } = new List<ClassCardViewModel>();
     }
 }

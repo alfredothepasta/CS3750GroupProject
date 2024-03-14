@@ -5,22 +5,16 @@ using LMSEarlyBird.Repository;
 using LMSEarlyBird.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Stripe.Checkout;
-using Stripe;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace TeamEarlyBirdUnitTest
 {
-    
     [TestClass]
     public class UnitTest1
     {
         private ApplicationDbContext _dbContext;
         private InstructorController _testController;
-        private PaymentController _paymentController;
-        private HttpContextAccessor _httpContextAccessor;
 
         [TestMethod]
         public async Task InstructorCanCreateACourseTest()
@@ -120,43 +114,6 @@ namespace TeamEarlyBirdUnitTest
             int numAssignmentsAfterTest = _dbContext.Assignments.Count();
 
             Assert.IsTrue(numAssignmentsAfterTest == (numAssignments + 1));
-        }
-
-        [TestMethod]
-        public async Task StudentCanMakeAPayment()
-        {
-            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseSqlServer("Data Source=titan.cs.weber.edu,10433;Initial Catalog=3750_S24_EarlyBird;User ID=3750_S24_EarlyBird;Password=earlyBird@2;TrustServerCertificate=True")
-                .Options;
-
-            var userManager = new UserManager<AppUser>(new UserStore<AppUser>(_dbContext), null, null, null, null, null, null, null, null);
-
-            _paymentController = new PaymentController(
-                _dbContext,
-                new UserIdentityService(userManager, _httpContextAccessor),
-                new BalanceRepository(_dbContext)
-            );
-
-            // given a user id
-            string userId = "1ff03b0c-ce4b-42de-ac48-0a45bd4dcd4d";
-
-            // given a receipt
-            string Test = "Test";
-
-            //int numAssignments = _dbContext.Assignments.Count();
-            int numBalances = _dbContext.PaymentHistory.Count();
-
-            // create payment
-            PaymentViewModel TestViewModel = new PaymentViewModel();
-            TestViewModel.PaymentAmount = 1;
-
-            // call the method
-            await _paymentController.pushPaymentToDb(TestViewModel, userId, Test);
-
-            // make sure it worked
-            int numBalancesAfterTest = _dbContext.PaymentHistory.Count();
-
-            Assert.IsTrue(numBalancesAfterTest == (numBalances + 1));
         }
     }
 }

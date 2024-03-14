@@ -2,6 +2,8 @@
 using LMSEarlyBird.Models;
 using LMSEarlyBird.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Stripe.Checkout;
+using Stripe;
 
 namespace LMSEarlyBird.Controllers
 {
@@ -27,7 +29,7 @@ namespace LMSEarlyBird.Controllers
         public async Task<IActionResult> PaymentPage()
         {
             // gather the user id
-            string userId = _contextAccessor.GetUserId();
+            var userId = _contextAccessor.HttpContext.User.GetUserId();
 
             // gather the current balance for the user
             decimal currentBalance = await _balanceRepository.GetCurrentBalance(userId);
@@ -49,7 +51,7 @@ namespace LMSEarlyBird.Controllers
         public async Task<IActionResult> Success(string recieptNumber)
         {
             // gather the user id
-            string userId = _contextAccessor.GetUserId();
+            var userId = _contextAccessor.HttpContext.User.GetUserId();
 
             // gather the payment intent (aka the payment reciept)
             var service = new PaymentIntentService();
@@ -87,7 +89,7 @@ namespace LMSEarlyBird.Controllers
         }
 
         //pass on the payment view model for the payment amount to the checkout view
-       [HttpGet]
+        [HttpGet]
         public async Task<IActionResult> Checkout(decimal paymentAmount)
         {
             //gather the payment amount and place into a new view model so that we don't include the balance as well
@@ -110,7 +112,7 @@ namespace LMSEarlyBird.Controllers
         [HttpPost]
         public async Task<IActionResult> PaymentPage(decimal paymentAmount)
         {
-            string userId = _contextAccessor.GetUserId();
+            var userId = _contextAccessor.HttpContext.User.GetUserId();
 
             // gather the current balance for the user
             decimal currentBalance = await _balanceRepository.GetCurrentBalance(userId);
@@ -194,8 +196,10 @@ namespace LMSEarlyBird.Controllers
             Response.Headers.Add("Location", session.Url);
             return new StatusCodeResult(303);
         }
-        
 
+
+
+        // testing cases, push a payment, add a class and drop a class, verify payment passes
         public async Task pushPaymentToDb(PaymentViewModel paymentVM, string userId, string recieptNumber)
         {
             // push the view model into a new viewmodel
@@ -206,6 +210,16 @@ namespace LMSEarlyBird.Controllers
 
             // create a new balance update for the payment
             await _balanceRepository.UpdateBalancePayment(userId, paymentVM2.PaymentAmount, recieptNumber);
+        }
+        public async Task pushClassAddedToDb(string userId, int courseHours, string className)
+        {
+            // create a new balance update for the payment
+            await _balanceRepository.UpdateBalanceAddCourse(userId, courseHours, className);
+        }
+        public async Task pushClassDroppedToDb(string userId, int courseHours, string className)
+        {
+            // create a new balance update for the payment
+            await _balanceRepository.UpdateBalanceDropCourse(userId, courseHours, className);
         }
     }
 }

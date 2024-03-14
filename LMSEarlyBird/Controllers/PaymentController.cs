@@ -2,26 +2,23 @@
 using LMSEarlyBird.Models;
 using LMSEarlyBird.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Stripe.Checkout;
-using Stripe;
-using LMSEarlyBird.Repository;
 
 namespace LMSEarlyBird.Controllers
 {
     public class PaymentController : Controller
     {
         /// <summary>
-        /// Context for accessing the user identity database
-        /// </summary>
-        private readonly IUserIdentityService _userIdentityService;
-        /// <summary>
         /// Context for accessing the balance database
         /// </summary>
         private readonly IBalanceRepository _balanceRepository;
+        /// <summary>
+        /// Context accessor for reading session data
+        /// </summary>
+        private readonly IHttpContextAccessor _contextAccessor;
 
-        public PaymentController(IUserIdentityService userIdentityService, IBalanceRepository balanceRepository)
+        public PaymentController(IHttpContextAccessor contextAccessor, IBalanceRepository balanceRepository)
         {
-            _userIdentityService = userIdentityService;
+            _contextAccessor = contextAccessor;
             _balanceRepository = balanceRepository;
         }
 
@@ -30,7 +27,7 @@ namespace LMSEarlyBird.Controllers
         public async Task<IActionResult> PaymentPage()
         {
             // gather the user id
-            string userId = _userIdentityService.GetUserId();
+            string userId = _contextAccessor.GetUserId();
 
             // gather the current balance for the user
             decimal currentBalance = await _balanceRepository.GetCurrentBalance(userId);
@@ -52,7 +49,7 @@ namespace LMSEarlyBird.Controllers
         public async Task<IActionResult> Success(string recieptNumber)
         {
             // gather the user id
-            string userId = _userIdentityService.GetUserId();
+            string userId = _contextAccessor.GetUserId();
 
             // gather the payment intent (aka the payment reciept)
             var service = new PaymentIntentService();
@@ -60,7 +57,6 @@ namespace LMSEarlyBird.Controllers
 
             // check to make sure this reciept has not been used yet
             List<string> recipetNumbers = _balanceRepository.GetAllReciepts().Result.Select(x => x.Reciept).ToList();
-            //List<string> recieptNumbers = _balanceRepository.GetBalanceHistory(userId).Result.Select(x => x.RecieptNumber).ToList();
 
             foreach (string reicpet in recipetNumbers)
             {
@@ -72,6 +68,7 @@ namespace LMSEarlyBird.Controllers
 
             // create a new view model for the passing of the payment amount
             PaymentViewModel paymentVM = new PaymentViewModel();
+
             // pass on the payment amount into the view model
             paymentVM.PaymentAmount = reciept.Amount / 100.00m;
 
@@ -113,7 +110,7 @@ namespace LMSEarlyBird.Controllers
         [HttpPost]
         public async Task<IActionResult> PaymentPage(decimal paymentAmount)
         {
-            string userId = _userIdentityService.GetUserId();
+            string userId = _contextAccessor.GetUserId();
 
             // gather the current balance for the user
             decimal currentBalance = await _balanceRepository.GetCurrentBalance(userId);
@@ -196,6 +193,19 @@ namespace LMSEarlyBird.Controllers
             // pass on all of the information for checking out to the stripe website
             Response.Headers.Add("Location", session.Url);
             return new StatusCodeResult(303);
+        }
+        
+
+        public async Task pushPaymentToDb(PaymentViewModel paymentVM, string userId, string recieptNumber)
+        {
+            // push the view model into a new viewmodel
+            PaymentViewModel paymentVM2 = new PaymentViewModel
+            {
+                PaymentAmount = paymentVM.PaymentAmount
+            };
+
+            // create a new balance update for the payment
+            await _balanceRepository.UpdateBalancePayment(userId, paymentVM2.PaymentAmount, recieptNumber);
         }
     }
 }

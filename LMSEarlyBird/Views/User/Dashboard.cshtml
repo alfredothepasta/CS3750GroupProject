@@ -1,4 +1,4 @@
-﻿@model LMSEarlyBird.Models.AppUser
+﻿@model LMSEarlyBird.ViewModels.DashboardViewModel
 @{
     ViewData["Title"] = "Dashboard";
     //create variable for local date, used remove past due assignments from todo list
@@ -23,43 +23,42 @@
     <div class="row">
         @if (User.IsInRole(LMSEarlyBird.Data.UserRoles.Student))
         {
-            // create list of courses for this student
-            <div class="col-12 col-md-8 sideborderright">
-                <div class="row">
-                    <h3 class="text-center"> Classes </h3>
-                    @foreach (var course in Model.StudentCourses)
-                    {
-                        <div class="card col-10 col-xl-5 border LeftMargin my-3 px-0">
-                            <a class="card-block stretched-link text-decoration-none" asp-controller="Student" asp-action="Course" asp-route-courseId="@course.Course.id">
-                                <div class="card-header text-black">
-                                    <h2>
-                                        @course.Course.Department.DeptCode
-                                        @course.Course.CourseNumber
-                                    </h2>
-                                    <h4>
-                                        @course.Course.CourseName
-                                    </h4>
-                                </div>
-                                <div class="card-body text-black">
-                                    <p>
-                                        @course.Course.InstructorCourses[0].User.FirstName
-                                        @course.Course.InstructorCourses[0].User.LastName
-                                    </p>
-                                    <p>
-                                        @course.Course.Room.Building.BuildingName
-                                        @course.Course.Room.RoomNumber
-                                    </p>
-                                    <p>
-                                        @course.Course.DaysOfWeek
-                                        @course.Course.StartTime
-                                        @course.Course.EndTime
-                                    </p>
-                                </div>
-                            </a>
-                        </div>
-                    }
-                </div>
+        // create list of courses for this student
+        <div class="col-12 col-md-8 sideborderright">
+            <div class="row">
+                <h3 class="text-center"> Classes </h3>
+                @foreach (var course in Model.ClassCards)
+                {
+                    <div class="card col-10 col-xl-5 border LeftMargin my-3 px-0">
+                        <a class="card-block stretched-link text-decoration-none" asp-controller="Student" asp-action="Course" asp-route-courseId="@course.CourseId">
+                            <div class="card-header text-black">
+                                <h2>
+                                    @course.DeptCode
+                                    @course.CourseNumber
+                                </h2>
+                                <h4>
+                                    @course.CourseName
+                                </h4>
+                            </div>
+                            <div class="card-body text-black">
+                                <p>
+                                    @course.InstructorName
+                                </p>
+                                <p>
+                                    @course.BuildingName
+                                    @course.RoomNumber
+                                </p>
+                                <p>
+                                    @course.DaysOfWeek
+                                    @course.StartTime
+                                    @course.EndTime
+                                </p>
+                            </div>
+                        </a>
+                    </div>
+                }
             </div>
+        </div>      
             <div class="col-10 col-md-4 justify-content-center sideborderleft">
                 <h3 class="text-center">ToDo List</h3>
                 @foreach (var assignment in Model.StudentAssignment)
@@ -94,34 +93,33 @@
         {
             // create list of courses for this teacher
             <h3 class="text-center"> Classes </h3>
-            @foreach (var course in Model.InstructorCourses)
+            @foreach (var course in Model.ClassCards)
             {
                 <div class="card col-10 col-xl-5 border LeftMargin my-3 px-0">
-                    <a class="card-block stretched-link text-decoration-none" asp-controller="Instructor" asp-action="CourseAssignmentList" asp-route-courseId="@course.Course.id">
-                        <div class="card-header text-black">
-                            <h2>
-                                @course.Course.Department.DeptCode
-                                @course.Course.CourseNumber
-                            </h2>
-                            <h4>
-                                @course.Course.CourseName
-                            </h4>
-                        </div>
-                        <div class="card-body text-black">
-                            <p>
-                                @course.Course.InstructorCourses[0].User.FirstName
-                                @course.Course.InstructorCourses[0].User.LastName
-                            </p>
-                            <p>
-                                @course.Course.Room.Building.BuildingName
-                                @course.Course.Room.RoomNumber
-                            </p>
-                            <p>
-                                @course.Course.DaysOfWeek
-                                @course.Course.StartTime
-                                @course.Course.EndTime
-                            </p>
-                        </div>
+                    <a class="card-block stretched-link text-decoration-none" asp-controller="Instructor" asp-action="CourseAssignmentList" asp-route-courseId="@course.CourseId">
+                            <div class="card-header text-black">
+                                <h2>
+                                    @course.DeptCode
+                                    @course.CourseNumber
+                                </h2>
+                                <h4>
+                                    @course.CourseName
+                                </h4>
+                            </div>
+                            <div class="card-body text-black">
+                                <p>
+                                    @course.InstructorName
+                                </p>
+                                <p>
+                                    @course.BuildingName
+                                    @course.RoomNumber
+                                </p>
+                                <p>
+                                    @course.DaysOfWeek
+                                    @course.StartTime
+                                    @course.EndTime
+                                </p>
+                            </div>
                     </a>
                 </div>
             }

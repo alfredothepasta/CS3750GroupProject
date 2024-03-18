@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace LMSEarlyBird.Controllers
 {
@@ -47,6 +49,9 @@ namespace LMSEarlyBird.Controllers
         /// </summary>
         private readonly IAssignmentsRepository _assignmentRepository;
 
+        private readonly IMemoryCache _cache;
+
+
         /// <summary>
         /// Constructor, initializes the instance variables
         /// </summary>
@@ -60,7 +65,9 @@ namespace LMSEarlyBird.Controllers
             IDepartmentRepository departmentRepository,
             IRoomRepository roomRepository,
             IBuildingRepository buildingRepository,
-            IAssignmentsRepository assignmentsRepository)
+            IAssignmentsRepository assignmentsRepository,
+            IMemoryCache cache
+            )
         {
             _contextAccessor = contextAccessor;
             _courseRepository = courseRepository;
@@ -70,6 +77,8 @@ namespace LMSEarlyBird.Controllers
             _roomRepository = roomRepository;
             _buildingRepository = buildingRepository;
             _assignmentRepository = assignmentsRepository;
+
+            _cache = cache;
         }
 
         /// <summary>
@@ -85,27 +94,75 @@ namespace LMSEarlyBird.Controllers
                 var currentUser = _contextAccessor.HttpContext?.User.GetUserId();
                 if (currentUser != null)
                 {
-                    //pull user based on logged in user
+                    // pull user based on logged in user
                     string userId = _userIdentityService.GetUserId();
                     AppUser profile = await _appUserRepository.GetUser(userId);
 
-                    ////pull the current courses, required for obtaining department names
+                    // pull the current courses, required for obtaining department names
                     var courses = await _courseRepository.GetAllCoursesWithInstructor();
 
-                    // call the dashboard VM for gathering the course information
-                    DashboardViewModel dashboardVM = new DashboardViewModel();
+                    var cacheKeyClassCards = $"user_{userId}_classcards";
+                    var cachedClasses = _cache.Get<List<ClassCardViewModel>>(cacheKeyClassCards);
 
-                    // gather department names
-                    List<string> departmentNames = _departmentRepository.GetAllDepartments().Result.Select(x => x.DeptName).ToList();
-                    dashboardVM.DepartmentNames = departmentNames;
+                    if(cachedClasses == null){
 
-                    // gather the room numbers
-                    List<Room> roomNumbers = _roomRepository.GetRooms().Result.Select(x => new Room { RoomNumber = x.RoomNumber }).ToList();
-                    dashboardVM.RoomList = roomNumbers;
+                        // gather department names=
+                        List<string> departmentNames = _departmentRepository.GetAllDepartments().Result.Select(x => x.DeptName).ToList();
 
-                    // gather the building names
-                    List<Building> buildings = _buildingRepository.GetBuildings().Result.ToList();
-                    dashboardVM.BuildingList = buildings;
+                        // gather the room numbers
+                        List<Room> roomNumbers = _roomRepository.GetRooms().Result.Select(x => new Room { RoomNumber = x.RoomNumber }).ToList();
+
+                        // gather the building names
+                        List<Building> buildings = _buildingRepository.GetBuildings().Result.ToList();
+
+
+                        ////////////////
+                        bool student = User.IsInRole(UserRoles.Student);
+                        
+                        var classCards = new List<ClassCardViewModel>();
+
+                        if(student){
+                            foreach(var course in profile.StudentCourses){
+                                var newCard = new ClassCardViewModel{
+                                    CourseId = course.CourseId,
+                                    DeptCode = course.Course.Department.DeptCode,
+                                    CourseNumber = course.Course.CourseNumber,
+                                    CourseName = course.Course.CourseName,
+                                    DaysOfWeek = course.Course.DaysOfWeek,
+                                    StartTime = course.Course.StartTime.ToString(),
+                                    EndTime = course.Course.EndTime.ToString(),
+                                    RoomNumber = course.Course.Room.RoomNumber,
+                                    BuildingName = course.Course.Room.Building.BuildingName,
+                                    InstructorName = course.Course.InstructorCourses[0].User.FirstName + " " + course.Course.InstructorCourses[0].User.LastName,
+                                };
+
+                                classCards.Add(newCard);
+                            }
+                        }
+                        else{
+                            //Instructor 
+                            foreach(var course in profile.InstructorCourses){
+                                var newCard = new ClassCardViewModel{
+                                    CourseId = course.CourseId,
+                                    DeptCode = course.Course.Department.DeptCode,
+                                    CourseNumber = course.Course.CourseNumber,
+                                    CourseName = course.Course.CourseName,
+                                    DaysOfWeek = course.Course.DaysOfWeek,
+                                    StartTime = course.Course.StartTime.ToString(),
+                                    EndTime = course.Course.EndTime.ToString(),
+                                    RoomNumber = course.Course.Room.RoomNumber,
+                                    BuildingName = course.Course.Room.Building.BuildingName,
+                                    InstructorName = course.Course.InstructorCourses[0].User.FirstName + " " + course.Course.InstructorCourses[0].User.LastName,
+                                };
+
+                                classCards.Add(newCard);
+                            }
+                        }
+
+                        //Cache classes in memory
+                        _cache.Set(cacheKeyClassCards, classCards, TimeSpan.FromMinutes(30));
+                        cachedClasses = classCards;
+                    }
 
                     // gather the list of assignments
                     List<StudentAssignment> assignments = await _assignmentRepository.GetStudentAssignments(userId);
@@ -117,10 +174,18 @@ namespace LMSEarlyBird.Controllers
                         LastName = profile.LastName,
                         StudentCourses = profile.StudentCourses,
                         InstructorCourses = profile.InstructorCourses,
-                        StudentAssignment = profile.StudentAssignment,
+                        StudentAssignment = assignments,
                     };
+
+                    var DashboardVM = new DashboardViewModel{
+                        FirstName = profile.FirstName,
+                        LastName = profile.LastName,
+                        StudentAssignment = assignments,
+                        ClassCards = cachedClasses
+                    };
+
                     // pass everything gathered into the view
-                    return View(userVM);
+                    return View(DashboardVM);
                 }
             }
             return View("Account", "Login");

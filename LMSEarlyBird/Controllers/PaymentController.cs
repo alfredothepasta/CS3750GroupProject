@@ -10,17 +10,17 @@ namespace LMSEarlyBird.Controllers
     public class PaymentController : Controller
     {
         /// <summary>
-        /// Context for accessing the user identity database
-        /// </summary>
-        private readonly IUserIdentityService _userIdentityService;
-        /// <summary>
         /// Context for accessing the balance database
         /// </summary>
         private readonly IBalanceRepository _balanceRepository;
+        /// <summary>
+        /// Context accessor for reading session data
+        /// </summary>
+        private readonly IHttpContextAccessor _contextAccessor;
 
-        public PaymentController(IUserIdentityService userIdentityService, IBalanceRepository balanceRepository)
+        public PaymentController(IHttpContextAccessor contextAccessor, IBalanceRepository balanceRepository)
         {
-            _userIdentityService = userIdentityService;
+            _contextAccessor = contextAccessor;
             _balanceRepository = balanceRepository;
         }
 
@@ -29,7 +29,7 @@ namespace LMSEarlyBird.Controllers
         public async Task<IActionResult> PaymentPage()
         {
             // gather the user id
-            string userId = _userIdentityService.GetUserId();
+            var userId = _contextAccessor.HttpContext.User.GetUserId();
 
             // gather the current balance for the user
             decimal currentBalance = await _balanceRepository.GetCurrentBalance(userId);
@@ -48,36 +48,48 @@ namespace LMSEarlyBird.Controllers
 
         // gather the payment intent (aka the payment reciept) and pass it to the paymentsuccess for processing the payment, then pass to the success view
         [HttpGet]
-        public async Task<IActionResult> PaymentSuccess(string recieptNumber)
+        public async Task<IActionResult> Success(string recieptNumber)
         {
             // gather the user id
-            string userId = _userIdentityService.GetUserId();
+            var userId = _contextAccessor.HttpContext.User.GetUserId();
 
             // gather the payment intent (aka the payment reciept)
             var service = new PaymentIntentService();
             var reciept = service.Get(recieptNumber);
 
+            // check to make sure this reciept has not been used yet
+            List<string> recipetNumbers = _balanceRepository.GetAllReciepts().Result.Select(x => x.Reciept).ToList();
+
+            foreach (string reicpet in recipetNumbers)
+            {
+                if (reicpet == recieptNumber)
+                {
+                    return RedirectToAction("Error");
+                }
+            }
+
             // create a new view model for the passing of the payment amount
             PaymentViewModel paymentVM = new PaymentViewModel();
+
             // pass on the payment amount into the view model
             paymentVM.PaymentAmount = reciept.Amount / 100.00m;
 
             // create a new balance update for the payment
-            await _balanceRepository.UpdateBalancePayment(userId, paymentVM.PaymentAmount);
+            await _balanceRepository.UpdateBalancePayment(userId, paymentVM.PaymentAmount, reciept.Id);
 
             // pass on the payment view model for the payment amount
-            return RedirectToAction("Success", paymentVM);
-        }
-
-        // pass on the payment view model for the payment amount to the success view
-        [HttpGet]
-        public async Task<IActionResult> Success(PaymentViewModel paymentVM)
-        {
             return View(paymentVM);
         }
 
+        // pass on the payment view model for the payment amount to the error view
+        [HttpGet]
+        public async Task<IActionResult> Error()
+        {
+            return View();
+        }
+
         //pass on the payment view model for the payment amount to the checkout view
-       [HttpGet]
+        [HttpGet]
         public async Task<IActionResult> Checkout(decimal paymentAmount)
         {
             //gather the payment amount and place into a new view model so that we don't include the balance as well
@@ -100,7 +112,7 @@ namespace LMSEarlyBird.Controllers
         [HttpPost]
         public async Task<IActionResult> PaymentPage(decimal paymentAmount)
         {
-            string userId = _userIdentityService.GetUserId();
+            var userId = _contextAccessor.HttpContext.User.GetUserId();
 
             // gather the current balance for the user
             decimal currentBalance = await _balanceRepository.GetCurrentBalance(userId);
@@ -144,7 +156,7 @@ namespace LMSEarlyBird.Controllers
                 },
             };
             var serviceIntent = new PaymentIntentService();
-            var reciept = serviceIntent.Create(optionsIntent);
+            var receipt = serviceIntent.Create(optionsIntent);
 
             // create the checkout session
             var options = new SessionCreateOptions
@@ -166,7 +178,7 @@ namespace LMSEarlyBird.Controllers
                     },
                 },
                 Mode = "payment",
-                SuccessUrl = "https://localhost:7243/Payment/PaymentSuccess/?x=" + reciept.Id, // sends over payment intent id to success page
+                SuccessUrl = "https://localhost:7243/Payment/Success/?recieptNumber=" + receipt.Id, // sends over payment intent id to success page
                 CancelUrl = "https://localhost:7243/Payment/Cancel",
             };
             var service = new SessionService();
@@ -178,11 +190,36 @@ namespace LMSEarlyBird.Controllers
                 Metadata = new Dictionary<string, string> { { "order_id", "6735" } },
             };
             var service2 = new PaymentIntentService();
-            service2.Update(reciept.Id, options2);
+            service2.Update(receipt.Id, options2);
 
             // pass on all of the information for checking out to the stripe website
             Response.Headers.Add("Location", session.Url);
             return new StatusCodeResult(303);
+        }
+
+
+
+        // testing cases, push a payment, add a class and drop a class, verify payment passes
+        public async Task pushPaymentToDb(PaymentViewModel paymentVM, string userId, string recieptNumber)
+        {
+            // push the view model into a new viewmodel
+            PaymentViewModel paymentVM2 = new PaymentViewModel
+            {
+                PaymentAmount = paymentVM.PaymentAmount
+            };
+
+            // create a new balance update for the payment
+            await _balanceRepository.UpdateBalancePayment(userId, paymentVM2.PaymentAmount, recieptNumber);
+        }
+        public async Task pushClassAddedToDb(string userId, int courseHours, string className)
+        {
+            // create a new balance update for the payment
+            await _balanceRepository.UpdateBalanceAddCourse(userId, courseHours, className);
+        }
+        public async Task pushClassDroppedToDb(string userId, int courseHours, string className)
+        {
+            // create a new balance update for the payment
+            await _balanceRepository.UpdateBalanceDropCourse(userId, courseHours, className);
         }
     }
 }

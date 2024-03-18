@@ -5,11 +5,11 @@ using LMSEarlyBird.Repository;
 using LMSEarlyBird.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace TeamEarlyBirdUnitTest
 {
-    
     [TestClass]
     public class UnitTest1
     {
@@ -69,6 +69,51 @@ namespace TeamEarlyBirdUnitTest
 
             Assert.IsTrue(numCoursesAfterTest == (numCourses + 1));
 
+        }
+
+        [TestMethod]
+        public async Task InstructorCanCreateAnAssignmentTest()
+        {
+            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseSqlServer("Data Source=titan.cs.weber.edu,10433;Initial Catalog=3750_S24_EarlyBird;User ID=3750_S24_EarlyBird;Password=earlyBird@2;TrustServerCertificate=True")
+                .Options;
+
+
+            _dbContext = new ApplicationDbContext(options);
+            _testController = new InstructorController(
+                _dbContext,
+                new HttpContextAccessor(),
+                new CourseRepository(_dbContext),
+                new BuildingRepository(_dbContext),
+                new RoomRepository(_dbContext),
+                new DepartmentRepository(_dbContext),
+                new AppUserRepository(_dbContext),
+                new AssignmentsRepository(_dbContext),
+                new StudentCourseRepository(_dbContext),
+                new BalanceRepository(_dbContext)
+            );
+
+            // given a course id
+            int courseId = 17;
+
+            int numAssignments = _dbContext.Assignments.Count();
+
+            // create assignment
+            CreateAssignmentViewModel viewModel = new CreateAssignmentViewModel();
+            viewModel.Title = "testAssignment";
+            viewModel.DueDate = new DateTime(2024, 5, 1, 3, 0, 0);
+            viewModel.Description = "Description";
+            viewModel.Type = "text";
+            viewModel.maxPoints = 100;
+
+            // call the method
+            await _testController.pushAssignmentToDb(viewModel, courseId);
+
+
+            // make sure it worked
+            int numAssignmentsAfterTest = _dbContext.Assignments.Count();
+
+            Assert.IsTrue(numAssignmentsAfterTest == (numAssignments + 1));
         }
     }
 }

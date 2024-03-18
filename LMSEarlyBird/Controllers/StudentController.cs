@@ -10,6 +10,7 @@ using LMSEarlyBird.Models;
 using LMSEarlyBird.Repository;
 using LMSEarlyBird.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 namespace LMSEarlyBird.Controllers
@@ -22,6 +23,8 @@ namespace LMSEarlyBird.Controllers
         private readonly IStudentCourseRepository _studentCourseRepository;
         private readonly IAssignmentsRepository _assignmentsRepository;
         private readonly IDepartmentRepository _departmentRepository;
+
+        private readonly IMemoryCache _cache;
         /// <summary>
         /// Context for accessing the balance database
         /// </summary>
@@ -32,7 +35,8 @@ namespace LMSEarlyBird.Controllers
             , IStudentCourseRepository studentCourseRepository
             , IDepartmentRepository departmentRepository
             , IAssignmentsRepository assignmentsRepository
-            , IBalanceRepository balanceRepository)
+            , IBalanceRepository balanceRepository
+            , IMemoryCache cache)
         {
             _courseRepository = courseRepository;
             _userIdentityService = userIdentityService;
@@ -41,6 +45,8 @@ namespace LMSEarlyBird.Controllers
             _departmentRepository = departmentRepository;
             _assignmentsRepository = assignmentsRepository;
             _balanceRepository = balanceRepository;
+
+            _cache = cache;
         }
 
         public IActionResult Index()
@@ -87,9 +93,7 @@ namespace LMSEarlyBird.Controllers
             //Get filtered list of courses         
             result.Courses = await GetRegisterCourseViewModels(query, category);
             return View("Registration", result);
-        }  
-        
-           
+        }    
 
         public async Task<IActionResult> DropClass(int id, string? search, string? deptSelected)
         {
@@ -115,8 +119,6 @@ namespace LMSEarlyBird.Controllers
             {
                 
             }
-
-            var testt = await _appUserRepository.GetUser(userid);
 
             if(search!=null || deptSelected!=null || deptSelected != "" || search != "")
             {

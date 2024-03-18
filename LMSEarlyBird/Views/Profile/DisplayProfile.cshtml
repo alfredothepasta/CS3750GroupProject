@@ -31,9 +31,9 @@
                 <p>City: @Model.Address.City</p>
                 <p>State: @Model.Address.State</p>
                 <p>Zip: @Model.Address.ZipCode</p>
-                <p>Link 1: @Model.Links.Link1</p>
-                <p>Link 2: @Model.Links.Link2</p>
-                <p>Link 3: @Model.Links.Link3</p>
+                <p>Link 1: <a href="@Model.Links.Link1" target="_blank">@Model.Links.Link1</a></p>
+                <p>Link 2: <a href="@Model.Links.Link2" target="_blank">@Model.Links.Link2</a></p>
+                <p>Link 3: <a href="@Model.Links.Link3" target="_blank">@Model.Links.Link3</a></p>
 
                 <a class="btn btn-outline-secondary" asp-controller="Profile" asp-action="EditProfile">Edit</a>
             </div>

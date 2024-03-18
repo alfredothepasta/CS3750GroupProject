@@ -16,6 +16,8 @@ namespace LMSEarlyBird.Interfaces
 
         Task<bool> UpdateBalanceDropCourse(string userId, int courseHours, string courseName);
 
-        Task<bool> UpdateBalancePayment(string userId, decimal payment);
+        Task<bool> UpdateBalancePayment(string userId, decimal payment, string recieptNumber);
+
+        Task<List<BalanceHistory>> GetAllReciepts();
     }
 }

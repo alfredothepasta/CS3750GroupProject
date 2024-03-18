@@ -13,6 +13,8 @@ namespace LMSEarlyBird.Models
         public int Score { get; set; }
         public bool Submitted { get; set; }
         public bool Graded { get; set; }
+        public bool CreatedNotification { get; set; }
+        public bool GradedNotification { get; set; }
         public string? Submission { get; set; }
         public DateTime? SubmissionTime { get; set; }
         public string? SubmissionComment { get; set; }

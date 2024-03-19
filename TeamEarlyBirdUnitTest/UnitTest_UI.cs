@@ -32,5 +32,28 @@ namespace TeamEarlyBirdUnitTest
             // Close the browser
             driver.Quit();
         }
+
+                [TestMethod]
+        public void StudentCanLogin_UI_TEST()
+        {
+            //Create a driver for Chrome
+            IWebDriver driver = new ChromeDriver();
+
+            driver.Navigate().GoToUrl("https://lmsearlybird20240227112424.azurewebsites.net/Account/Login");
+
+            IWebElement username = driver.FindElement(By.Id("EmailAddress"));
+            IWebElement password = driver.FindElement(By.Id("Password"));
+            IWebElement loginBtn = driver.FindElement(By.XPath("//button[@class='btn btn-primary' and text()='Login']"));
+
+            username.SendKeys("jordanice52@gmail.com");
+            password.SendKeys("Spider48*");
+
+            loginBtn.Click();
+
+            Assert.IsTrue(driver.Url.Contains("Dashboard"));
+
+            // Close the browser
+            driver.Quit();
+        }
     }
 }

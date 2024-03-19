@@ -540,10 +540,24 @@ namespace LMSEarlyBird.Controllers
 
             List<AppUser> registeredStudents = await _studentCourseRepository.GetStudentsByCourse(courseId);
             List<StudentAssignment> studentAssignments = new List<StudentAssignment>();
+            Assignment assignment = await _assignmentRepository.GetAssignmentById(assignmentId);
+            
+            double maxGrade = 0;
+            double minGrade = assignment.maxPoints;
+            double avgGrade = 0;
+            double gradeSum = 0;
+
 
             foreach (var student in registeredStudents)
             {
                 StudentAssignment studentAssignment = await _assignmentRepository.GetStudentAssignment(student.Id,assignmentId);
+
+                if (studentAssignment.Graded)
+                {
+                    if(studentAssignment.Score < minGrade) minGrade = studentAssignment.Score;
+                    if(studentAssignment.Score > maxGrade) maxGrade = studentAssignment.Score;
+                    gradeSum += studentAssignment.Score;
+                }
 
                 if (studentAssignment.Submitted)
                 {
@@ -551,11 +565,16 @@ namespace LMSEarlyBird.Controllers
                 }
             }
 
+            if(studentAssignments.Count > 0) avgGrade = gradeSum / studentAssignments.Count;
+
             AssignmentSubmissionsListViewModel viewModel = new AssignmentSubmissionsListViewModel
             {
                 Course = await _courseRepository.GetCourse(courseId),
                 Assignment = await _assignmentRepository.GetAssignment(assignmentId),
-                Assignments = studentAssignments
+                Assignments = studentAssignments,
+                MinimumGrade = minGrade,
+                MaximumGrade = maxGrade,
+                AverageGrade = avgGrade,
             };
             return View(viewModel);
         }

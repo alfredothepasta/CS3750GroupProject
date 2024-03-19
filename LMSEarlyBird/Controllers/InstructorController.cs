@@ -355,106 +355,6 @@ namespace LMSEarlyBird.Controllers
 
 		#endregion
 
-        #region AssignmentGradePage
-
-        [HttpGet]
-        public async Task<IActionResult> AssignmentGrade(int assignmentId, string studentId){
-            if (isNotInstructor())
-            {
-                return NotFound();
-            }
-
-            //Get student assignment 
-            var assignment = await _assignmentRepository.GetStudentAssignment(studentId, assignmentId);
-
-            if(assignment == null){
-                return NotFound();
-            }
-
-            var viewModel = new AssigmentGradeViewModel
-            {
-                AssignmentName = assignment.Assignment.Title,
-                StudentName = assignment.Student.FirstName + " " + assignment.Student.LastName,
-                DueDate = FormatDueDate(assignment.Assignment.DueDate),
-                //ADD SUBMISSION DATE HERE WHEN ADDED TO DATABASE
-                SubmissionDate = FormatDueDate((DateTime)assignment.SubmissionTime),
-                Graded = assignment.Graded,
-                GradedPoints = assignment.Score,
-                MaxPoints = assignment.Assignment.maxPoints,
-                Submitted = assignment.Submitted,
-                LateSubmission = assignment.SubmissionTime > assignment.Assignment.DueDate,
-                FileName = assignment.FileName,
-
-                AssignmentId = assignment.AssignmentId,
-                StudentId = assignment.StudentId,
-                CourseId = assignment.Assignment.CourseId
-            };
-
-            if(assignment.FileName != null && assignment.FileName.Length > 0){
-                viewModel.FileSubmission = true;
-            }
-            else{
-                viewModel.TextSubmission = assignment.Submission;
-            }
-            if(assignment.SubmissionComment != null){
-                viewModel.SubmissionComment = assignment.SubmissionComment;
-            }
-
-
-            return View(viewModel);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> AssignmentGrade(AssigmentGradeViewModel gradeInfo){
-            if (isNotInstructor()){
-                return NotFound();
-            }
-
-            _assignmentRepository.GradeAssignment(gradeInfo.StudentId, gradeInfo.AssignmentId, gradeInfo.GradedPoints, gradeInfo.SubmissionComment);
-            return RedirectToAction("AssignmentSubmissionsList", "Instructor", new { assignmentId = gradeInfo.AssignmentId, courseId = gradeInfo.CourseId });
-        }
-
-        public ActionResult DownloadAssignment(string studentId,int courseId, int assignmentId, string fileName)
-        {
-            if (isNotInstructor())
-            {
-                if(studentId != _contextAccessor.HttpContext.User.GetUserId()){
-                    return NotFound();
-                }
-            }
-
-            var webHostEnvironment = (IWebHostEnvironment)HttpContext.RequestServices.GetService(typeof(IWebHostEnvironment));
-            var assignmentsRoot = Path.Combine(webHostEnvironment.WebRootPath, "assignments");
-
-            string contentType = "application/octet-stream";
-            var fileProvider = new PhysicalFileProvider(assignmentsRoot);
-            IFileInfo fileInfo = fileProvider.GetFileInfo(Path.Combine(studentId, courseId.ToString(), assignmentId.ToString(), fileName));
-
-            if (!fileInfo.Exists)
-            {
-                return NotFound();
-            }
-
-            var readStream = fileInfo.CreateReadStream();
-            return File(readStream, contentType, fileName);
-
-            // // Try to get the content type based on the file extension
-            // if (_contentTypeProvider.TryGetContentType(fileName, out contentType))
-            // {
-            //     return File(filePath, contentType, fileName);
-            // }
-            // else
-            // {
-                
-            // }
-
-        }
-
-        private string FormatDueDate(DateTime date){
-            return date.ToString("MM/dd/yyyy hh:mm tt");
-        }
-
-        #endregion
 
 		#region Assignment Methods
 
@@ -662,6 +562,107 @@ namespace LMSEarlyBird.Controllers
 
         #endregion
 
+        #region AssignmentGradePage
+
+        [HttpGet]
+        public async Task<IActionResult> AssignmentGrade(int assignmentId, string studentId){
+            if (isNotInstructor())
+            {
+                return NotFound();
+            }
+
+            //Get student assignment 
+            var assignment = await _assignmentRepository.GetStudentAssignment(studentId, assignmentId);
+
+            if(assignment == null){
+                return NotFound();
+            }
+
+            var viewModel = new AssigmentGradeViewModel
+            {
+                AssignmentName = assignment.Assignment.Title,
+                StudentName = assignment.Student.FirstName + " " + assignment.Student.LastName,
+                DueDate = FormatDueDate(assignment.Assignment.DueDate),
+                //ADD SUBMISSION DATE HERE WHEN ADDED TO DATABASE
+                SubmissionDate = FormatDueDate((DateTime)assignment.SubmissionTime),
+                Graded = assignment.Graded,
+                GradedPoints = assignment.Score,
+                MaxPoints = assignment.Assignment.maxPoints,
+                Submitted = assignment.Submitted,
+                LateSubmission = assignment.SubmissionTime > assignment.Assignment.DueDate,
+                FileName = assignment.FileName,
+
+                AssignmentId = assignment.AssignmentId,
+                StudentId = assignment.StudentId,
+                CourseId = assignment.Assignment.CourseId
+            };
+
+            if(assignment.FileName != null && assignment.FileName.Length > 0){
+                viewModel.FileSubmission = true;
+            }
+            else{
+                viewModel.TextSubmission = assignment.Submission;
+            }
+            if(assignment.SubmissionComment != null){
+                viewModel.SubmissionComment = assignment.SubmissionComment;
+            }
+
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AssignmentGrade(AssigmentGradeViewModel gradeInfo){
+            if (isNotInstructor()){
+                return NotFound();
+            }
+
+            _assignmentRepository.GradeAssignment(gradeInfo.StudentId, gradeInfo.AssignmentId, gradeInfo.GradedPoints, gradeInfo.SubmissionComment);
+            return RedirectToAction("AssignmentSubmissionsList", "Instructor", new { assignmentId = gradeInfo.AssignmentId, courseId = gradeInfo.CourseId });
+        }
+
+        public ActionResult DownloadAssignment(string studentId,int courseId, int assignmentId, string fileName)
+        {
+            if (isNotInstructor())
+            {
+                if(studentId != _contextAccessor.HttpContext.User.GetUserId()){
+                    return NotFound();
+                }
+            }
+
+            var webHostEnvironment = (IWebHostEnvironment)HttpContext.RequestServices.GetService(typeof(IWebHostEnvironment));
+            var assignmentsRoot = Path.Combine(webHostEnvironment.WebRootPath, "assignments");
+
+            string contentType = "application/octet-stream";
+            var fileProvider = new PhysicalFileProvider(assignmentsRoot);
+            IFileInfo fileInfo = fileProvider.GetFileInfo(Path.Combine(studentId, courseId.ToString(), assignmentId.ToString(), fileName));
+
+            if (!fileInfo.Exists)
+            {
+                return NotFound();
+            }
+
+            var readStream = fileInfo.CreateReadStream();
+            return File(readStream, contentType, fileName);
+
+            // // Try to get the content type based on the file extension
+            // if (_contentTypeProvider.TryGetContentType(fileName, out contentType))
+            // {
+            //     return File(filePath, contentType, fileName);
+            // }
+            // else
+            // {
+                
+            // }
+
+        }
+
+        private string FormatDueDate(DateTime date){
+            return date.ToString("MM/dd/yyyy hh:mm tt");
+        }
+
+        #endregion
+        
         #endregion
 
         #region Validation Methods

@@ -105,7 +105,7 @@ namespace LMSEarlyBird.Controllers
                 if(deleted){
                     await _assignmentsRepository.RemoveStudentAssignments(studentCourse.UserId,studentCourse.CourseId);
                     await _balanceRepository.UpdateBalanceDropCourse(studentCourse.UserId, studentCourse.Course.CreditHours, studentCourse.Course.CourseName);
-                    return deleted;
+                    return true;
                 }
             }
             catch(Exception ex)

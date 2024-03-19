@@ -40,16 +40,50 @@ namespace TeamEarlyBirdUnitTest
 
         [TestMethod]
         public async Task StudentRegisterCourseTest(){
+
+            string userID = "e29ce7d5-9e6e-4ce5-bceb-51692401ac06";
             StudentCourse studentCourse = new StudentCourse
             {
-                UserId = "e29ce7d5-9e6e-4ce5-bceb-51692401ac06",
+                UserId = userID,
                 CourseId = 5
             };
             
             await _testController.DBDropClass(studentCourse);
-            bool added = await _testController.DBAddClass(studentCourse);
 
+            int numCourses = _dbContext.StudentCourses
+                .Where(c => c.UserId == userID)
+                .Count();
+
+            bool added = await _testController.DBAddClass(studentCourse);
             Assert.IsTrue(added);
+
+            int newNumCourses = _dbContext.StudentCourses.Where(c => c.UserId == userID)
+                .Count();
+            Assert.IsTrue(newNumCourses > numCourses);
+        }
+
+        [TestMethod]
+        public async Task StudentDropCourseTest(){
+            string userID = "e29ce7d5-9e6e-4ce5-bceb-51692401ac06";
+
+            StudentCourse studentCourse = new StudentCourse
+            {
+                UserId = userID,
+                CourseId = 7
+            };
+
+            await _testController.DBAddClass(studentCourse);
+
+            int numCourses = _dbContext.StudentCourses
+                .Where(c => c.UserId == userID)
+                .Count();
+    
+            bool dropped = await _testController.DBDropClass(studentCourse);
+            Assert.IsTrue(dropped);
+
+            int newNumCourses = _dbContext.StudentCourses.Where(c => c.UserId == userID)
+                .Count();
+            Assert.IsTrue(newNumCourses < numCourses);
         }
     }
 }

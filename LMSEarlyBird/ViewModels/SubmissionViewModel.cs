@@ -34,5 +34,8 @@ namespace LMSEarlyBird.ViewModels
 
         [Required(ErrorMessage = "Must provide a file")]
         public IFormFile? File { get; set; }
+        public int classMaxScore { get; set;}
+        public int classMinScore { get; set;}
+        public int classAverage { get; set;}
     }
 }

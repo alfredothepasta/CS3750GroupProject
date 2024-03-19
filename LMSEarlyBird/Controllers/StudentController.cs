@@ -228,17 +228,226 @@ namespace LMSEarlyBird.Controllers
             }
 
             var courseAssignments = 
-                await _assignmentsRepository.GetStudentAssignmentsByCourse(userid, courseid);         
+                await _assignmentsRepository.GetStudentAssignmentsByCourse(userid, courseid);
 
             courseAssignments = courseAssignments.OrderBy(x => x.Assignment.DueDate).ToList();
 
+
+            // CALCULATE GRADES *******************
+
+            // get all students in the class
+            var studentList = await _studentCourseRepository.GetStudentsByCourse(courseid);
+
+
+            int numA = 0;
+            int numAm = 0;
+            int numBp = 0;
+            int numB = 0;
+            int numBm = 0;
+            int numCp = 0;
+            int numC = 0;
+            int numCm = 0;
+            int numDp = 0;
+            int numD = 0;
+            int numDm = 0;
+            int numE = 0;
+            int numF = 0;
+
+            
+            // create a list of all the students grades
+            List<double> gradeList = new List<double>();
+            foreach(var student in studentList)
+            {
+                var assignmentList = await _assignmentsRepository.GetStudentAssignmentsByCourse(student.Id, courseid);
+                double gradePercentage = CaclulateCourseGrade(assignmentList);
+                gradeList.Add(gradePercentage);
+
+                // calculate letter grade
+                if (gradePercentage >= 94.00)
+                {
+                    numA++;
+                }
+                else if (gradePercentage >= 90.00 && gradePercentage < 94.00)
+                {
+                    numAm++;
+                }
+                else if (gradePercentage >= 87.00 && gradePercentage < 90.00)
+                {
+                    numBp++;
+                }
+                else if (gradePercentage >= 84.00 && gradePercentage < 87.00)
+                {
+                    numB++;
+                }
+                else if (gradePercentage >= 80.00 && gradePercentage < 84.00)
+                {
+                    numBm++;
+                }
+                else if (gradePercentage >= 77.00 && gradePercentage < 80.00)
+                {
+                    numCp++;
+                }
+                else if (gradePercentage >= 74.00 && gradePercentage < 77.00)
+                {
+                    numC++;
+                }
+                else if (gradePercentage >= 70.00 && gradePercentage < 74.00)
+                {
+                    numCm++;
+                }
+                else if (gradePercentage >= 67.00 && gradePercentage < 70.00)
+                {
+                    numDp++;
+                }
+                else if (gradePercentage >= 64.00 && gradePercentage < 67.00)
+                {
+                    numD++;
+                }
+                else if (gradePercentage >= 60.00 && gradePercentage < 64.00)
+                {
+                    numDm++;
+                }
+                else if (gradePercentage < 60)
+                {
+                    numE++;
+                }
+                else
+                {
+                    numF++;
+                }
+            }
+
+
+            // calculate the student's grade
+            double grade = CaclulateCourseGrade(courseAssignments);
+            string letterGrade = "F";
+
+            // calculate letter grade
+            if (grade >= 94.00)
+            {
+                letterGrade = "A";
+            }
+            else if (grade >= 90.00 && grade < 94.00)
+            {
+                letterGrade = "A-";
+            }
+            else if (grade >= 87.00 && grade < 90.00)
+            {
+                letterGrade = "B+";
+            }
+            else if (grade >= 84.00 && grade < 87.00)
+            {
+                letterGrade = "B";
+            }
+            else if (grade >= 80.00 && grade < 84.00)
+            {
+                letterGrade = "B-";
+            }
+            else if (grade >= 77.00 && grade < 80.00)
+            {
+                letterGrade = "C+";
+            }
+            else if (grade >= 74.00 && grade < 77.00)
+            {
+                letterGrade = "C";
+            }
+            else if (grade >= 70.00 && grade < 74.00)
+            {
+                letterGrade = "C-";
+            }
+            else if (grade >= 67.00 && grade < 70.00)
+            {
+                letterGrade = "D+";
+            }
+            else if (grade >= 64.00 && grade < 67.00)
+            {
+                letterGrade = "D";
+            }
+            else if (grade >= 60.00 && grade < 64.00)
+            {
+                letterGrade = "D-";
+            }
+            else if (grade < 60)
+            {
+                letterGrade = "E";
+            }
+
+            // get the highest, lowest and average grade
+            double averageGrade = 0;
+            double highestGrade = 0;
+            double lowestGrade = 100;
+            foreach(var x in gradeList)
+            {
+                if(x < lowestGrade)
+                {
+                    lowestGrade = x;
+                }
+                if(x > highestGrade)
+                {
+                    highestGrade = x;
+                }
+                averageGrade += x;
+            }
+            if(gradeList.Count > 0)
+            {
+                averageGrade = averageGrade / gradeList.Count;
+                Math.Round(averageGrade, 2);
+            }
+
+            
+            // create viewmodel
             CourseAssignmentsStudentViewModel viewModel = new CourseAssignmentsStudentViewModel
             {
                 Course = await _courseRepository.GetCourse(courseid),
-                Assignments = courseAssignments
-            };
+                Assignments = courseAssignments,
+                Grade = grade,
+                LetterGrade = letterGrade,
+                numA = numA,
+                numAm = numAm,
+                numBp = numBp,
+                numB = numB,
+                numBm = numBm,
+                numCp = numCp,
+                numC = numC,
+                numCm = numCm,
+                numDp = numDp,
+                numD = numD,
+                numDm = numDm,
+                numE = numE,
+                numF = numF,
+        };
 
             return View(viewModel);
+        }
+
+        /// <summary>
+        /// Takes a list of all assigments in a students class to calculate their grade
+        /// </summary>
+        /// <param name="courseAssignments"></param>
+        /// <returns></returns>
+        private double CaclulateCourseGrade(List<StudentAssignment> courseAssignments)
+        {
+            decimal dGrade = 0.0m;
+            int count = 0;
+            foreach (var assignment in courseAssignments)
+            {
+                if (assignment.Graded)
+                {
+                    decimal temp = ((decimal)assignment.Score / assignment.Assignment.maxPoints) * 100;
+                    dGrade += temp;
+                    count++;
+                }
+            }
+
+            if (count > 0)
+            {
+                dGrade = dGrade / count;
+            }
+
+            double grade = (double)dGrade;
+            grade = Math.Round(grade, 2);
+
+            return grade;
         }
 
         private string FormatDueDate(DateTime date){
@@ -260,6 +469,46 @@ namespace LMSEarlyBird.Controllers
 
             var assignment = await _assignmentsRepository.GetAssignment(assignmentId);
 
+
+            // get data for graph
+            List<StudentAssignment> classAssignments = await _assignmentsRepository.GetSubmittedAssignmentsByAssignment(assignmentId);
+            int classAverage = 0;
+            int classMaxScore = 0;
+            int classMinScore = assignment.maxPoints;
+            int numGradedAssignments = 0;
+
+            if (studentAssignment.Graded)
+            {
+                // loop through every assigment that was graded
+                foreach (var classAssignment in classAssignments)
+                {
+                    if (classAssignment.Graded)
+                    {
+                        numGradedAssignments++;
+
+                        // add up all the students points
+                        classAverage += classAssignment.Score;
+
+                        // find the highest score
+                        if (classAssignment.Score > classMaxScore)
+                        {
+                            classMaxScore = classAssignment.Score;
+                        }
+
+                        // find the lowest score
+                        if (classAssignment.Score < classMinScore)
+                        {
+                            classMinScore = classAssignment.Score;
+                        }
+                    }
+                }
+                if(numGradedAssignments > 0)
+                {
+                    // calculate the class average
+                    classAverage = classAverage / numGradedAssignments;
+                }
+            }
+
             SubmissionViewModel submissionViewModel = new SubmissionViewModel
             {
                 Title = assignment.Title,
@@ -275,6 +524,9 @@ namespace LMSEarlyBird.Controllers
                 FileName = studentAssignment.FileName,
                 CourseId = assignment.CourseId,
                 StudentId = studentAssignment.StudentId,
+                classAverage = classAverage,
+                classMaxScore = classMaxScore,
+                classMinScore = classMinScore,
             };
 
             if(studentAssignment.Submitted){

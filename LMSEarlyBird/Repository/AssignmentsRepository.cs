@@ -200,5 +200,21 @@ namespace LMSEarlyBird.Repository
             _context.StudentAssignments.Update(assignment);
             return Save();
         }
+
+        // change assignment new to marked read
+        public bool ChangeAssignmentNewStatusRead(string studentId, int assignmentId)
+        {
+            var assignment = GetStudentAssignment(studentId, assignmentId).Result;
+            assignment.CreatedNotification = false;
+            return Save();
+        }
+
+        // change assignment graded to marked read
+        public bool ChangeAssignmentGradedStatusRead(string studentId, int assignmentId)
+        {
+            var assignment = GetStudentAssignment(studentId, assignmentId).Result;
+            assignment.GradedNotification = false;
+            return Save();
+        }
     }
 }

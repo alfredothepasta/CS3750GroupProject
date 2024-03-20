@@ -23,10 +23,6 @@ namespace LMSEarlyBird.Controllers
         private readonly IStudentCourseRepository _studentCourseRepository;
         private readonly IAssignmentsRepository _assignmentsRepository;
         private readonly IDepartmentRepository _departmentRepository;
-        /// <summary>
-        /// Context for accessing the assignments database
-        /// </summary>
-        private readonly IAssignmentsRepository _assignmentRepository;
 
         private readonly IMemoryCache _cache;
         /// <summary>
@@ -73,8 +69,14 @@ namespace LMSEarlyBird.Controllers
 
             result.Courses = await GetRegisterCourseViewModels();
 
+            // pull user based on logged in user
+            string userId = _userIdentityService.GetUserId();
+            AppUser profile = await _appUserRepository.GetUser(userId);
+
             // provide a list of assignments for the user for the _Layout to display for the notifications
-            List<StudentAssignment> assignments = await _assignmentRepository.GetStudentAssignments(userId);
+            List<StudentAssignment> assignments = await _assignmentsRepository.GetStudentAssignments(userId);
+
+            result.StudentAssignment = assignments;
 
             return View(result);
         }  
@@ -100,6 +102,16 @@ namespace LMSEarlyBird.Controllers
 
             //Get filtered list of courses         
             result.Courses = await GetRegisterCourseViewModels(query, category);
+
+            // pull user based on logged in user
+            string userId = _userIdentityService.GetUserId();
+            AppUser profile = await _appUserRepository.GetUser(userId);
+
+            // provide a list of assignments for the user for the _Layout to display for the notifications
+            List<StudentAssignment> assignments = await _assignmentsRepository.GetStudentAssignments(userId);
+
+            result.StudentAssignment = assignments;
+
             return View("Registration", result);
         }    
 
@@ -240,10 +252,14 @@ namespace LMSEarlyBird.Controllers
 
             courseAssignments = courseAssignments.OrderBy(x => x.Assignment.DueDate).ToList();
 
+            // provide a list of assignments for the user for the _Layout to display for the notifications
+            List<StudentAssignment> assignments = await _assignmentsRepository.GetStudentAssignments(userid);
+
             CourseAssignmentsStudentViewModel viewModel = new CourseAssignmentsStudentViewModel
             {
                 Course = await _courseRepository.GetCourse(courseid),
-                Assignments = courseAssignments
+                Assignments = courseAssignments,
+                StudentAssignment = assignments
             };
 
             return View(viewModel);
@@ -268,6 +284,9 @@ namespace LMSEarlyBird.Controllers
 
             var assignment = await _assignmentsRepository.GetAssignment(assignmentId);
 
+            // provide a list of assignments for the user for the _Layout to display for the notifications
+            List<StudentAssignment> assignments = await _assignmentsRepository.GetStudentAssignments(userid);
+
             SubmissionViewModel submissionViewModel = new SubmissionViewModel
             {
                 Title = assignment.Title,
@@ -283,6 +302,7 @@ namespace LMSEarlyBird.Controllers
                 FileName = studentAssignment.FileName,
                 CourseId = assignment.CourseId,
                 StudentId = studentAssignment.StudentId,
+                StudentAssignment = assignments
             };
 
             if(studentAssignment.Submitted){
@@ -354,11 +374,26 @@ namespace LMSEarlyBird.Controllers
             return RedirectToAction(nameof(Course), new { courseid = assignment.CourseId });
         }
 
+        // used to mark new assignment as understood
+        public async Task<IActionResult> MarkAsUnderstood(int assignmentId)
+        {
+            var userid = _userIdentityService.GetUserId();
+            _assignmentsRepository.ChangeAssignmentNewStatusRead(userid, assignmentId);
+            return RedirectToAction("Dashboard", "User");
+        }
+
+        // used to mark graded assignment as understood
+        public async Task<IActionResult> MarkAsGradedUnderstood(int assignmentId)
+        {
+            var userid = _userIdentityService.GetUserId();
+            _assignmentsRepository.ChangeAssignmentGradedStatusRead(userid, assignmentId);
+            return RedirectToAction("Dashboard", "User");
+        }
+
         //validation
         private bool isNotStudent()
         {
             return !User.IsInRole(UserRoles.Student);
         }
-
     }
 }

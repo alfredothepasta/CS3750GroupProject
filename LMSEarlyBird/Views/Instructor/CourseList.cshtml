@@ -1,5 +1,5 @@
-﻿@using LMSEarlyBird.Models  
-@model List<Course>
+﻿@using LMSEarlyBird.ViewModels  
+@model CourseListViewModel
 
 @{
     ViewData["Title"] = "Dashboard";
@@ -14,10 +14,10 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model[0].CourseNumber)
+                @Html.DisplayNameFor(model => model.Courses[0].CourseNumber)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model[0].CourseName)
+                @Html.DisplayNameFor(model => model.Courses[0].CourseName)
             </th>
             <th>
 				Details
@@ -31,7 +31,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in Model.Courses)
         {
             <tr>
                         <td>

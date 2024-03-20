@@ -60,9 +60,11 @@ namespace LMSEarlyBird.Controllers
             _balanceRepository = balanceRepository;
         }
 
-        #endregion  
+        #endregion
 
         #region CourseListAndCreation
+
+        #region Course List
         [HttpGet]
         public async Task<IActionResult> CourseList()
         {
@@ -71,17 +73,44 @@ namespace LMSEarlyBird.Controllers
             {
                 return RedirectToAction("Dashboard", "User");
             }
-            
+
             // get the current users's roles for accessing the courses associated with them in the db
             var instructorId = _contextAccessor.HttpContext.User.GetUserId();
             // get the courses associated with the user
             List<Course> courses = await _courseRepository.GetCoursesByTeacher(instructorId);
-            // now how do I pass those courses in.... 
+            Dictionary<Course, double> avgCourseScore = new Dictionary<Course, double>();
+            
+            foreach(Course course in courses)
+            {
+                List<StudentAssignment> studentAssingments = await _assignmentRepository.GetStudentAssignmentsByCourse(course.id);
 
+                double gradedSum = 0;
+                double maxGradedSum = 0;
 
-            return View(courses);
+                foreach(StudentAssignment individualAssignment in studentAssingments)
+                {
+                    if (individualAssignment.Graded)
+                    {
+                        gradedSum += individualAssignment.Score;
+                        maxGradedSum += individualAssignment.Assignment.maxPoints;
+                    }
+                }
+                
+                double averageGrade = gradedSum / maxGradedSum;
+
+                avgCourseScore[course] = averageGrade;
+            }
+
+            CourseListViewModel viewModel = new CourseListViewModel()
+            {
+                Courses = courses,
+                AvgScorePerCourse = avgCourseScore
+            };
+
+            return View(viewModel);
 
         }
+        #endregion
 
         #region Add Course
         [HttpGet]

@@ -77,7 +77,7 @@ namespace TeamEarlyBirdUnitTest
             int numCourses = _dbContext.StudentCourses
                 .Where(c => c.UserId == userID)
                 .Count();
-    
+                
             bool dropped = await _testController.DBDropClass(studentCourse);
             Assert.IsTrue(dropped);
 

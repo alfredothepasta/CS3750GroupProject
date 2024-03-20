@@ -127,6 +127,8 @@ namespace LMSEarlyBird.Controllers
 
             await DBDropClass(studentCourse);
 
+            DeleteCachedClassCards(userid);
+
             if(search!=null || deptSelected!=null || deptSelected != "" || search != "")
             {
                 return RedirectToAction(nameof(Search), new { query = search, category = deptSelected });
@@ -168,7 +170,9 @@ namespace LMSEarlyBird.Controllers
 
             // gather the course information as the credit hours will be required to add the course cost
 
-            DBAddClass(studentCourse);
+            await DBAddClass(studentCourse);
+
+            DeleteCachedClassCards(userid);
 
             if(search!=null || deptSelected!=null)
             {
@@ -176,6 +180,12 @@ namespace LMSEarlyBird.Controllers
             }
 
             return RedirectToAction(nameof(Registration));
+        }
+
+        void DeleteCachedClassCards(string userId)
+        {
+            var cacheKeyClassCards = $"user_{userId}_classcards";
+            _cache.Remove(cacheKeyClassCards);
         }
 
         private string FormatDaysOfWeek(string daysOfWeek){

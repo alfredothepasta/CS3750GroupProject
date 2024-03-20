@@ -30,13 +30,13 @@ namespace LMSEarlyBird.Controllers
         /// </summary>
         private readonly IBalanceRepository _balanceRepository;
         public StudentController(ICourseRepository courseRepository
-            , IUserIdentityService userIdentityService
+            , IUserIdentityService? userIdentityService
             , IAppUserRepository appUserRepository
             , IStudentCourseRepository studentCourseRepository
             , IDepartmentRepository departmentRepository
             , IAssignmentsRepository assignmentsRepository
             , IBalanceRepository balanceRepository
-            , IMemoryCache cache)
+            , IMemoryCache? cache)
         {
             _courseRepository = courseRepository;
             _userIdentityService = userIdentityService;
@@ -95,6 +95,26 @@ namespace LMSEarlyBird.Controllers
             return View("Registration", result);
         }    
 
+        public async Task<bool> DBDropClass(StudentCourse studentCourse){
+            // gather the course information as the credit hours will be required to remove the course cost
+            studentCourse.Course = await _courseRepository.GetCourse(studentCourse.CourseId);
+
+            try
+            {
+                bool deleted = _studentCourseRepository.Delete(studentCourse);
+                if(deleted){
+                    await _assignmentsRepository.RemoveStudentAssignments(studentCourse.UserId,studentCourse.CourseId);
+                    await _balanceRepository.UpdateBalanceDropCourse(studentCourse.UserId, studentCourse.Course.CreditHours, studentCourse.Course.CourseName);
+                    return true;
+                }
+            }
+            catch(Exception ex)
+            {
+
+            }
+            return false;
+        }
+
         public async Task<IActionResult> DropClass(int id, string? search, string? deptSelected)
         {
             var userid = _userIdentityService.GetUserId();
@@ -105,20 +125,7 @@ namespace LMSEarlyBird.Controllers
                 CourseId = id
             };
 
-            // gather the course information as the credit hours will be required to remove the course cost
-            studentCourse.Course = await _courseRepository.GetCourse(id);
-
-            try
-            {
-                _studentCourseRepository.Delete(studentCourse);
-                await _assignmentsRepository.RemoveStudentAssignments(userid,id);
-                await _balanceRepository.UpdateBalanceDropCourse(userid, studentCourse.Course.CreditHours, studentCourse.Course.CourseName);
-
-            }
-            catch(Exception ex)
-            {
-                
-            }
+            await DBDropClass(studentCourse);
 
             if(search!=null || deptSelected!=null || deptSelected != "" || search != "")
             {
@@ -128,6 +135,27 @@ namespace LMSEarlyBird.Controllers
             return RedirectToAction(nameof(Registration));
         }
 
+        public async Task<bool> DBAddClass(StudentCourse studentCourse)
+        {
+            studentCourse.Course = _courseRepository.GetCourse(studentCourse.CourseId).Result;
+
+            try
+            {
+                bool added = _studentCourseRepository.Add(studentCourse);
+
+                if(added){
+                    await _assignmentsRepository.AddStudentAssignments(studentCourse.UserId,studentCourse.CourseId);
+                    await _balanceRepository.UpdateBalanceAddCourse(studentCourse.UserId, studentCourse.Course.CreditHours, studentCourse.Course.CourseName);
+                }
+        
+                return added;
+            }
+            catch(Exception ex)
+            {
+                return false;
+            }
+        }
+
         public async Task<IActionResult> AddClass(int id, string? search, string? deptSelected)
         {
             var userid = _userIdentityService.GetUserId();
@@ -135,23 +163,12 @@ namespace LMSEarlyBird.Controllers
             StudentCourse studentCourse = new StudentCourse
             {
                 UserId = userid,
-                CourseId = id
-                
+                CourseId = id   
             };
 
             // gather the course information as the credit hours will be required to add the course cost
-            studentCourse.Course = await _courseRepository.GetCourse(id);
 
-            try
-            {
-                _studentCourseRepository.Add(studentCourse);
-                await _assignmentsRepository.AddStudentAssignments(userid,id);
-                await _balanceRepository.UpdateBalanceAddCourse(userid, studentCourse.Course.CreditHours, studentCourse.Course.CourseName);
-            }
-            catch(Exception ex)
-            {
-                
-            }
+            DBAddClass(studentCourse);
 
             if(search!=null || deptSelected!=null)
             {

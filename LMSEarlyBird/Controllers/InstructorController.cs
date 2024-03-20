@@ -546,6 +546,7 @@ namespace LMSEarlyBird.Controllers
             double minGrade = assignment.maxPoints;
             double avgGrade = 0;
             double gradeSum = 0;
+            int numGraded = 0;
 
 
             foreach (var student in registeredStudents)
@@ -557,6 +558,7 @@ namespace LMSEarlyBird.Controllers
                     if(studentAssignment.Score < minGrade) minGrade = studentAssignment.Score;
                     if(studentAssignment.Score > maxGrade) maxGrade = studentAssignment.Score;
                     gradeSum += studentAssignment.Score;
+                    numGraded++;
                 }
 
                 if (studentAssignment.Submitted)
@@ -565,6 +567,7 @@ namespace LMSEarlyBird.Controllers
                 }
             }
 
+            if(numGraded == 0) minGrade = 0;
             if(studentAssignments.Count > 0) avgGrade = gradeSum / studentAssignments.Count;
 
             AssignmentSubmissionsListViewModel viewModel = new AssignmentSubmissionsListViewModel

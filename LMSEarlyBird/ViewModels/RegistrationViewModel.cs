@@ -13,5 +13,6 @@ namespace LMSEarlyBird.ViewModels
         public string? Search { get; set; }
         public string? SelectedDept { get; set; }
 
+        public List<StudentAssignment> StudentAssignment { get; set; } = new List<StudentAssignment>();
     }
 }

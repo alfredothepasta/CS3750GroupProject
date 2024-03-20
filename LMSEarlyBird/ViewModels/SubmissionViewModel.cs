@@ -34,5 +34,7 @@ namespace LMSEarlyBird.ViewModels
 
         [Required(ErrorMessage = "Must provide a file")]
         public IFormFile? File { get; set; }
+
+        public List<StudentAssignment> StudentAssignment { get; set; } = new List<StudentAssignment>();
     }
 }

@@ -36,7 +36,9 @@ namespace LMSEarlyBird.Repository
 					Assignment = assignment,
 					Score = 0,
 					Submitted = false,
-					Graded = false
+					Graded = false,
+                    CreatedNotification = true,
+                    GradedNotification = false
 				};
 				studentAssignments.Add(newAssignment);
 			}
@@ -62,7 +64,9 @@ namespace LMSEarlyBird.Repository
                     Assignment = assignment,
                     Score = 0,
                     Submitted = false,
-                    Graded = false
+                    Graded = false,
+                    CreatedNotification = true,
+                    GradedNotification = false
                 };
 
                 studentAssignments.Add(newAssignment);
@@ -191,6 +195,7 @@ namespace LMSEarlyBird.Repository
             assignment.Graded = true;
             assignment.Score = grade;
             assignment.SubmissionComment = comment;
+            assignment.GradedNotification = true;
 
             _context.StudentAssignments.Update(assignment);
             return Save();

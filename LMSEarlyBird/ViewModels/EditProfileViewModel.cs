@@ -20,5 +20,7 @@ namespace LMSEarlyBird.ViewModels
         public Address Address { get; set; }
         public int UserLinkId { get; set; }
         public UserLinks Links { get; set; }
+
+        public List<StudentAssignment> StudentAssignment { get; set; } = new List<StudentAssignment>();
     }
 }

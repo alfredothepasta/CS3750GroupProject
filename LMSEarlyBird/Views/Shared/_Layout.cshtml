@@ -1,4 +1,12 @@
-﻿<!DOCTYPE html>
+﻿@using LMSEarlyBird.Data;
+@using LMSEarlyBird.Interfaces;
+@using LMSEarlyBird.Models;
+@using LMSEarlyBird.Repository;
+@using LMSEarlyBird.ViewModels;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.Extensions.Caching.Memory;
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -50,29 +58,111 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Chart">Pie Chart</a>
                             </li>
 
-                            @if(User.IsInRole(LMSEarlyBird.Data.UserRoles.Student))
+                            @if (User.IsInRole(LMSEarlyBird.Data.UserRoles.Student))
                             {
+
+
+
                                 <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Student" asp-action="Registration">Register</a>
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Student" asp-action="Registration">Register</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" asp-area="" asp-controller="Payment" asp-action="PaymentPage">Make Payment</a>
                                 </li>
 
-                                <li class="nav-item ml-auto mr-5">
-                                    <a asp-area="" asp-controller="User" asp-action="Dashboard"><img style="width: 30px;" src="~/images/BellIcon.png" /></a>
-                                </li>
+                                
+
+                                bool notified = false;
+
+                                //var assignments = AssignmentsRepository.GetStudentAssignments(User.GetUserId());
+
+                                
+                                
+                                @* public class AssignmentsRepository: IAssignmentsRepository
+                                {
+                                    public async Task<List<Assignment>> GetStudentAssignments(string userId)
+                                    {
+                                        var assignments = new List<Assignment>();
+                                        return assignments;
+                                    }
+                                } *@
+
+                                @* public static async Task<List<StudentAssignment>> GetStudentAssignments(string studentId)
+                                {
+                                    var user = await _context.AppUsers
+                                    .Include(x => x.StudentAssignment)
+                                    .ThenInclude(sa => sa.Assignment)
+                                    .FirstAsync(x => x.Id == studentId);
+
+                                    return user.StudentAssignment;
+                                } *@
+
+                                //private readonly ApplicationDbContext _context;
+
+                                @* var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+                                    .UseSqlServer("your_connection_string")
+                                    .Options; *@
+
+                                //ApplicationDbContext context = new ApplicationDbContext();
+
+                                //private readonly IAssignmentsRepository _assignmentsRepository;
+                                //AssignmentsRepository assignmentsRepository = new AssignmentsRepository(context);
+
+                                //var assignmentsRepository = new AssignmentsRepository(); // Instantiate the object
+                                //var studentAssignments = await assignmentsRepository.GetStudentAssignments(userId);
+
+
+
+                                //var studentAssignment = await AssignmentsRepository.GetStudentAssignments(userid);
+
+
+                                if (Model != null)
+                                {
+                                    foreach (var assignment in Model.StudentAssignment)
+                                    {
+                                        if (assignment.GradedNotification)
+                                        {
+                                            notified = true;
+                                        }
+                                        if (assignment.CreatedNotification)
+                                        {
+                                            notified = true;
+                                        }
+                                    }
+                                    if (notified)
+                                    {
+                                        <li class="nav-item ml-auto mr-5">
+                                            <a asp-area="" asp-controller="User" asp-action="Dashboard"><img style="width: 50px;" src="~/images/BellNotificationIcon.png" /></a>
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        <li class="nav-item ml-auto mr-5">
+                                            <a asp-area="" asp-controller="User" asp-action="Dashboard"><img style="width: 30px;" src="~/images/BellIcon.png" /></a>
+                                        </li>
+                                    }
+
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">Logout</a>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li class="nav-item ml-auto">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">Logout</a>
+                                    </li>
+                                }
                             }
                             else if (User.IsInRole(LMSEarlyBird.Data.UserRoles.Teacher))
                             {
                                 <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Instructor" asp-action="CourseList">Courses</a>
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Instructor" asp-action="CourseList">Courses</a>
+                                </li>
+
+                                <li class="nav-item ml-auto">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">Logout</a>
                                 </li>
                             }
-
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">Logout</a>
-                            </li>
                         } else {
                             
                             <li class="nav-item">

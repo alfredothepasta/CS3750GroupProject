@@ -23,6 +23,10 @@ namespace LMSEarlyBird.Controllers
         private readonly IStudentCourseRepository _studentCourseRepository;
         private readonly IAssignmentsRepository _assignmentsRepository;
         private readonly IDepartmentRepository _departmentRepository;
+        /// <summary>
+        /// Context for accessing the assignments database
+        /// </summary>
+        private readonly IAssignmentsRepository _assignmentRepository;
 
         private readonly IMemoryCache _cache;
         /// <summary>
@@ -68,6 +72,10 @@ namespace LMSEarlyBird.Controllers
             result.DepartmentNames = departmentNames;
 
             result.Courses = await GetRegisterCourseViewModels();
+
+            // provide a list of assignments for the user for the _Layout to display for the notifications
+            List<StudentAssignment> assignments = await _assignmentRepository.GetStudentAssignments(userId);
+
             return View(result);
         }  
         public async Task<IActionResult> Search(string? query, string? category)

@@ -18,8 +18,6 @@ namespace LMSEarlyBird.Controllers
         /// Context accessor for reading Session data
         /// </summary>
         private readonly IHttpContextAccessor _contextAccessor;
-
-
         /// <summary>
         /// Context accessor for reading User Identification data
         /// </summary>

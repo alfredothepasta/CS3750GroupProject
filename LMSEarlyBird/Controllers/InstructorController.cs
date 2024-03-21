@@ -78,7 +78,7 @@ namespace LMSEarlyBird.Controllers
             var instructorId = _contextAccessor.HttpContext.User.GetUserId();
             // get the courses associated with the user
             List<Course> courses = await _courseRepository.GetCoursesByTeacher(instructorId);
-            Dictionary<Course, double> avgCourseScore = new Dictionary<Course, double>();
+            Dictionary<string, double> avgCourseScore = new Dictionary<string, double>();
             
             foreach(Course course in courses)
             {
@@ -86,8 +86,9 @@ namespace LMSEarlyBird.Controllers
 
                 double gradedSum = 0;
                 double maxGradedSum = 0;
+                double averageGrade = 0;
 
-                foreach(StudentAssignment individualAssignment in studentAssingments)
+                foreach (StudentAssignment individualAssignment in studentAssingments)
                 {
                     if (individualAssignment.Graded)
                     {
@@ -96,9 +97,13 @@ namespace LMSEarlyBird.Controllers
                     }
                 }
                 
-                double averageGrade = gradedSum / maxGradedSum;
+                if(maxGradedSum > 0)
+                {
+                    averageGrade = gradedSum / maxGradedSum;
+                }
 
-                avgCourseScore[course] = averageGrade;
+                string key = $"{course.Department.DeptCode} {course.CourseNumber} {course.CourseName}";
+                avgCourseScore[key] = averageGrade;
             }
 
             CourseListViewModel viewModel = new CourseListViewModel()

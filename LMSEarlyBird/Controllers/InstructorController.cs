@@ -5,6 +5,7 @@ using LMSEarlyBird.Repository;
 using LMSEarlyBird.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.FileProviders;
 using System.Web;
 
@@ -33,6 +34,7 @@ namespace LMSEarlyBird.Controllers
         /// Context for accessing the balance database
         /// </summary>
         private readonly IBalanceRepository _balanceRepository;
+        private readonly IMemoryCache _cache;
         #endregion
 
         #region constructor
@@ -45,7 +47,8 @@ namespace LMSEarlyBird.Controllers
             IAppUserRepository appUserRepository,
             IAssignmentsRepository assignmentRepository,
             IStudentCourseRepository studentCourseRepository,
-            IBalanceRepository balanceRepository)
+            IBalanceRepository balanceRepository,
+            IMemoryCache? cache = null)
         {
             _context = context;
             _contextAccessor = contextAccessor;
@@ -58,6 +61,7 @@ namespace LMSEarlyBird.Controllers
             //_contentTypeProvider = contentTypeProvider;
             _studentCourseRepository = studentCourseRepository;
             _balanceRepository = balanceRepository;
+            _cache = cache;
         }
 
         #endregion
@@ -167,7 +171,15 @@ namespace LMSEarlyBird.Controllers
             string instructorId = _contextAccessor.HttpContext.User.GetUserId();
             await pushCourseToDb(viewModel, instructorId);
 
+            DeleteCachedClassCards(instructorId);
+
             return RedirectToAction("CourseList", "Instructor");
+        }
+
+        void DeleteCachedClassCards(string userId)
+        {
+            var cacheKeyClassCards = $"user_{userId}_classcards";
+            _cache.Remove(cacheKeyClassCards);
         }
 
         [AcceptVerbs("GET", "POST")]
@@ -234,6 +246,10 @@ namespace LMSEarlyBird.Controllers
             // delete the course
             Course courseToDelete = await _courseRepository.GetCourse(courseId);
             await _courseRepository.Delete(courseToDelete);
+
+            //Clear cached cards
+            string instructorId = _contextAccessor.HttpContext.User.GetUserId();
+            DeleteCachedClassCards(instructorId);
 
             // delete each student's balance in the list for the course that was just deleted
             foreach (AppUser student in students)

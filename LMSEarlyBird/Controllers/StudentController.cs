@@ -576,7 +576,7 @@ namespace LMSEarlyBird.Controllers
                 FileName = studentAssignment.FileName,
                 CourseId = assignment.CourseId,
                 StudentId = studentAssignment.StudentId,
-                StudentAssignment = assignments
+                StudentAssignment = assignments,
                 classAverage = classAverage,
                 classMaxScore = classMaxScore,
                 classMinScore = classMinScore,

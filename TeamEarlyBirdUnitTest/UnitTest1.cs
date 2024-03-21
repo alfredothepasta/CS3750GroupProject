@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace TeamEarlyBirdUnitTest
 {
@@ -69,6 +70,52 @@ namespace TeamEarlyBirdUnitTest
 
             Assert.IsTrue(numCoursesAfterTest == (numCourses + 1));
 
+        }
+
+        [TestMethod]
+        public async Task InstructorCanDeleteACourse()
+        {
+            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseSqlServer("Data Source=titan.cs.weber.edu,10433;Initial Catalog=3750_S24_EarlyBird;User ID=3750_S24_EarlyBird;Password=earlyBird@2;TrustServerCertificate=True")
+                .Options;
+
+
+            _dbContext = new ApplicationDbContext(options);
+            _testController = new InstructorController(
+                _dbContext,
+                new HttpContextAccessor(),
+                new CourseRepository(_dbContext),
+                new BuildingRepository(_dbContext),
+                new RoomRepository(_dbContext),
+                new DepartmentRepository(_dbContext),
+                new AppUserRepository(_dbContext),
+                new AssignmentsRepository(_dbContext),
+                new StudentCourseRepository(_dbContext),
+                new BalanceRepository(_dbContext)
+            );
+
+            // given an instructor ID
+            string instructorId = "85dc9d8f-efcf-480f-99b8-e10a3a29127c";
+
+            // get the number of courses
+            int numCourses = _dbContext.Courses
+                .Where(c => c.InstructorCourses
+                    .Where(i => i.UserId == instructorId)
+                    .Any())
+                .Count();
+
+            // get the test course id
+            Course deleteCourse = await _dbContext.Courses.Where(x => x.CourseName == "Test").FirstAsync();
+
+            await _testController.DeleteCourseAndRemoveStudents(deleteCourse.id, instructorId);
+
+            int newCourseTotal = _dbContext.Courses
+                .Where(c => c.InstructorCourses
+                    .Where(i => i.UserId == instructorId)
+                    .Any())
+                .Count();
+
+            Assert.IsTrue(newCourseTotal == numCourses - 1);
         }
 
         [TestMethod]

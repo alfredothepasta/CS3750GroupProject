@@ -5,7 +5,31 @@
 }
 @using LMSEarlyBird.ViewModels
 @model AssignmentSubmissionsListViewModel
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+    google.charts.load('current', { 'packages': ['bar'] });
+    google.charts.setOnLoadCallback(drawChart);
 
+    function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+            ['Grade', "Grade", { role: 'style' }],
+            ['Lowest Grade', @Model.MinimumGrade, 'color: #4287f5'],
+            ['Average Grade', @Model.AverageGrade, 'color: #a5b5c4'],
+            ['Highest Grade', @Model.MaximumGrade, 'color: #a5b5c4']
+        ]);
+
+        var options = {
+            chart: {
+                title: 'Assigment Performance',
+            },
+            bars: 'horizontal' // Required for Material Bar Charts.
+        };
+
+        var chart = new google.charts.Bar(document.getElementById('barchart_material'));
+
+        chart.draw(data, google.charts.Bar.convertOptions(options));
+    }
+</script>
 <div class="container">
 <h1>Course: @Model.Course.Department.DeptCode @Model.Course.CourseNumber @Model.Course.CourseName</h1>
 <br />
@@ -82,6 +106,7 @@
             </tbody>
             }
         </table>
+        <div id="barchart_material" />
 
 }
 </div>

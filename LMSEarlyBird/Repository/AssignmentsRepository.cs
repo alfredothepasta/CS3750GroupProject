@@ -92,6 +92,16 @@ namespace LMSEarlyBird.Repository
 			return await _context.Assignments.Where(c => c.CourseId == courseId).ToListAsync();
         }
 
+        /// <summary>
+        /// returns a list of every student assignment for every student in a course
+        /// </summary>
+        /// <param name="courseId"></param>
+        /// <returns></returns>
+        public async Task<List<StudentAssignment>> GetCourseStudentAssignments(int courseId)
+        {
+            return await _context.StudentAssignments.Where(c => c.Assignment.CourseId == courseId).ToListAsync();
+        }
+
         public async Task<List<StudentAssignment>> GetStudentAssignments(string studentId)
         {
             var user = await _context.AppUsers
@@ -112,6 +122,42 @@ namespace LMSEarlyBird.Repository
             return user.StudentAssignment
             .Where(x => x.Assignment.CourseId == courseId)
             .ToList();
+        }
+
+        /// <summary>
+        /// Overload that gets all student assignments from a given course
+        /// </summary>
+        /// <param name="courseId"></param>
+        /// <returns></returns>
+        public async Task<List<StudentAssignment>> GetStudentAssignmentsByCourse(int courseId)
+        {
+            var assignmentsList = await _context.Assignments.
+                Where(a => a.CourseId == courseId).
+                Include(x => x.StudentAssignments).
+                ToListAsync();
+            
+            List<StudentAssignment> studentAssignments = new List<StudentAssignment>();
+            
+            foreach(Assignment assignment in assignmentsList)
+            {
+                foreach(StudentAssignment studentAssignment in assignment.StudentAssignments)
+                {
+                    studentAssignments.Add(studentAssignment);
+                }
+            }
+
+
+            return studentAssignments;
+        }
+
+        /// <summary>
+        /// returns all of the StudentAssignments submitted given the assignment id
+        /// </summary>
+        /// <param name="assignmentId"></param>
+        /// <returns></returns>
+        public async Task<List<StudentAssignment>> GetSubmittedAssignmentsByAssignment(int assignmentId)
+        {
+            return await _context.StudentAssignments.Where(c => c.Graded && c.AssignmentId == assignmentId).ToListAsync();
         }
 
         public async Task<bool> RemoveAssignment(Assignment assignment)

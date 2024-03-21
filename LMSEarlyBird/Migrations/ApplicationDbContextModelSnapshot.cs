@@ -191,6 +191,9 @@ namespace LMSEarlyBird.Migrations
                     b.Property<decimal>("NetChange")
                         .HasColumnType("money");
 
+                    b.Property<string>("Reciept")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("Time")
                         .HasColumnType("datetime2");
 
@@ -341,10 +344,16 @@ namespace LMSEarlyBird.Migrations
                     b.Property<int>("AssignmentId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("CreatedNotification")
+                        .HasColumnType("bit");
+
                     b.Property<string>("FileName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("Graded")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("GradedNotification")
                         .HasColumnType("bit");
 
                     b.Property<int>("Score")

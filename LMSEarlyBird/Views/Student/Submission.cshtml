@@ -85,4 +85,37 @@
     </form>
     
 </div>
+<head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', { 'packages': ['bar'] });
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable([
+                ['Grade', "Grade", { role: 'style' }],
+                ['Your Grade', @Model.Score, 'color: #4287f5'],
+                ['Average Grade', @Model.classAverage, 'color: #a5b5c4'],
+                ['Highest Grade', @Model.classMaxScore, 'color: #a5b5c4']
+            ]);
+
+            var options = {
+                chart: {
+                    title: 'Assigment Performance',
+                },
+                bars: 'horizontal' // Required for Material Bar Charts.
+            };
+
+            var chart = new google.charts.Bar(document.getElementById('barchart_material'));
+
+            chart.draw(data, google.charts.Bar.convertOptions(options));
+        }
+    </script>
+</head>
+<body>
+    @if (Model.Graded)
+    {
+        <div class="container" id="barchart_material" style="width: 700px; height: 300px;"></div>        
+    }
+</body>
 

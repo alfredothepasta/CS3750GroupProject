@@ -5,8 +5,11 @@ namespace LMSEarlyBird.Interfaces
     public interface IAssignmentsRepository
     {
         Task<List<Assignment>> GetCourseAssignments(int courseId);
+        Task<List<StudentAssignment>> GetCourseStudentAssignments(int courseId);
         Task<List<StudentAssignment>> GetStudentAssignments(string studentId);
         Task<List<StudentAssignment>> GetStudentAssignmentsByCourse(string studentId, int courseId);
+
+        Task<List<StudentAssignment>> GetStudentAssignmentsByCourse(int courseId);
 
         Task<StudentAssignment> GetStudentAssignment(string studentId, int assignmentId);
 
@@ -27,6 +30,6 @@ namespace LMSEarlyBird.Interfaces
         bool ChangeAssignmentGradedStatusRead(string studentId, int assignmentId);
 
         bool Save();
-
+        Task<List<StudentAssignment>> GetSubmittedAssignmentsByAssignment(int assignmentId);
     }
 }

@@ -233,29 +233,16 @@ namespace LMSEarlyBird.Controllers
 
         public async Task<IActionResult> DeleteCourse(int courseId)
         {
-            
-            bool canDelete = await isInstructorAssignedToCourse(courseId);
+            var userId = _contextAccessor.HttpContext.User.GetUserId();
+            bool canDelete = await isInstructorAssignedToCourse(courseId, userId);
             if (!canDelete)
             {
                 return RedirectToAction("CourseList", "Instructor");
             }
 
-            // create a list of the students that are assigned to the course
-            List<AppUser> students = await _studentCourseRepository.GetStudentsByCourse(courseId);
-
-            // delete the course
-            Course courseToDelete = await _courseRepository.GetCourse(courseId);
-            await _courseRepository.Delete(courseToDelete);
-
+            await DeleteCourseAndRemoveStudents(courseId, userId);
             //Clear cached cards
-            string instructorId = _contextAccessor.HttpContext.User.GetUserId();
-            DeleteCachedClassCards(instructorId);
-
-            // delete each student's balance in the list for the course that was just deleted
-            foreach (AppUser student in students)
-            {
-                await _balanceRepository.UpdateBalanceDropCourse(student.Id, courseToDelete.CreditHours, courseToDelete.CourseName);
-            }
+            DeleteCachedClassCards(userId);
 
             return RedirectToAction("CourseList", "Instructor");
         }
@@ -292,17 +279,33 @@ namespace LMSEarlyBird.Controllers
             _courseRepository.Add(course, instructor);
         }
 
-        #endregion
+        public async Task DeleteCourseAndRemoveStudents(int courseId, string instructorId)
+        {
+            // create a list of the students that are assigned to the course
+            List<AppUser> students = await _studentCourseRepository.GetStudentsByCourse(courseId);
+
+            // delete the course
+            Course courseToDelete = await _courseRepository.GetCourse(courseId);
+            await _courseRepository.Delete(courseToDelete);
+
+            // delete each student's balance in the list for the course that was just deleted
+            foreach (AppUser student in students)
+            {
+                await _balanceRepository.UpdateBalanceDropCourse(student.Id, courseToDelete.CreditHours, courseToDelete.CourseName);
+            }
+        }
 
         #endregion
 
+        #endregion
 
         #region Edit Course
 
         [HttpGet]
         public async Task<IActionResult> EditCourse(int courseId)
         {
-            if (isNotInstructor() || ! await isInstructorAssignedToCourse(courseId))
+            var userId = _contextAccessor.HttpContext.User.GetUserId();
+            if (isNotInstructor() || ! await isInstructorAssignedToCourse(courseId, userId))
             {
                 return StatusCode(StatusCodes.Status403Forbidden);
             } 
@@ -438,9 +441,9 @@ namespace LMSEarlyBird.Controllers
             {
                 return RedirectToAction("Dashboard", "User");
             }
-
+            var userId = _contextAccessor.HttpContext.User.GetUserId();
             // todo: validate that the user can access this course
-            bool courseValidation = await isInstructorAssignedToCourse(courseId);
+            bool courseValidation = await isInstructorAssignedToCourse(courseId, userId);
 
 			Course course = await _courseRepository.GetCourse(courseId);
                 
@@ -469,7 +472,9 @@ namespace LMSEarlyBird.Controllers
                 return RedirectToAction("Dashboard", "User");
             }
 
-            bool courseValidation = await isInstructorAssignedToCourse(courseId);
+            var userId = _contextAccessor.HttpContext.User.GetUserId();
+
+            bool courseValidation = await isInstructorAssignedToCourse(courseId, userId);
 
             if (!courseValidation)
             {
@@ -523,8 +528,9 @@ namespace LMSEarlyBird.Controllers
         [HttpGet]
         public async Task<IActionResult> EditAssignment(int assignmentId, int courseId)
         {
-			// check if the user is logged in to an account with the instructor role
-			if (isNotInstructor() || !await isInstructorAssignedToCourse(courseId))
+            var userId = _contextAccessor.HttpContext.User.GetUserId();
+            // check if the user is logged in to an account with the instructor role
+            if (isNotInstructor() || !await isInstructorAssignedToCourse(courseId, userId))
 			{
 				return StatusCode(StatusCodes.Status403Forbidden);
 			}
@@ -549,8 +555,9 @@ namespace LMSEarlyBird.Controllers
         [HttpPost]
 		public async Task<IActionResult> EditAssignment(int courseId, int assignmentId, CreateAssignmentViewModel viewModel)
         {
-			// check if the user is logged in to an account with the instructor role
-			if (isNotInstructor() || !await isInstructorAssignedToCourse(courseId))
+            var userId = _contextAccessor.HttpContext.User.GetUserId();
+            // check if the user is logged in to an account with the instructor role
+            if (isNotInstructor() || !await isInstructorAssignedToCourse(courseId, userId))
 			{
 				return StatusCode(StatusCodes.Status403Forbidden);
 			}
@@ -742,9 +749,9 @@ namespace LMSEarlyBird.Controllers
             return !User.IsInRole(UserRoles.Teacher);
         }
 
-		private async Task<bool> isInstructorAssignedToCourse(int courseId)
+		private async Task<bool> isInstructorAssignedToCourse(int courseId, string userId)
 		{
-            var userId = _contextAccessor.HttpContext.User.GetUserId();
+            
 			List<Course> courses = await _courseRepository.GetCoursesByTeacher(userId);
 			Course currentCourse = await _courseRepository.GetCourse(courseId);
 			return courses.Contains(currentCourse);

@@ -477,24 +477,25 @@ namespace LMSEarlyBird.Controllers
         /// <returns></returns>
         private double CaclulateCourseGrade(List<StudentAssignment> courseAssignments)
         {
-            decimal dGrade = 0.0m;
+            decimal dSumMax = 0.0m;
             int count = 0;
+            decimal dSumPoints = 0.0m;
             foreach (var assignment in courseAssignments)
             {
                 if (assignment.Graded)
                 {
-                    decimal temp = ((decimal)assignment.Score / assignment.Assignment.maxPoints) * 100;
-                    dGrade += temp;
+                    dSumPoints += assignment.Score;
+                    dSumMax += assignment.Assignment.maxPoints;
                     count++;
                 }
             }
 
-            if (count > 0)
+            if (count > 0 && dSumMax > 0)
             {
-                dGrade = dGrade / count;
+                dSumPoints = dSumPoints / dSumMax * 100;
             }
 
-            double grade = (double)dGrade;
+            double grade = (double)dSumPoints;
             grade = Math.Round(grade, 2);
 
             return grade;

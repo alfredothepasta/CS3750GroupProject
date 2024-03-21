@@ -22,11 +22,11 @@ namespace LMSEarlyBird.Controllers
         /// <summary>
         /// Context for accessing the assignments database
         /// </summary>
-        private readonly IAssignmentsRepository _assignmentRepository;
+        private readonly IAssignmentsRepository? _assignmentRepository;
 
         public PaymentController(IHttpContextAccessor contextAccessor, 
             IBalanceRepository balanceRepository,
-            IAssignmentsRepository assignmentsRepository)
+            IAssignmentsRepository? assignmentsRepository = null)
         {
             _contextAccessor = contextAccessor;
             _balanceRepository = balanceRepository;

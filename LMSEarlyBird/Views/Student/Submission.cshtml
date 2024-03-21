@@ -41,10 +41,10 @@
         <div class="p-2 text-right" style="order: 2; flex: 2; min-width: 250px; max-width: 300px;">
             <div class="mb-3 text-left">
                 @if(Model.Graded){
-                    <p class="form-label" style="font-weight: bold;">Graded: @Model.Score/@Model.MaxPoints</p>
+                    <h3 class="form-label" style="font-weight: bold;">Graded: @Model.Score/@Model.MaxPoints</h3>
                 }
                 else{
-                    <p class="form-label" style="font-weight: bold;">Not Graded</p>
+                    <h3 class="form-label" style="font-weight: bold;">Not Graded</h3>
                 }
             </div>
             <div class="mb-3 text-left">
@@ -85,37 +85,46 @@
     </form>
     
 </div>
-<head>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
-        google.charts.load('current', { 'packages': ['bar'] });
+        google.charts.load("current", { packages: ['corechart'] });
         google.charts.setOnLoadCallback(drawChart);
-
         function drawChart() {
             var data = google.visualization.arrayToDataTable([
-                ['Grade', "Grade", { role: 'style' }],
-                ['Your Grade', @Model.Score, 'color: #4287f5'],
-                ['Average Grade', @Model.classAverage, 'color: #a5b5c4'],
-                ['Highest Grade', @Model.classMaxScore, 'color: #a5b5c4']
+                ["Score range", "Number of students", { role: "style" }],
+                ["0%-20%", @Model.num20p, "red"],
+                ["20%-40%", @Model.num40p, "red"],
+                ["40%-60%", @Model.num60p, "red"],
+                ["60%-80%", @Model.num80p, "green"],
+                ["80%-100%", @Model.num100p, "green"]
             ]);
 
-            var options = {
-                chart: {
-                    title: 'Assigment Performance',
+            var view = new google.visualization.DataView(data);
+            view.setColumns([0, 1,
+                {
+                    calc: "stringify",
+                    sourceColumn: 1,
+                    type: "string",
+                    role: "annotation"
                 },
-                bars: 'horizontal' // Required for Material Bar Charts.
+                2]);
+
+            var options = {
+                title: "Class performance on '@Model.Title'",
+                width: 600,
+                height: 400,
+                bar: { groupWidth: "95%" },
+                legend: { position: "none" },
             };
-
-            var chart = new google.charts.Bar(document.getElementById('barchart_material'));
-
-            chart.draw(data, google.charts.Bar.convertOptions(options));
+            var chart = new google.visualization.ColumnChart(document.getElementById("columnchart_values"));
+            chart.draw(view, options);
         }
     </script>
-</head>
-<body>
     @if (Model.Graded)
     {
-        <div class="container" id="barchart_material" style="width: 700px; height: 300px;"></div>        
+        <div class="container" id="columnchart_values" style="width: 900px; height: 300px;"></div>    
     }
-</body>
+        </br>
+        </br>
+
 

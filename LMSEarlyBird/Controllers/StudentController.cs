@@ -480,6 +480,7 @@ namespace LMSEarlyBird.Controllers
             decimal dSumMax = 0.0m;
             int count = 0;
             decimal dSumPoints = 0.0m;
+
             foreach (var assignment in courseAssignments)
             {
                 if (assignment.Graded)
@@ -525,40 +526,47 @@ namespace LMSEarlyBird.Controllers
 
             // get data for graph
             List<StudentAssignment> classAssignments = await _assignmentsRepository.GetSubmittedAssignmentsByAssignment(assignmentId);
-            int classAverage = 0;
-            int classMaxScore = 0;
-            int classMinScore = assignment.maxPoints;
             int numGradedAssignments = 0;
+            int num20p = 0;
+            int num40p = 0;
+            int num60p = 0;
+            int num80p = 0;
+            int num100p = 0;
 
             if (studentAssignment.Graded)
             {
                 // loop through every assigment that was graded
                 foreach (var classAssignment in classAssignments)
                 {
+                    decimal assignmentGrade = 0.0m;
+
                     if (classAssignment.Graded)
                     {
-                        numGradedAssignments++;
-
-                        // add up all the students points
-                        classAverage += classAssignment.Score;
-
-                        // find the highest score
-                        if (classAssignment.Score > classMaxScore)
+                        if(classAssignment.Assignment.maxPoints > 0)
                         {
-                            classMaxScore = classAssignment.Score;
+                           assignmentGrade = (decimal) classAssignment.Score / (decimal) classAssignment.Assignment.maxPoints * 100;
                         }
-
-                        // find the lowest score
-                        if (classAssignment.Score < classMinScore)
+                        if(assignmentGrade >= 0 && assignmentGrade <= 20.00m)
                         {
-                            classMinScore = classAssignment.Score;
+                            num20p++;
+                        }
+                        else if(assignmentGrade > 20.00m && assignmentGrade <= 40.00m)
+                        {
+                            num40p++;
+                        }
+                        else if (assignmentGrade > 40.00m && assignmentGrade <= 60.00m)
+                        {
+                            num60p++;
+                        }
+                        else if (assignmentGrade > 60.00m && assignmentGrade <= 80.00m)
+                        {
+                            num80p++;
+                        }
+                        else if (assignmentGrade > 80.00m && assignmentGrade <= 100.00m)
+                        {
+                            num100p++;
                         }
                     }
-                }
-                if(numGradedAssignments > 0)
-                {
-                    // calculate the class average
-                    classAverage = classAverage / numGradedAssignments;
                 }
             }
 
@@ -578,9 +586,11 @@ namespace LMSEarlyBird.Controllers
                 CourseId = assignment.CourseId,
                 StudentId = studentAssignment.StudentId,
                 StudentAssignment = assignments,
-                classAverage = classAverage,
-                classMaxScore = classMaxScore,
-                classMinScore = classMinScore,
+                num20p = num20p,
+                num40p = num40p,
+                num60p = num60p,
+                num80p = num80p,
+                num100p = num100p,
             };
 
             if(studentAssignment.Submitted){

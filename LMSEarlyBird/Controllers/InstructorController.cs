@@ -64,9 +64,11 @@ namespace LMSEarlyBird.Controllers
             _cache = cache;
         }
 
-        #endregion  
+        #endregion
 
         #region CourseListAndCreation
+
+        #region Course List
         [HttpGet]
         public async Task<IActionResult> CourseList()
         {
@@ -75,17 +77,49 @@ namespace LMSEarlyBird.Controllers
             {
                 return RedirectToAction("Dashboard", "User");
             }
-            
+
             // get the current users's roles for accessing the courses associated with them in the db
             var instructorId = _contextAccessor.HttpContext.User.GetUserId();
             // get the courses associated with the user
             List<Course> courses = await _courseRepository.GetCoursesByTeacher(instructorId);
-            // now how do I pass those courses in.... 
+            Dictionary<string, double> avgCourseScore = new Dictionary<string, double>();
+            
+            foreach(Course course in courses)
+            {
+                List<StudentAssignment> studentAssingments = await _assignmentRepository.GetStudentAssignmentsByCourse(course.id);
 
+                double gradedSum = 0;
+                double maxGradedSum = 0;
+                double averageGrade = 0;
 
-            return View(courses);
+                foreach (StudentAssignment individualAssignment in studentAssingments)
+                {
+                    if (individualAssignment.Graded)
+                    {
+                        gradedSum += individualAssignment.Score;
+                        maxGradedSum += individualAssignment.Assignment.maxPoints;
+                    }
+                }
+                
+                if(maxGradedSum > 0)
+                {
+                    averageGrade = gradedSum / maxGradedSum * 100;
+                }
+
+                string key = $"{course.Department.DeptCode} {course.CourseNumber} {course.CourseName}";
+                avgCourseScore[key] = averageGrade;
+            }
+
+            CourseListViewModel viewModel = new CourseListViewModel()
+            {
+                Courses = courses,
+                AvgScorePerCourse = avgCourseScore
+            };
+
+            return View(viewModel);
 
         }
+        #endregion
 
         #region Add Course
         [HttpGet]
@@ -556,10 +590,26 @@ namespace LMSEarlyBird.Controllers
 
             List<AppUser> registeredStudents = await _studentCourseRepository.GetStudentsByCourse(courseId);
             List<StudentAssignment> studentAssignments = new List<StudentAssignment>();
+            Assignment assignment = await _assignmentRepository.GetAssignmentById(assignmentId);
+            
+            double maxGrade = 0;
+            double minGrade = assignment.maxPoints;
+            double avgGrade = 0;
+            double gradeSum = 0;
+            int numGraded = 0;
+
 
             foreach (var student in registeredStudents)
             {
                 StudentAssignment studentAssignment = await _assignmentRepository.GetStudentAssignment(student.Id,assignmentId);
+
+                if (studentAssignment.Graded)
+                {
+                    if(studentAssignment.Score < minGrade) minGrade = studentAssignment.Score;
+                    if(studentAssignment.Score > maxGrade) maxGrade = studentAssignment.Score;
+                    gradeSum += studentAssignment.Score;
+                    numGraded++;
+                }
 
                 if (studentAssignment.Submitted)
                 {
@@ -567,11 +617,17 @@ namespace LMSEarlyBird.Controllers
                 }
             }
 
+            if(numGraded == 0) minGrade = 0;
+            if(studentAssignments.Count > 0) avgGrade = gradeSum / studentAssignments.Count;
+
             AssignmentSubmissionsListViewModel viewModel = new AssignmentSubmissionsListViewModel
             {
                 Course = await _courseRepository.GetCourse(courseId),
                 Assignment = await _assignmentRepository.GetAssignment(assignmentId),
-                Assignments = studentAssignments
+                Assignments = studentAssignments,
+                MinimumGrade = minGrade,
+                MaximumGrade = maxGrade,
+                AverageGrade = avgGrade,
             };
             return View(viewModel);
         }

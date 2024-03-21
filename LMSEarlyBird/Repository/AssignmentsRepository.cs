@@ -121,6 +121,32 @@ namespace LMSEarlyBird.Repository
         }
 
         /// <summary>
+        /// Overload that gets all student assignments from a given course
+        /// </summary>
+        /// <param name="courseId"></param>
+        /// <returns></returns>
+        public async Task<List<StudentAssignment>> GetStudentAssignmentsByCourse(int courseId)
+        {
+            var assignmentsList = await _context.Assignments.
+                Where(a => a.CourseId == courseId).
+                Include(x => x.StudentAssignments).
+                ToListAsync();
+            
+            List<StudentAssignment> studentAssignments = new List<StudentAssignment>();
+            
+            foreach(Assignment assignment in assignmentsList)
+            {
+                foreach(StudentAssignment studentAssignment in assignment.StudentAssignments)
+                {
+                    studentAssignments.Add(studentAssignment);
+                }
+            }
+
+
+            return studentAssignments;
+        }
+
+        /// <summary>
         /// returns all of the StudentAssignments submitted given the assignment id
         /// </summary>
         /// <param name="assignmentId"></param>

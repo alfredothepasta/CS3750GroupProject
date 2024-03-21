@@ -1,5 +1,5 @@
-﻿@using LMSEarlyBird.Models  
-@model List<Course>
+﻿@using LMSEarlyBird.ViewModels  
+@model CourseListViewModel
 
 @{
     ViewData["Title"] = "Dashboard";
@@ -7,17 +7,48 @@
 
 <h1>Your Courses</h1>
 
-@* <p>
-    <a asp-page="Create">Create New</a>
-</p> *@
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+    google.charts.load('current', { 'packages': ['corechart'] });
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+            ['Class', 'Average Grade', { role: 'style' }],
+    @foreach(KeyValuePair<string, double> entry in Model.AvgScorePerCourse)
+    {
+        string key = $"{entry.Key}";
+        string value = $"{entry.Value}";
+        <text>['@key', @value, 'color:gray'],
+        </text>
+    }
+        ]);
+
+        var options = {
+            title: "Average Grade Per Course",
+            width: 600,
+            height: 400,
+            bar: { groupWidth: "95%" },
+            legend: { position: "none" },
+            hAxis: {
+                title: '% Score of All Students',
+                minValue: 0,
+                maxValue: 100
+            },
+        };
+        var chart = new google.visualization.BarChart(document.getElementById("avgGradeChart"));
+        chart.draw(data, options);
+    }
+</script>
+
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model[0].CourseNumber)
+                @Html.DisplayNameFor(model => model.Courses[0].CourseNumber)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model[0].CourseName)
+                @Html.DisplayNameFor(model => model.Courses[0].CourseName)
             </th>
             <th>
 				Details
@@ -31,7 +62,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in Model.Courses)
         {
             <tr>
                         <td>
@@ -65,3 +96,4 @@
             </td>
     </tbody>
 </table>
+<div id="avgGradeChart" />

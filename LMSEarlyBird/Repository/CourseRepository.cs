@@ -58,6 +58,7 @@ namespace LMSEarlyBird.Repository{
         public async Task<List<Course>> GetCoursesByTeacher(string teacherId)
         {
             return await _context.Courses
+                .Include(x => x.Department)
                 .Where(c => c.InstructorCourses
                     .Where(i => i.UserId == teacherId)
                     .Any())

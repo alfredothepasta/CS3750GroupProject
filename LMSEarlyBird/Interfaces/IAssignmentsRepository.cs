@@ -9,6 +9,8 @@ namespace LMSEarlyBird.Interfaces
         Task<List<StudentAssignment>> GetStudentAssignments(string studentId);
         Task<List<StudentAssignment>> GetStudentAssignmentsByCourse(string studentId, int courseId);
 
+        Task<List<StudentAssignment>> GetStudentAssignmentsByCourse(int courseId);
+
         Task<StudentAssignment> GetStudentAssignment(string studentId, int assignmentId);
 
         Task<Assignment> GetAssignment(int assignmentId);

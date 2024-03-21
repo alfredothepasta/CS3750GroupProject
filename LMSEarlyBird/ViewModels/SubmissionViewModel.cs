@@ -36,9 +36,11 @@ namespace LMSEarlyBird.ViewModels
         public IFormFile? File { get; set; }
 
         public List<StudentAssignment> StudentAssignment { get; set; } = new List<StudentAssignment>();
-      
-        public int classMaxScore { get; set;}
-        public int classMinScore { get; set;}
-        public int classAverage { get; set;}
+
+        public int num20p { get; set; }
+        public int num40p { get; set; }
+        public int num60p { get; set; }
+        public int num80p { get; set; }
+        public int num100p { get; set; }
     }
 }

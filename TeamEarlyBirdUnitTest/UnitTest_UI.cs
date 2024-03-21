@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using Stripe;
 
 namespace TeamEarlyBirdUnitTest
 {
@@ -54,6 +55,56 @@ namespace TeamEarlyBirdUnitTest
 
             // Close the browser
             driver.Quit();
+        }
+
+        [TestMethod]
+        public void StudentCanSignUp_UI_TEST()
+        {
+            IWebDriver driver = new ChromeDriver();
+
+            driver.Navigate().GoToUrl("https://lmsearlybird20240227112424.azurewebsites.net/Account/Login");
+
+            IWebElement signUpBtn = driver.FindElement(By.XPath("//a[@class='btn btn-primary' and text()='Sign Up']"));
+
+            signUpBtn.Click();
+
+            IWebElement email = driver.FindElement(By.Id("EmailAddress"));
+            IWebElement firstName = driver.FindElement(By.Id("FirstName"));
+            IWebElement lastName = driver.FindElement(By.Id("LastName"));
+            IWebElement birthDate = driver.FindElement(By.Id("BirthDate"));
+            IWebElement password = driver.FindElement(By.Id("Password"));
+            IWebElement confirmPassword = driver.FindElement(By.Id("ConfirmPassword"));
+            IWebElement selectRole = driver.FindElement(By.Id("UserRole"));
+            IWebElement submit = driver.FindElement(By.XPath("//input[@class='btn btn-outline-success float-right']"));
+
+            Random random = new Random();
+            int rand = random.Next(1, 10000);
+
+            string randEmail = "random" + rand.ToString() + "@gmail.com";
+
+            email.SendKeys(randEmail);
+            firstName.SendKeys("Computer");
+            lastName.SendKeys("Jones");
+            birthDate.SendKeys("01/01/2000");
+            password.SendKeys("P@ssword99");
+            confirmPassword.SendKeys("P@ssword99");
+            selectRole.SendKeys("Student");
+            submit.Click();
+
+            IWebElement username = driver.FindElement(By.Id("EmailAddress"));
+            IWebElement loginPasword = driver.FindElement(By.Id("Password"));
+            IWebElement loginBtn = driver.FindElement(By.XPath("//button[@class='btn btn-primary' and text()='Login']"));
+
+            username.SendKeys(randEmail);
+            loginPasword.SendKeys("P@ssword99");
+
+            loginBtn.Click();
+
+            Assert.IsTrue(driver.Url.Contains("Dashboard"));
+
+            // Close the browser
+            //driver.Quit();
+
         }
     }
 }

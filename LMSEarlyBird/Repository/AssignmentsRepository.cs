@@ -136,6 +136,16 @@ namespace LMSEarlyBird.Repository
             return studentAssignments;
         }
 
+        /// <summary>
+        /// returns all of the StudentAssignments submitted given the assignment id
+        /// </summary>
+        /// <param name="assignmentId"></param>
+        /// <returns></returns>
+        public async Task<List<StudentAssignment>> GetSubmittedAssignmentsByAssignment(int assignmentId)
+        {
+            return await _context.StudentAssignments.Where(c => c.Graded && c.AssignmentId == assignmentId).ToListAsync();
+        }
+
         public async Task<bool> RemoveAssignment(Assignment assignment)
         {
             List<StudentAssignment> studentAssignments = await _context.StudentAssignments.

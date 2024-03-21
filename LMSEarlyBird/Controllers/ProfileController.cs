@@ -32,14 +32,19 @@ namespace LMSEarlyBird.Controllers
         /// Context for accessing the user links
         /// </summary>
         private readonly ILinksRepository _linksRepository;
+        /// <summary>
+        /// Context for accessing the assignments database
+        /// </summary>
+        private readonly IAssignmentsRepository _assignmentRepository;
 
         public ProfileController(IAddressRepository addressRepository, IUserIdentityService userIdentityService,
-            IAppUserRepository appUserRepository, ILinksRepository linksRepository)
+            IAppUserRepository appUserRepository, ILinksRepository linksRepository, IAssignmentsRepository assignmentRepository)
         {
             _addressRepository = addressRepository;
             _userIdentityService = userIdentityService;
             _appUserRepository = appUserRepository;
             _linksRepository = linksRepository;
+            _assignmentRepository = assignmentRepository;
         }
 
         [HttpGet]
@@ -89,6 +94,9 @@ namespace LMSEarlyBird.Controllers
                 _linksRepository.addUserLinks(userLinks);
             }
 
+            // provide a list of assignments for the user for the _Layout to display for the notifications
+            List<StudentAssignment> assignments = await _assignmentRepository.GetStudentAssignments(userId);
+
             // build the model view
             var profileVM = new EditProfileViewModel
             {
@@ -98,7 +106,8 @@ namespace LMSEarlyBird.Controllers
                 LastName = profile.LastName,
                 AddressId = userAddress.Id,
                 Address = userAddress,
-                Links = userLinks
+                Links = userLinks,
+                StudentAssignment = assignments
             };
             return View(profileVM);
         }
@@ -142,6 +151,9 @@ namespace LMSEarlyBird.Controllers
                 _linksRepository.addUserLinks(userLinks);
             }
 
+            // provide a list of assignments for the user for the _Layout to display for the notifications
+            List<StudentAssignment> assignments = await _assignmentRepository.GetStudentAssignments(userId);
+
             // build the model view
             var profileVM = new EditProfileViewModel
             {
@@ -151,7 +163,8 @@ namespace LMSEarlyBird.Controllers
                 LastName = profile.LastName,
                 AddressId = userAddress.Id,
                 Address = userAddress,
-                Links = userLinks
+                Links = userLinks,
+                StudentAssignment = assignments
             };
             return View(profileVM);
         }

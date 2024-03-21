@@ -47,25 +47,117 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Profile" asp-action="DisplayProfile">Profile</a>
                             </li>
 
-                            @if(User.IsInRole(LMSEarlyBird.Data.UserRoles.Student))
+                            @if (User.IsInRole(LMSEarlyBird.Data.UserRoles.Student))
                             {
                                 <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Student" asp-action="Registration">Register</a>
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Student" asp-action="Registration">Register</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" asp-area="" asp-controller="Payment" asp-action="PaymentPage">Make Payment</a>
                                 </li>
+
+                                bool notified = false;
+
+                                if (Model != null)
+                                {
+                                    foreach (var assignment in Model.StudentAssignment)
+                                    {
+                                        if (assignment.GradedNotification || assignment.CreatedNotification && !assignment.Submitted)
+                                        {
+                                            notified = true;
+                                            break;
+                                        }
+                                    }
+                                    if (notified) // gather notifications and use the notification icon
+                                    {
+                                        // gather the user id for assignment information for removal of notifications
+                                        var UserId = User.GetUserId();
+
+                                        <li class="nav-item ml-auto notification">
+                                            <div class="dropdown">
+                                                <img src="~/images/BellNotificationIcon.png" alt="You Have New Notifications" width="35px">
+                                                <div class="dropdown-content">
+
+                                                    @{
+                                                        DateTime localDate = DateTime.Now;
+                                                    }
+
+                                                    @* Create List of new Assignments *@
+                                                    @foreach (var assignment in Model.StudentAssignment)
+                                                    {
+                                                        @if (assignment.CreatedNotification && !assignment.Submitted)
+                                                        {
+                                                            <div class="row m-1 border border-secondary">
+                                                                <div class="col-7">
+                                                                    <p class="text-success mb-0">New Assignment</p>
+                                                                    <a class="mt-0" asp-controller="Student" asp-action="Submission" asp-route-assignmentId="@assignment.Assignment.Id">@assignment.Assignment.Title</a>
+                                                                    @if (localDate > assignment.Assignment.DueDate)
+                                                                    {
+                                                                        <p class="text-danger my-0">Due: @assignment.Assignment.DueDate</p>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <p class="my-0">Due: @assignment.Assignment.DueDate</p>
+                                                                    }
+                                                                </div>
+                                                                <div class="col-5 my-auto">
+                                                                    <a href="@Url.Action("MarkAsUnderstood", "Student" , new { studentId = UserId, assignmentId = assignment.AssignmentId })" class="btn btn-danger text-white">Mark Read</a>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    }
+
+                                                    @* Create List of graded Assignments *@
+                                                    @foreach (var assignment in Model.StudentAssignment)
+                                                    {
+                                                        @if (assignment.GradedNotification)
+                                                        {
+                                                            <div class="row m-1 border border-secondary">
+                                                                <div class="col-7">
+                                                                    <p class="text-success mb-0">Assignment Graded</p>
+                                                                    <a class="mt-0" asp-controller="Student" asp-action="Submission" asp-route-assignmentId="@assignment.Assignment.Id">@assignment.Assignment.Title</a>
+                                                                    <p class="my-0">Score: @assignment.Score / @assignment.Assignment.maxPoints</p>
+                                                                </div>
+                                                                <div class="col-5 my-auto">
+                                                                    <a href="@Url.Action("MarkAsGradedUnderstood", "Student" , new { studentId = UserId, assignmentId = assignment.AssignmentId })" class="btn btn-danger text-white">Mark Read</a>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    }
+
+                                                </div>
+                                            </div>
+                                            
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        <li class="nav-item ml-auto notification">
+                                            <a asp-area="" asp-controller="User" asp-action="Dashboard"><img style="width: 35px;" src="~/images/BellIcon.png" /></a>
+                                        </li>
+                                    }
+
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">Logout</a>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li class="nav-item ml-auto">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">Logout</a>
+                                    </li>
+                                }
                             }
                             else if (User.IsInRole(LMSEarlyBird.Data.UserRoles.Teacher))
                             {
                                 <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Instructor" asp-action="CourseList">Courses</a>
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Instructor" asp-action="CourseList">Courses</a>
+                                </li>
+
+                                <li class="nav-item ml-auto">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">Logout</a>
                                 </li>
                             }
-
-                            <li class="nav-item ml-auto">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">Logout</a>
-                            </li>
                         } else {
                             
                             <li class="nav-item">

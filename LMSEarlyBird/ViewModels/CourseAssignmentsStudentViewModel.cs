@@ -9,6 +9,8 @@ namespace LMSEarlyBird.ViewModels
         public string LetterGrade { get; set; }
         public List<StudentAssignment>? Assignments { get; set; }
 
+
+        public List<StudentAssignment> StudentAssignment { get; set; } = new List<StudentAssignment>();
         public int numA { get; set; }
         public int numAm { get; set; }
         public int numBp { get; set; }

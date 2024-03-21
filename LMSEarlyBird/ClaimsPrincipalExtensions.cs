@@ -1,4 +1,7 @@
-﻿using System.Security.Claims;
+﻿using LMSEarlyBird.Data;
+using LMSEarlyBird.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace LMSEarlyBird
 {

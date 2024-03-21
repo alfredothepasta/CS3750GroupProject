@@ -4,6 +4,8 @@ using LMSEarlyBird.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Stripe.Checkout;
 using Stripe;
+using LMSEarlyBird.Repository;
+using Microsoft.Extensions.FileSystemGlobbing;
 
 namespace LMSEarlyBird.Controllers
 {
@@ -17,11 +19,18 @@ namespace LMSEarlyBird.Controllers
         /// Context accessor for reading session data
         /// </summary>
         private readonly IHttpContextAccessor _contextAccessor;
+        /// <summary>
+        /// Context for accessing the assignments database
+        /// </summary>
+        private readonly IAssignmentsRepository _assignmentRepository;
 
-        public PaymentController(IHttpContextAccessor contextAccessor, IBalanceRepository balanceRepository)
+        public PaymentController(IHttpContextAccessor contextAccessor, 
+            IBalanceRepository balanceRepository,
+            IAssignmentsRepository assignmentsRepository)
         {
             _contextAccessor = contextAccessor;
             _balanceRepository = balanceRepository;
+            _assignmentRepository = assignmentsRepository;
         }
 
         // gather the current balance for the user and pass it on to the payment page
@@ -34,14 +43,19 @@ namespace LMSEarlyBird.Controllers
             // gather the current balance for the user
             decimal currentBalance = await _balanceRepository.GetCurrentBalance(userId);
 
+            // provide a list of assignments for the user for the _Layout to display for the notifications
+            List<StudentAssignment> assignments = await _assignmentRepository.GetStudentAssignments(userId);
+
             // insert the current balance into the view
             PaymentViewModel paymentVM = new PaymentViewModel
             {
-                CurrentBalance = currentBalance
-            };
+                CurrentBalance = currentBalance,
+                StudentAssignment = assignments
+        };
             // gather the current ballance history and place it into the view
             List<BalanceHistory> balances = await _balanceRepository.GetBalanceHistory(userId);
             paymentVM.Payments = balances;
+
 
             return View(paymentVM);
         }
@@ -77,6 +91,11 @@ namespace LMSEarlyBird.Controllers
             // create a new balance update for the payment
             await _balanceRepository.UpdateBalancePayment(userId, paymentVM.PaymentAmount, reciept.Id);
 
+            // provide a list of assignments for the user for the _Layout to display for the notifications
+            List<StudentAssignment> assignments = await _assignmentRepository.GetStudentAssignments(userId);
+
+            paymentVM.StudentAssignment = assignments;
+
             // pass on the payment view model for the payment amount
             return View(paymentVM);
         }
@@ -92,10 +111,16 @@ namespace LMSEarlyBird.Controllers
         [HttpGet]
         public async Task<IActionResult> Checkout(decimal paymentAmount)
         {
+            // gather the user id
+            var userId = _contextAccessor.HttpContext.User.GetUserId();
+            // provide a list of assignments for the user for the _Layout to display for the notifications
+            List<StudentAssignment> assignments = await _assignmentRepository.GetStudentAssignments(userId);
+
             //gather the payment amount and place into a new view model so that we don't include the balance as well
             PaymentViewModel paymentVM2 = new PaymentViewModel
             {
-                PaymentAmount = paymentAmount
+                PaymentAmount = paymentAmount,
+                StudentAssignment = assignments
             };
 
             return View(paymentVM2);
@@ -105,7 +130,17 @@ namespace LMSEarlyBird.Controllers
         [HttpGet]
         public async Task<IActionResult> Cancel()
         {
-            return View();
+            // gather the user id
+            var userId = _contextAccessor.HttpContext.User.GetUserId();
+            // provide a list of assignments for the user for the _Layout to display for the notifications
+            List<StudentAssignment> assignments = await _assignmentRepository.GetStudentAssignments(userId);
+
+            PaymentViewModel paymentVM = new PaymentViewModel
+            {
+                StudentAssignment = assignments
+            };
+
+            return View(paymentVM);
         }
 
         // pass on the payment view model for the payment amount to the payment page
@@ -114,13 +149,17 @@ namespace LMSEarlyBird.Controllers
         {
             var userId = _contextAccessor.HttpContext.User.GetUserId();
 
+            // provide a list of assignments for the user for the _Layout to display for the notifications
+            List<StudentAssignment> assignments = await _assignmentRepository.GetStudentAssignments(userId);
+
             // gather the current balance for the user
             decimal currentBalance = await _balanceRepository.GetCurrentBalance(userId);
             // insert the current balance and payment amount into the view
             PaymentViewModel paymentVM = new PaymentViewModel
             {
                 PaymentAmount = paymentAmount,
-                CurrentBalance = currentBalance
+                CurrentBalance = currentBalance,
+                StudentAssignment = assignments
             };
 
             // check to verify the user has entered an amount to pay

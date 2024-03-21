@@ -68,6 +68,16 @@ namespace LMSEarlyBird.Controllers
             result.DepartmentNames = departmentNames;
 
             result.Courses = await GetRegisterCourseViewModels();
+
+            // pull user based on logged in user
+            string userId = _userIdentityService.GetUserId();
+            AppUser profile = await _appUserRepository.GetUser(userId);
+
+            // provide a list of assignments for the user for the _Layout to display for the notifications
+            List<StudentAssignment> assignments = await _assignmentsRepository.GetStudentAssignments(userId);
+
+            result.StudentAssignment = assignments;
+
             return View(result);
         }  
         public async Task<IActionResult> Search(string? query, string? category)
@@ -92,6 +102,16 @@ namespace LMSEarlyBird.Controllers
 
             //Get filtered list of courses         
             result.Courses = await GetRegisterCourseViewModels(query, category);
+
+            // pull user based on logged in user
+            string userId = _userIdentityService.GetUserId();
+            AppUser profile = await _appUserRepository.GetUser(userId);
+
+            // provide a list of assignments for the user for the _Layout to display for the notifications
+            List<StudentAssignment> assignments = await _assignmentsRepository.GetStudentAssignments(userId);
+
+            result.StudentAssignment = assignments;
+
             return View("Registration", result);
         }    
 
@@ -259,6 +279,8 @@ namespace LMSEarlyBird.Controllers
 
             courseAssignments = courseAssignments.OrderBy(x => x.Assignment.DueDate).ToList();
 
+            // provide a list of assignments for the user for the _Layout to display for the notifications
+            List<StudentAssignment> assignments = await _assignmentsRepository.GetStudentAssignments(userid);
 
             // CALCULATE GRADES *******************
 
@@ -427,6 +449,8 @@ namespace LMSEarlyBird.Controllers
             {
                 Course = await _courseRepository.GetCourse(courseid),
                 Assignments = courseAssignments,
+                StudentAssignment = assignments
+            };
                 Grade = grade,
                 LetterGrade = letterGrade,
                 numA = numA,
@@ -496,6 +520,8 @@ namespace LMSEarlyBird.Controllers
 
             var assignment = await _assignmentsRepository.GetAssignment(assignmentId);
 
+            // provide a list of assignments for the user for the _Layout to display for the notifications
+            List<StudentAssignment> assignments = await _assignmentsRepository.GetStudentAssignments(userid);
 
             // get data for graph
             List<StudentAssignment> classAssignments = await _assignmentsRepository.GetSubmittedAssignmentsByAssignment(assignmentId);
@@ -551,6 +577,7 @@ namespace LMSEarlyBird.Controllers
                 FileName = studentAssignment.FileName,
                 CourseId = assignment.CourseId,
                 StudentId = studentAssignment.StudentId,
+                StudentAssignment = assignments
                 classAverage = classAverage,
                 classMaxScore = classMaxScore,
                 classMinScore = classMinScore,
@@ -625,11 +652,26 @@ namespace LMSEarlyBird.Controllers
             return RedirectToAction(nameof(Course), new { courseid = assignment.CourseId });
         }
 
+        // used to mark new assignment as understood
+        public async Task<IActionResult> MarkAsUnderstood(int assignmentId)
+        {
+            var userid = _userIdentityService.GetUserId();
+            _assignmentsRepository.ChangeAssignmentNewStatusRead(userid, assignmentId);
+            return RedirectToAction("Dashboard", "User");
+        }
+
+        // used to mark graded assignment as understood
+        public async Task<IActionResult> MarkAsGradedUnderstood(int assignmentId)
+        {
+            var userid = _userIdentityService.GetUserId();
+            _assignmentsRepository.ChangeAssignmentGradedStatusRead(userid, assignmentId);
+            return RedirectToAction("Dashboard", "User");
+        }
+
         //validation
         private bool isNotStudent()
         {
             return !User.IsInRole(UserRoles.Student);
         }
-
     }
 }

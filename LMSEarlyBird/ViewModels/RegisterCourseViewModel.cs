@@ -1,3 +1,4 @@
+using LMSEarlyBird.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,5 +20,7 @@ namespace LMSEarlyBird.ViewModels
         public string Department { get; set; } = string.Empty;
 
         public string DaysOfWeek { get; set; } = string.Empty;
+
+        public List<StudentAssignment> StudentAssignment { get; set; } = new List<StudentAssignment>();
     }
 }

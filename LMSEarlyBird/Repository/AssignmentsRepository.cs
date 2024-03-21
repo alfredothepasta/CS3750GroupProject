@@ -117,13 +117,19 @@ namespace LMSEarlyBird.Repository
         /// <returns></returns>
         public async Task<List<StudentAssignment>> GetStudentAssignmentsByCourse(int courseId)
         {
-            var assignmentsList = await _context.Assignments.Where(a => a.CourseId == courseId).Include(x => x.StudentAssignments).ToListAsync();
+            var assignmentsList = await _context.Assignments.
+                Where(a => a.CourseId == courseId).
+                Include(x => x.StudentAssignments).
+                ToListAsync();
             
             List<StudentAssignment> studentAssignments = new List<StudentAssignment>();
             
             foreach(Assignment assignment in assignmentsList)
             {
-                studentAssignments.Concat(assignment.StudentAssignments);
+                foreach(StudentAssignment studentAssignment in assignment.StudentAssignments)
+                {
+                    studentAssignments.Add(studentAssignment);
+                }
             }
 
 

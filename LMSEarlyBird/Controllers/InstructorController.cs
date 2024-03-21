@@ -99,7 +99,7 @@ namespace LMSEarlyBird.Controllers
                 
                 if(maxGradedSum > 0)
                 {
-                    averageGrade = gradedSum / maxGradedSum;
+                    averageGrade = gradedSum / maxGradedSum * 100;
                 }
 
                 string key = $"{course.Department.DeptCode} {course.CourseNumber} {course.CourseName}";

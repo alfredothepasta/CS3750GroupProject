@@ -449,8 +449,7 @@ namespace LMSEarlyBird.Controllers
             {
                 Course = await _courseRepository.GetCourse(courseid),
                 Assignments = courseAssignments,
-                StudentAssignment = assignments
-            };
+                StudentAssignment = assignments,
                 Grade = grade,
                 LetterGrade = letterGrade,
                 numA = numA,

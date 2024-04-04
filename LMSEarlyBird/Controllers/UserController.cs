@@ -299,7 +299,7 @@ namespace LMSEarlyBird.Controllers
 							// Create a CalendarEvent for the current course and date
 							CalendarEvent calendarEvent = new CalendarEvent
 							{
-								title = course.Department + course.CourseNumber + " " + course.CourseName,
+								title = course.CourseNumber + " " + course.CourseName,
 								start = date + course.StartTime.ToTimeSpan(),
 								end = date + course.EndTime.ToTimeSpan(),
 								backgroundColor = eventColor,

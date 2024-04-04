@@ -106,5 +106,60 @@ namespace TeamEarlyBirdUnitTest
             //driver.Quit();
 
         }
+
+        [TestMethod]
+        public void InstructorCanCreateCourse_UI_TEST()
+        {
+            // do the stuff to log in as a proffessor
+            //Create a driver for Chrome
+            IWebDriver driver = new ChromeDriver();
+
+            driver.Navigate().GoToUrl("https://lmsearlybird20240227112424.azurewebsites.net/Account/Login");
+
+            IWebElement username = driver.FindElement(By.Id("EmailAddress"));
+            IWebElement password = driver.FindElement(By.Id("Password"));
+            IWebElement loginBtn = driver.FindElement(By.XPath("//button[@class='btn btn-primary' and text()='Login']"));
+
+            username.SendKeys("prof@mail.com");
+            password.SendKeys("Test1234*");
+
+            loginBtn.Click();
+
+            IWebElement Courses = driver.FindElement(By.Id("nav_courses"));
+
+            Courses.Click();
+
+            IWebElement NewCourse = driver.FindElement(By.Id("btn_addCourse"));
+
+            NewCourse.Click();
+
+            Assert.IsTrue(driver.Url.Contains("AddCourse"));
+
+        }
+
+        [TestMethod]
+        public void InstructorCanAccessCalendar_UI_TEST()
+        {
+            // do the stuff to log in as a proffessor
+            //Create a driver for Chrome
+            IWebDriver driver = new ChromeDriver();
+
+            driver.Navigate().GoToUrl("https://lmsearlybird20240227112424.azurewebsites.net/Account/Login");
+
+            IWebElement username = driver.FindElement(By.Id("EmailAddress"));
+            IWebElement password = driver.FindElement(By.Id("Password"));
+            IWebElement loginBtn = driver.FindElement(By.XPath("//button[@class='btn btn-primary' and text()='Login']"));
+
+            username.SendKeys("prof@mail.com");
+            password.SendKeys("Test1234*");
+
+            loginBtn.Click();
+
+            IWebElement calendarNavItem = driver.FindElement(By.Id("nav_calendar"));
+
+            calendarNavItem.Click();
+
+            Assert.IsTrue(driver.Url.Contains("Calendar"));
+        }
     }
 }

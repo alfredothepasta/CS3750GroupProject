@@ -41,7 +41,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Calendar">Calendar</a>
+                                <a class="nav-link text-dark" id="nav_calendar" asp-area="" asp-controller="User" asp-action="Calendar">Calendar</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Profile" asp-action="DisplayProfile">Profile</a>
@@ -151,7 +151,7 @@
                             else if (User.IsInRole(LMSEarlyBird.Data.UserRoles.Teacher))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Instructor" asp-action="CourseList">Courses</a>
+                                    <a class="nav-link text-dark" id="nav_courses" asp-area="" asp-controller="Instructor" asp-action="CourseList">Courses</a>
                                 </li>
 
                                 <li class="nav-item ml-auto">

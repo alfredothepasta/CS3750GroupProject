@@ -11,13 +11,16 @@ namespace TeamEarlyBirdUnitTest
     [TestClass]
     public class UnitTest_UI
     {
+        const string URL = "https://localhost:7243";
+        //https://lmsearlybird20240227112424.azurewebsites.net
+
         [TestMethod]
         public void InstructorCanLogin_UI_TEST()
         {
             //Create a driver for Chrome
             IWebDriver driver = new ChromeDriver();
 
-            driver.Navigate().GoToUrl("https://lmsearlybird20240227112424.azurewebsites.net/Account/Login");
+            driver.Navigate().GoToUrl(URL + "/Account/Login");
 
             IWebElement username = driver.FindElement(By.Id("EmailAddress"));
             IWebElement password = driver.FindElement(By.Id("Password"));
@@ -34,13 +37,13 @@ namespace TeamEarlyBirdUnitTest
             driver.Quit();
         }
 
-                [TestMethod]
+        [TestMethod]
         public void StudentCanLogin_UI_TEST()
         {
             //Create a driver for Chrome
             IWebDriver driver = new ChromeDriver();
 
-            driver.Navigate().GoToUrl("https://lmsearlybird20240227112424.azurewebsites.net/Account/Login");
+            driver.Navigate().GoToUrl(URL + "/Account/Login");
 
             IWebElement username = driver.FindElement(By.Id("EmailAddress"));
             IWebElement password = driver.FindElement(By.Id("Password"));
@@ -62,7 +65,7 @@ namespace TeamEarlyBirdUnitTest
         {
             IWebDriver driver = new ChromeDriver();
 
-            driver.Navigate().GoToUrl("https://lmsearlybird20240227112424.azurewebsites.net/Account/Login");
+            driver.Navigate().GoToUrl(URL +  "/Account/Login");
 
             IWebElement signUpBtn = driver.FindElement(By.XPath("//a[@class='btn btn-primary' and text()='Sign Up']"));
 
@@ -103,8 +106,7 @@ namespace TeamEarlyBirdUnitTest
             Assert.IsTrue(driver.Url.Contains("Dashboard"));
 
             // Close the browser
-            //driver.Quit();
-
+            driver.Quit();
         }
 
         [TestMethod]
@@ -114,7 +116,7 @@ namespace TeamEarlyBirdUnitTest
             //Create a driver for Chrome
             IWebDriver driver = new ChromeDriver();
 
-            driver.Navigate().GoToUrl("https://lmsearlybird20240227112424.azurewebsites.net/Account/Login");
+            driver.Navigate().GoToUrl(URL + "/Account/Login");
 
             IWebElement username = driver.FindElement(By.Id("EmailAddress"));
             IWebElement password = driver.FindElement(By.Id("Password"));
@@ -134,7 +136,7 @@ namespace TeamEarlyBirdUnitTest
             NewCourse.Click();
 
             Assert.IsTrue(driver.Url.Contains("AddCourse"));
-
+            driver.Quit();
         }
 
         [TestMethod]
@@ -144,7 +146,7 @@ namespace TeamEarlyBirdUnitTest
             //Create a driver for Chrome
             IWebDriver driver = new ChromeDriver();
 
-            driver.Navigate().GoToUrl("https://lmsearlybird20240227112424.azurewebsites.net/Account/Login");
+            driver.Navigate().GoToUrl(URL + "/Account/Login");
 
             IWebElement username = driver.FindElement(By.Id("EmailAddress"));
             IWebElement password = driver.FindElement(By.Id("Password"));
@@ -160,6 +162,8 @@ namespace TeamEarlyBirdUnitTest
             calendarNavItem.Click();
 
             Assert.IsTrue(driver.Url.Contains("Calendar"));
+
+            driver.Quit();
         }
     }
 }

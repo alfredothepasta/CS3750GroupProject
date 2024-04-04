@@ -5,19 +5,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Policy;
 
 namespace TeamEarlyBirdUnitTest
 {
     [TestClass]
     public class UnitTestUIProfilePayments
     {
+        const string URL = "https://localhost:7243";
+
         [TestMethod]
         public void StudentCanAccessPayment_UI_TEST()
         {
             //Create a driver for Chrome
             IWebDriver driver = new ChromeDriver();
 
-            driver.Navigate().GoToUrl("https://lmsearlybird20240227112424.azurewebsites.net/Account/Login");
+            driver.Navigate().GoToUrl(URL + "/Account/Login");
 
             // elements for logging in
             IWebElement username = driver.FindElement(By.Id("EmailAddress"));
@@ -83,7 +86,7 @@ namespace TeamEarlyBirdUnitTest
             //Create a driver for Chrome
             IWebDriver driver = new ChromeDriver();
 
-            driver.Navigate().GoToUrl("https://lmsearlybird20240227112424.azurewebsites.net/Account/Login");
+            driver.Navigate().GoToUrl(URL + "/Account/Login");
 
             // login elements
             IWebElement username = driver.FindElement(By.Id("EmailAddress"));

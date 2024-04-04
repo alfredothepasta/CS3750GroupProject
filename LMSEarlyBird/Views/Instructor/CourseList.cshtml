@@ -15,6 +15,7 @@
     function drawChart() {
         var data = google.visualization.arrayToDataTable([
             ['Class', 'Average Grade', { role: 'style' }],
+    @*Injectected text to build the JS dynamically*@
     @foreach(KeyValuePair<string, double> entry in Model.AvgScorePerCourse)
     {
         string key = $"{entry.Key}";
@@ -22,6 +23,7 @@
         <text>['@key', @value, 'color:gray'],
         </text>
     }
+    @*End Dynamic script generation*@
         ]);
 
         var options = {
